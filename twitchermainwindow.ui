@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>twitcherMainWindow</class>
+ <widget class="QMainWindow" name="twitcherMainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>369</width>
+    <height>315</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>369</width>
+    <height>315</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>369</width>
+    <height>321</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>twitcher</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="twitcher.qrc">
+    <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="4" column="4" colspan="2">
+     <widget class="QLineEdit" name="lineEditUsername">
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(240, 240, 240);
+selection-background-color: rgb(240, 240, 240);
+alternate-background-color: rgb(240, 240, 240);
+font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(146, 82, 255);
+selection-color: rgb(0, 0, 0);</string>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="20" column="4" colspan="2">
+     <widget class="Line" name="line_4">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="13" column="0">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Broadcast title</string>
+      </property>
+     </widget>
+    </item>
+    <item row="11" column="4" colspan="2">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="14" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Game title</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Username</string>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="5">
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_6">
+        <property name="styleSheet">
+         <string notr="true">font: 75 9pt &quot;MS Shell Dlg 2&quot;;</string>
+        </property>
+        <property name="text">
+         <string>Top Viewers</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLineEdit" name="lineEditViewersTop">
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(240, 240, 240);
+font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(85, 85, 255);
+selection-background-color: rgb(240, 240, 240);
+alternate-background-color: rgb(240, 240, 240);
+selection-color: rgb(0, 0, 0);</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="5" column="4">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_4">
+        <property name="styleSheet">
+         <string notr="true">font: 75 9pt &quot;MS Shell Dlg 2&quot;;</string>
+        </property>
+        <property name="text">
+         <string>Viewers</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLineEdit" name="lineEditViewers">
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(240, 240, 240);
+font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(85, 85, 255);
+selection-background-color: rgb(240, 240, 240);
+alternate-background-color: rgb(240, 240, 240);
+selection-color: rgb(0, 0, 0);</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="15" column="4">
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_7">
+        <property name="styleSheet">
+         <string notr="true">font: 75 9pt &quot;MS Shell Dlg 2&quot;;</string>
+        </property>
+        <property name="text">
+         <string>Viewers</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLineEdit" name="lineEditViewersGame">
+        <property name="toolTip">
+         <string>Only displayed if your game is under the top 100</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(240, 240, 240);
+font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(85, 85, 255);
+selection-background-color: rgb(240, 240, 240);
+alternate-background-color: rgb(240, 240, 240);
+selection-color: rgb(0, 0, 0);</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="4" colspan="2">
+     <widget class="Line" name="line_3">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="5">
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLineEdit" name="lineEditChannelViews">
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(240, 240, 240);
+selection-background-color: rgb(240, 240, 240);
+alternate-background-color: rgb(240, 240, 240);
+font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(85, 85, 255);
+selection-color: rgb(0, 0, 0);</string>
+        </property>
+        <property name="text">
+         <string>0</string>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_5">
+        <property name="styleSheet">
+         <string notr="true">font: 75 9pt &quot;MS Shell Dlg 2&quot;;</string>
+        </property>
+        <property name="text">
+         <string>Channel Views</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="2" column="5">
+     <widget class="QPushButton" name="pushButtonLaunchHexchat">
+      <property name="text">
+       <string>Chat (IRC)</string>
+      </property>
+      <property name="icon">
+       <iconset resource="twitcher.qrc">
+        <normaloff>:/images/hexchat.png</normaloff>:/images/hexchat.png</iconset>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="4">
+     <widget class="QPushButton" name="pushButtonLaunchOBS">
+      <property name="text">
+       <string>OBS</string>
+      </property>
+      <property name="icon">
+       <iconset resource="twitcher.qrc">
+        <normaloff>:/images/obs.png</normaloff>:/images/obs.png</iconset>
+      </property>
+     </widget>
+    </item>
+    <item row="19" column="4" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="pushButtonApplyTitles">
+        <property name="toolTip">
+         <string>Apply Broadcast and Game title on twitch.tv</string>
+        </property>
+        <property name="text">
+         <string>Apply</string>
+        </property>
+        <property name="icon">
+         <iconset resource="twitcher.qrc">
+          <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonCancel">
+        <property name="text">
+         <string>Cancel</string>
+        </property>
+        <property name="icon">
+         <iconset resource="twitcher.qrc">
+          <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButtonClearTitlesOnTwtich">
+        <property name="toolTip">
+         <string>Clear Broadcast and Game title on twitch.tv (Not Playing)</string>
+        </property>
+        <property name="text">
+         <string>Clear</string>
+        </property>
+        <property name="icon">
+         <iconset resource="twitcher.qrc">
+          <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>User stats</string>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="0">
+     <widget class="QLabel" name="label_10">
+      <property name="text">
+       <string>Game stats</string>
+      </property>
+     </widget>
+    </item>
+    <item row="18" column="2" colspan="4">
+     <widget class="Line" name="line_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="22" column="0">
+     <widget class="QLabel" name="label_8">
+      <property name="text">
+       <string>Last Refresh</string>
+      </property>
+     </widget>
+    </item>
+    <item row="22" column="4">
+     <widget class="QLineEdit" name="lineEditLastRefresh">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>5</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(240, 240, 240);
+selection-background-color: rgb(240, 240, 240);
+alternate-background-color: rgb(240, 240, 240);
+font: 75 8pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(0, 170, 127);</string>
+      </property>
+      <property name="text">
+       <string>0</string>
+      </property>
+      <property name="frame">
+       <bool>false</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="22" column="6">
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="13" column="4" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLineEdit" name="lineEditBroadcastTitle">
+        <property name="mouseTracking">
+         <bool>false</bool>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::StrongFocus</enum>
+        </property>
+        <property name="acceptDrops">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">selection-color: rgb(0, 0, 0);
+</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelBroadcastTitleStatus">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="14" column="4" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <item>
+       <widget class="QLineEdit" name="lineEditGameTitle">
+        <property name="styleSheet">
+         <string notr="true">selection-color: rgb(0, 0, 0);</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelGameTitleStatus">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>369</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionSetup_Twitch_Auth"/>
+    <addaction name="actionLog"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="actionRefresh"/>
+    <addaction name="actionSettings"/>
+    <addaction name="actionOBS_Settings"/>
+    <addaction name="actionDashboard_twitch_tv"/>
+    <addaction name="actionApplications_twitch_tv"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="actionGame_stats"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="menuAbout"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionSetup_Twitch_Auth">
+   <property name="icon">
+    <iconset resource="twitcher.qrc">
+     <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
+   </property>
+   <property name="text">
+    <string>Setup Twitch &amp;Auth</string>
+   </property>
+  </action>
+  <action name="actionRefresh">
+   <property name="text">
+    <string>Refresh</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="twitcher.qrc">
+     <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="actionOBS_Settings">
+   <property name="icon">
+    <iconset resource="twitcher.qrc">
+     <normaloff>:/images/obs.png</normaloff>:/images/obs.png</iconset>
+   </property>
+   <property name="text">
+    <string>OBS-Settings</string>
+   </property>
+  </action>
+  <action name="actionDashboard_twitch_tv">
+   <property name="icon">
+    <iconset resource="twitcher.qrc">
+     <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
+   </property>
+   <property name="text">
+    <string>Dashboard</string>
+   </property>
+  </action>
+  <action name="actionApplications_twitch_tv">
+   <property name="icon">
+    <iconset resource="twitcher.qrc">
+     <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
+   </property>
+   <property name="text">
+    <string>Applications</string>
+   </property>
+  </action>
+  <action name="actionGame_stats">
+   <property name="icon">
+    <iconset resource="twitcher.qrc">
+     <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
+   </property>
+   <property name="text">
+    <string>Game stats</string>
+   </property>
+  </action>
+  <action name="actionLog">
+   <property name="icon">
+    <iconset resource="twitcher.qrc">
+     <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Log</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset resource="twitcher.qrc">
+     <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="icon">
+    <iconset resource="twitcher.qrc">
+     <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
+   </property>
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>pushButtonLaunchOBS</tabstop>
+  <tabstop>pushButtonLaunchHexchat</tabstop>
+  <tabstop>pushButtonApplyTitles</tabstop>
+  <tabstop>pushButtonCancel</tabstop>
+  <tabstop>pushButtonClearTitlesOnTwtich</tabstop>
+  <tabstop>lineEditUsername</tabstop>
+  <tabstop>lineEditViewers</tabstop>
+  <tabstop>lineEditChannelViews</tabstop>
+  <tabstop>lineEditViewersGame</tabstop>
+  <tabstop>lineEditViewersTop</tabstop>
+ </tabstops>
+ <resources>
+  <include location="twitcher.qrc"/>
+ </resources>
+ <connections/>
+</ui>
