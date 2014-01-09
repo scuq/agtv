@@ -7,19 +7,25 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>113</height>
+    <height>193</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>113</height>
+    <height>136</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>400</width>
-    <height>113</height>
+    <height>200</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -30,21 +36,7 @@
     <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="2">
-    <widget class="QPushButton" name="pushButtonBrowseOBS">
-     <property name="text">
-      <string>Browse ...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QCheckBox" name="checkBox">
-     <property name="text">
-      <string>Launch with Elevated Privileges (Admin)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
+   <item row="5" column="1">
     <widget class="QPushButton" name="pushButtonApply">
      <property name="text">
       <string>Apply</string>
@@ -55,10 +47,17 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="2">
-    <widget class="QPushButton" name="pushButtonClose">
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="checkBox">
      <property name="text">
-      <string>Close</string>
+      <string>Launch with Elevated Privileges (Admin)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="pushButtonBrowseOBS">
+     <property name="text">
+      <string>Browse ...</string>
      </property>
     </widget>
    </item>
@@ -69,10 +68,31 @@
      </property>
     </widget>
    </item>
+   <item row="5" column="2">
+    <widget class="QPushButton" name="pushButtonClose">
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="1">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Open Broadcaster Software Binary</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="checkBoxWriteTwitcherOBSConfig">
+     <property name="text">
+      <string>Fetch Twitch.tv streamkey and write twitcher OBS config</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QCheckBox" name="checkBoxWriteScenesConfig">
+     <property name="text">
+      <string>Write scenes config</string>
      </property>
     </widget>
    </item>

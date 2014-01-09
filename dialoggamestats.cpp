@@ -1,12 +1,13 @@
 #include "dialoggamestats.h"
 #include "ui_dialoggamestats.h"
-
+#include <QtDebug>
 
 dialogGameStats::dialogGameStats(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dialogGameStats)
 {
     ui->setupUi(this);
+    gamebrowserurl = QUrl("http://www.twitch.tv/directory/game/");
 }
 
 dialogGameStats::~dialogGameStats()
@@ -88,4 +89,19 @@ void dialogGameStats::updateGameStatsFromJsonResponse(const QJsonObject &jsonObj
 void dialogGameStats::on_pushButtonClose_clicked()
 {
     this->hide();
+}
+
+void dialogGameStats::on_treeWidgetGameStats_itemClicked(QTreeWidgetItem *item, int column)
+{
+
+
+
+
+}
+
+void dialogGameStats::on_treeWidgetGameStats_itemDoubleClicked(QTreeWidgetItem *item, int column)
+{
+    gamebrowserurl = QUrl("http://www.twitch.tv/directory/game/" + QString(QUrl::toPercentEncoding(item->text(2))));
+
+    QDesktopServices::openUrl(gamebrowserurl);
 }

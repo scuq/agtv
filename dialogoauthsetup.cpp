@@ -20,7 +20,7 @@ dialogOauthSetup::dialogOauthSetup(QWidget *parent) :
 }
 
 void dialogOauthSetup::errorPopup(QString message) {
-    int ret = QMessageBox::warning(this, tr("twitcher"),
+    QMessageBox::warning(this, tr("twitcher"),
                                     message,
                                     QMessageBox::Ok
                                     );
@@ -61,7 +61,7 @@ bool dialogOauthSetup::getDialogShown()
 void dialogOauthSetup::on_pushButtonAuthorizeOnTwitch_clicked()
 {
 
-    QString link = "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=XXXXXXXXXXXXXXXXXXXXXX&redirect_uri=http://oauth.abyle.org/&scope=channel_editor+user_read+chat_login";
+    QString link = "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=XXXXXXXXXXXXX&redirect_uri=http://oauth.abyle.org/&scope=channel_editor+user_read+chat_login+channel_read";
     QDesktopServices::openUrl(QUrl(link));
 }
 
@@ -72,7 +72,7 @@ void dialogOauthSetup::on_pushButtonSave_clicked()
     tw->setOAuthAccessToken(this->ui->lineEditOAuthToken->text());
     tw->getUser();
 
-    int ret = QMessageBox::information(this, tr("twitcher"),
+    QMessageBox::information(this, tr("twitcher"),
                                     tr("Saved."),
                                     QMessageBox::Ok
                                     );

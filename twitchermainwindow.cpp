@@ -6,40 +6,51 @@ twitcherMainWindow::twitcherMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::twitcherMainWindow)
 {
+
     ui->setupUi(this);
+
+    startup = true;
+
+    // delete logfile if clear log on startup setting is true
+    if (genericHelper::getClearLogOnStartup() == true) {
+        genericHelper::deleteLog();
+    }
+
+    // hide (empty) toolbar
+    this->ui->mainToolBar->hide();
 
     genericHelper::log("twitcher app started.");
 
     errorCount = 0;
 
-    updateInterval = 7000;
+    updateInterval = 12000;
 
-    if (genericHelper::getUpdateInterval() >= 7) {
+    // ignore update intervals <9 seconds
+    if (genericHelper::getUpdateInterval() >= 9) {
         updateInterval = genericHelper::getUpdateInterval() * 1000;
     }
 
 
-   // QShortcut *shortcut_tofg = new QShortcut(QKeySequence("Ctrl+Alt+F12"), this);
-   // shortcut_tofg->setContext(Qt::ApplicationShortcut);
-   // QObject::connect(shortcut_tofg, SIGNAL(activated()), this, SLOT(toForground()));
 
     // create nativeEventFilter, register Hotkey and install eventFilter on QApp instance
     twitcherKeyEvent = new TwitcherNativeEventFilter();
-
-
-
     this->registerHotkey();
     QObject::connect(twitcherKeyEvent, SIGNAL(hotkeyPressed()), this, SLOT(toForground()));
 
 
+    // init sub dialogs
     diaOauthSetup = new dialogOauthSetup(this);
     diaAbout = new dialogAbout(this);
     diaOBSSettings = new dialogOBSSettings(this);
     diaGameStats = new dialogGameStats(this);
     diaSettings = new dialogSettings(this);
 
+
+    // init QPixmaps for ok, not ok icons
     nok = QPixmap(":images/nok.png");
     ok = QPixmap(":images/ok.png");
+    game = QPixmap(":images/noimg.png");
+
 
     // some stuff needed for the tray icon
     createActions();
@@ -48,6 +59,17 @@ twitcherMainWindow::twitcherMainWindow(QWidget *parent) :
     trayIcon->show();
 
 
+    uc = new updateCheck(this);
+
+    if (genericHelper::getCheckUpdate() == true) {
+        uc->getCheck();
+    }
+
+
+
+    QObject::connect(uc, SIGNAL(updateReady(const QString)), this, SLOT(updateNotify(const QString)));
+
+    // init twitch api object
     tw = new TwitchApi(this, genericHelper::getOAuthAccessToken());
 
     currentGame = "";
@@ -55,20 +77,37 @@ twitcherMainWindow::twitcherMainWindow(QWidget *parent) :
     currentGameCount = 0;
     topGameCount = 0;
 
-     this->updateFormFields();
+    // init the image loader
+    imgl = new imageLoader(this);
 
+    currentGameImage = QUrl();
+
+    // update all form fields and labels
+    this->updateFormFields();
+
+
+    // connect the twitchReady signal of the twitchapi object to the updateFromJsonResponse slot of this form
     QObject::connect(tw, SIGNAL(twitchReady(const QJsonDocument)), this, SLOT(updateFromJsonResponse(const QJsonDocument)));
 
+    // connect the twitchGameReady signal of the twitchapi object to the updateGameStatsFromJsonResponse slot from the game stats form
     QObject::connect(tw, SIGNAL(twitchGameReady(const QJsonObject)), diaGameStats, SLOT(updateGameStatsFromJsonResponse(const QJsonObject)));
 
+    // connect the networkError signal of the twitchapi to the errorPopup slot of this form
     QObject::connect(tw, SIGNAL(networkError(QString)), this, SLOT(errorPopup(QString)));
 
+    // connect the valueChanged signal of the oauth-setup subform to the updateFormFieldsSlot of this form
     QObject::connect(diaOauthSetup, SIGNAL(valueChanged()), this, SLOT(updateFormFieldsSlot()));
 
-    //this->ui->tableWidgetJsonResponse->setVisible(false);
+    // connect the valueChanged signal of the settings  subform to the updateFormFieldsSlot of this form
+    QObject::connect(diaSettings, SIGNAL(valueChanged()), this, SLOT(updateFormFieldsSlot()));
 
+    // connect the valueChanged signal of the obs settings subform to the updateFormFieldsSlot of this form
+    QObject::connect(diaOBSSettings, SIGNAL(valueChanged()), this, SLOT(updateFormFieldsSlot()));
 
+    // connect the image downloader downloaded signal to the loadGameImage slot of this form
+    QObject::connect(imgl, SIGNAL(downloaded()), this, SLOT(loadGameImage()));
 
+    // init game title completer, and enable it on the game title lineEdit
     completerModel = new QStringListModel();
 
     completer = new QCompleter(completerModel, this);
@@ -77,12 +116,13 @@ twitcherMainWindow::twitcherMainWindow(QWidget *parent) :
     this->ui->lineEditGameTitle->setCompleter(completer);
 
 
+    // init qtimer, set update interval and connect the timeout singal of qtimer to the updateFormFieldsSlot of this form
     refreshTimer = new QTimer(this);
     refreshTimer->setInterval(updateInterval);
-   QObject::connect(refreshTimer, SIGNAL(timeout()), this, SLOT(updateFormFieldsSlot()));
-   refreshTimer->start(updateInterval);
+    QObject::connect(refreshTimer, SIGNAL(timeout()), this, SLOT(updateFormFieldsSlot()));
+    refreshTimer->start(updateInterval);
 
-   found = false;
+    found = false;
 
 
 
@@ -106,6 +146,25 @@ void twitcherMainWindow::createActions()
 
     close = new QAction(tr("&Quit"), this);
     connect(close, SIGNAL(triggered()), qApp, SLOT(quit()));
+}
+
+void twitcherMainWindow::loadGameImage() {
+
+
+
+
+      game.loadFromData(imgl->downloadedData());
+
+      genericHelper::log("downloaded image, dimension:" + QString::number(game.size().height()) + "x" +QString::number(game.size().width()));
+
+      if (game.size().height() > 0) {
+        this->ui->labelGameImage->setPixmap(game.scaled(32,32));
+      } else {
+          genericHelper::log("height is 0, image not set.");
+      }
+
+
+
 }
 
 void twitcherMainWindow::registerHotkey()
@@ -196,27 +255,28 @@ void twitcherMainWindow::closeEvent(QCloseEvent *event)
 
 void twitcherMainWindow::toForground() {
 
-
-
     this->showMinimized();
     this->setWindowState(Qt::WindowActive);
     this->showNormal();
 }
 
 void twitcherMainWindow::updateFormFields() {
+
+    if (genericHelper::getLoadGameImages() == false) {
+        this->ui->labelGameImage->hide();
+    } else {
+        this->ui->labelGameImage->show();
+    }
+
+
     this->ui->lineEditUsername->setText(genericHelper::getUsername());
 
 
-
-    this->ui->labelBroadcastTitleStatus->setPixmap(ok);
-    this->ui->labelGameTitleStatus->setPixmap(ok);
-
+    // if username/twitch setup is done and error count < 5, continue
     if ((genericHelper::getUsername().length() > 1) && errorCount <= 5){
 
 
-
-
-
+        // set current game while typing
         if (this->ui->lineEditGameTitle->text().length() > 2)
         {
             currentGame = this->ui->lineEditGameTitle->text();
@@ -224,7 +284,6 @@ void twitcherMainWindow::updateFormFields() {
 
         currentGameCount = 0;
         topGameCount = 0;
-
 
         tw->getStream(genericHelper::getUsername());
 
@@ -234,6 +293,7 @@ void twitcherMainWindow::updateFormFields() {
 
 
         following.clear();
+
         tw->getFollows(genericHelper::getUsername());
 
         if (this->ui->lineEditUsername->text() == "")
@@ -246,6 +306,10 @@ void twitcherMainWindow::updateFormFields() {
             this->ui->pushButtonClearTitlesOnTwtich->setEnabled(true);
 
         }
+
+        this->ui->labelBroadcastTitleStatus->setPixmap(ok);
+        this->ui->labelGameTitleStatus->setPixmap(ok);
+
 
 
 
@@ -278,6 +342,31 @@ void twitcherMainWindow::errorPopup(QString message) {
           //                          );
 }
 
+
+
+void twitcherMainWindow::updateNotify(const QString &latestVersion) {
+
+    QString latestVersionNumber = latestVersion;
+
+    latestVersionNumber.insert(2,".");
+
+    QMessageBox::StandardButton reply;
+
+    reply = QMessageBox::question(this, tr("twitcher"),
+                                    "New version ("+latestVersionNumber+") available, do you want to update?",
+                                    QMessageBox::Yes|QMessageBox::No);
+
+
+    if (reply == QMessageBox::Yes) {
+
+       QDesktopServices::openUrl(QUrl("http://twitcher.abyle.org/downloads/twitcher-"+latestVersionNumber+"-x64-install.exe"));
+
+      } else {
+        genericHelper::log("update dismissed.");
+      }
+
+}
+
 // this is dirty, I know...
 void twitcherMainWindow::updateFromJsonResponse(const QJsonDocument &jsonResponseBuffer) {
 
@@ -300,6 +389,8 @@ void twitcherMainWindow::updateFromJsonResponse(const QJsonDocument &jsonRespons
     // if answer for game search lookup
     if ((!jsonObject["games"].isNull()) && (found == false)) {
 
+
+
             found = true;
 
             completerList.clear();
@@ -314,6 +405,18 @@ void twitcherMainWindow::updateFromJsonResponse(const QJsonDocument &jsonRespons
                         QJsonValue _val = iter.value().toArray().at(i);
                         completerList.append(_val.toObject()["name"].toString());
                         //qDebug() << _val.toObject()["name"].toString();
+
+//                         QUrl imageUrl("http://static-cdn.jtvnw.net/ttv-logoart/Diablo%20III-60x36.jpg");
+
+                           if (!_val.toObject()["box"].toObject()["small"].isNull()) {
+//                                qDebug() << _val.toObject()["box"].toObject()["small"];
+                                //this->currentGameImage = ;
+
+
+                                if (genericHelper::getLoadGameImages() == true) {
+                                    imgl->download(QUrl(_val.toObject()["box"].toObject()["small"].toString()));
+                                }
+                            }
                     }
 
                  }
@@ -414,15 +517,23 @@ void twitcherMainWindow::updateFromJsonResponse(const QJsonDocument &jsonRespons
 
         found = true;
 
-        if (this->ui->lineEditBroadcastTitle->text() != jsonObject["status"].toString()) {
-            this->ui->lineEditBroadcastTitle->setText(jsonObject["status"].toString());
+        if (this->ui->plainTextEditBroadcastTitle->toPlainText() != jsonObject["status"].toString()) {
+            this->ui->plainTextEditBroadcastTitle->blockSignals(true);
+            this->ui->plainTextEditBroadcastTitle->setPlainText(jsonObject["status"].toString());
+            this->ui->plainTextEditBroadcastTitle->blockSignals(false);
         }
+
+
+
 
         if (this->ui->lineEditGameTitle->text() != jsonObject["game"].toString()) {
-            this->ui->lineEditGameTitle->setText(jsonObject["game"].toString());
+           this->ui->lineEditGameTitle->setText(jsonObject["game"].toString());
         }
 
-
+        if ((startup == true) && (this->ui->lineEditGameTitle->text().length() > 2)) {
+                startup = false;
+              tw->searchGames(this->ui->lineEditGameTitle->text());
+        }
 
 
 
@@ -511,11 +622,18 @@ void twitcherMainWindow::on_pushButtonClearTitlesOnTwtich_clicked()
     apiPutParams.insert("channel[status]", "");
     apiPutParams.insert("channel[game]", "");
 
-    this->ui->lineEditBroadcastTitle->setText("");
+    this->ui->plainTextEditBroadcastTitle->blockSignals(true);
+    this->ui->plainTextEditBroadcastTitle->setPlainText("");
+    this->ui->plainTextEditBroadcastTitle->blockSignals(false);
     this->ui->lineEditGameTitle->setText("");
 
 
-    tw->setStatusAndGameTitle("https://api.twitch.tv/kraken/channels/"+genericHelper::getUsername(), apiPutParams);
+    tw->setStatusAndGameTitle(genericHelper::getUsername(), apiPutParams);
+
+
+    game = QPixmap(":images/noimg.png");
+
+    this->ui->labelGameImage->setPixmap( game );
 }
 
 
@@ -584,16 +702,20 @@ void twitcherMainWindow::on_pushButtonApplyTitles_clicked()
 
     tw->setOAuthAccessToken(genericHelper::getOAuthAccessToken());
 
-    apiPutParams.insert("channel[status]", this->ui->lineEditBroadcastTitle->text());
+    apiPutParams.insert("channel[status]", this->ui->plainTextEditBroadcastTitle->toPlainText());
     apiPutParams.insert("channel[game]", this->ui->lineEditGameTitle->text());
 
-    tw->setStatusAndGameTitle("https://api.twitch.tv/kraken/channels/"+genericHelper::getUsername(), apiPutParams);
+    tw->setStatusAndGameTitle(genericHelper::getUsername(), apiPutParams);
 
-    //this->updateFormFields();
+    this->updateFormFields();
+
+
+
+
     refreshTimer->start(updateInterval);
 
-    this->ui->lineEditBroadcastTitle->setStyleSheet("QLineEdit{background-color: white; alternate-background-color: white; selection-background-color: white;}");
-    this->ui->lineEditGameTitle->setStyleSheet("QLineEdit{background-color: white; alternate-background-color: white; selection-background-color: white;}");
+
+    
 
 }
 
@@ -601,8 +723,7 @@ void twitcherMainWindow::on_pushButtonCancel_clicked()
 {
 
 
-    this->ui->lineEditBroadcastTitle->setStyleSheet("QLineEdit{background-color: white; alternate-background-color: white; selection-background-color: white;}");
-    this->ui->lineEditGameTitle->setStyleSheet("QLineEdit{background-color: white; alternate-background-color: white; selection-background-color: white;}");
+   
 
     this->updateFormFields();
 
@@ -611,11 +732,7 @@ void twitcherMainWindow::on_pushButtonCancel_clicked()
 
 }
 
-void twitcherMainWindow::on_lineEditBroadcastTitle_textChanged(const QString &arg1)
-{
 
-
-}
 
 void twitcherMainWindow::on_actionGame_stats_triggered()
 {
@@ -638,16 +755,7 @@ void twitcherMainWindow::on_actionLog_triggered()
     genericHelper::openLogWithNotepad();
 }
 
-void twitcherMainWindow::on_lineEditBroadcastTitle_textEdited(const QString &arg1)
-{
-    refreshTimer->stop();
 
-
-
-
-    this->ui->labelBroadcastTitleStatus->setPixmap(nok);
-
-}
 
 void twitcherMainWindow::on_lineEditGameTitle_textEdited(const QString &arg1)
 {
@@ -657,7 +765,7 @@ void twitcherMainWindow::on_lineEditGameTitle_textEdited(const QString &arg1)
      tw->searchGames(arg1);
     }
 
-    this->ui->labelBroadcastTitleStatus->setPixmap(nok);
+    this->ui->labelGameTitleStatus->setPixmap(nok);
 
 }
 
@@ -680,4 +788,33 @@ void twitcherMainWindow::on_actionSettings_triggered()
         diaSettings->show();
         diaSettings->setDialogShown();
     }
+}
+
+void twitcherMainWindow::on_plainTextEditBroadcastTitle_textChanged()
+{
+    refreshTimer->stop();
+
+
+
+
+    this->ui->labelBroadcastTitleStatus->setPixmap(nok);
+}
+
+void twitcherMainWindow::on_lineEditGameTitle_editingFinished()
+{
+
+}
+
+void twitcherMainWindow::on_actionReport_Issue_google_triggered()
+{
+
+
+    QString link = "http://code.google.com/p/twitcher/issues/entry";
+    QDesktopServices::openUrl(QUrl(link));
+
+}
+
+void twitcherMainWindow::on_actionReport_Issue_email_triggered()
+{
+   QDesktopServices::openUrl(QUrl("mailto:sq+twitcher@abyle.org?subject=twitcher-issue"));
 }

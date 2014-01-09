@@ -50,7 +50,7 @@ int genericHelper::getUpdateInterval(){
     QString _interval = "5";
 
 
-    if (settings.value("update_interval", "5").toString().length() > 1) {
+    if (settings.value("update_interval", "12").toString().length() > 1) {
         _interval = settings.value("update_interval", "").toString();
 
 
@@ -84,6 +84,90 @@ QStringList genericHelper::getFollows(){
 
     return _follows;
 }
+
+
+
+void genericHelper::setCheckUpdate(bool checkupdate){
+
+
+         QSettings settings("Abyle", "twitcher");
+         settings.setValue("check_update", checkupdate);
+         settings.sync();
+
+
+}
+
+bool genericHelper::getCheckUpdate(){
+
+    QSettings settings("Abyle", "twitcher");
+
+    bool _checkupdate;
+
+    if (settings.value("check_update", "").toString().length() > 1) {
+        _checkupdate = settings.value("check_update", "").toBool();
+
+    } else {
+        genericHelper::setCheckUpdate(true);
+    }
+
+
+    return _checkupdate;
+}
+
+void genericHelper::setLoadGameImages(bool gameimages){
+
+
+         QSettings settings("Abyle", "twitcher");
+         settings.setValue("load_game_images", gameimages);
+         settings.sync();
+
+
+}
+
+bool genericHelper::getLoadGameImages(){
+
+    QSettings settings("Abyle", "twitcher");
+
+    bool _gameimages;
+
+    if (settings.value("load_game_images", "").toString().length() > 1) {
+        _gameimages = settings.value("load_game_images", "").toBool();
+
+    } else {
+        genericHelper::setLoadGameImages(true);
+    }
+
+
+    return _gameimages;
+}
+
+
+
+void genericHelper::setClearLogOnStartup(bool clearlog){
+
+
+         QSettings settings("Abyle", "twitcher");
+         settings.setValue("clear_log_on_start", clearlog);
+         settings.sync();
+
+
+}
+
+bool genericHelper::getClearLogOnStartup(){
+
+    QSettings settings("Abyle", "twitcher");
+
+    bool _clearlog;
+
+    if (settings.value("clear_log_on_start", "").toString().length() > 1) {
+        _clearlog = settings.value("clear_log_on_start", "").toBool();
+
+    }
+
+    return _clearlog;
+}
+
+
 
 QString genericHelper::getUsername(){
 
@@ -136,6 +220,197 @@ void genericHelper::executeOBS(){
     //qDebug() << program;
 
 }
+
+void genericHelper::writeTwitcherOBSConfig(QString streamkey){
+
+
+
+
+    QFile profilefile(QString(::getenv("APPDATA")) + QDir::separator() + "OBS" + QDir::separator() + "profiles" + QDir::separator() + "twitcher.ini");
+    if (!profilefile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+    return;
+
+    QTextStream out(&profilefile);
+    out << "[Publish]\n"
+        << "LowLatencyMethod=0\n"
+        << "LatencyFactor=20\n"
+        << "Dashboard=\n"
+        << "StartStreamHotkey=1143\n"
+        << "StopStreamHotkey=1143\n"
+        << "SavePath=\n"
+        << "SaveToFile=0\n"
+        << "Delay=0\n"
+        << "AutoReconnectTimeout=10\n"
+        << "AutoReconnect=1\n"
+        << "LowLatencyMode=0\n"
+        << "URL=EU: Amsterdam, NL\n"
+        << "PlayPath="+streamkey+"\n"
+        << "BindToIP=Default\n"
+        << "Mode=0\n"
+        << "Service=1\n"
+        << "\n";
+    out.flush();
+
+    profilefile.close();
+
+
+}
+
+void genericHelper::writeTwitcherOBSScenesConfig(){
+
+    qDebug() << "writeTwitcherOBSScenesConfig";
+
+    QFile scenefilecp(QString(::getenv("APPDATA")) + QDir::separator() + "OBS" + QDir::separator() + "scenes.xconfig");
+
+    if (scenefilecp.exists()) {
+        scenefilecp.copy(QString(::getenv("APPDATA")) + QDir::separator() + "OBS" + QDir::separator() + "scenes.xconfig_" + QDateTime::currentDateTime().toString("yyyyMMddTHHmmss"));
+        genericHelper::log("your scenes.xconfig was copied to " + QDateTime::currentDateTime().toString("yyyyMMddTHHmmss") );
+
+    }
+
+
+    scenefilecp.close();
+
+    QFile scenefile(QString(::getenv("APPDATA")) + QDir::separator() + "OBS" + QDir::separator() + "scenes.xconfig");
+
+
+    scenefile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+
+    QString obsSceneImageFilePath = QCoreApplication::applicationFilePath().replace("/twitcher.exe","") + QDir::separator() + "OBS-Images";
+
+    QString img_blackout = obsSceneImageFilePath + QDir::separator() + "blackout.png";
+    img_blackout = img_blackout.replace("/", "\\");
+    img_blackout = img_blackout.replace("\\", "\\\\");
+
+    QString img_hiddenarea = obsSceneImageFilePath + QDir::separator() + "hiddenarea.png";
+    img_hiddenarea = img_hiddenarea.replace("/", "\\");
+    img_hiddenarea = img_hiddenarea.replace("\\", "\\\\");
+
+    QString img_coffee = obsSceneImageFilePath + QDir::separator() + "coffee.png";
+    img_coffee = img_coffee.replace("/", "\\");
+    img_coffee = img_coffee.replace("\\", "\\\\");
+
+    QString img_afk =  obsSceneImageFilePath + QDir::separator() + "afk.png";
+    img_afk = img_afk.replace("/", "\\");
+    img_afk = img_afk.replace("\\", "\\\\");
+
+
+    qDebug() << obsSceneImageFilePath;
+
+
+
+    QTextStream outsc(&scenefile);
+    outsc << "scenes : {\n"
+        << "  Twitcher : {\n"
+        << "    class : Scene\n"
+        << "    sources : {\n"
+        << "      Image_Blackout : {\n"
+        << "        render : 0\n"
+        << "        class : BitmapImageSource\n"
+        << "        data : {\n"
+        << "          path : \"" + img_blackout + "\"\n"
+        << "          opacity : 100\n"
+        << "          color : -1\n"
+        << "          useColorKey : 0\n"
+        << "          keyColor : -1\n"
+        << "          keySimilarity : 10\n"
+        << "          keyBlend : 0\n"
+        << "          monitor : 0\n"
+        << "        }\n"
+        << "        cx : 1920\n"
+        << "        cy : 1080\n"
+        << "      }\n"
+        << "      Image_HiddenArea : {\n"
+        << "        render : 0\n"
+        << "        class : BitmapImageSource\n"
+        << "        data : {\n"
+        << "          path : \"" + img_hiddenarea + "\"\n"
+        << "          opacity : 100\n"
+        << "          color : -1\n"
+        << "          useColorKey : 0\n"
+        << "          keyColor : -1\n"
+        << "          keySimilarity : 10\n"
+        << "          keyBlend : 0\n"
+        << "          monitor : 0\n"
+        << "        }\n"
+        << "        cx : 400\n"
+        << "        cy : 400\n"
+        << "        y : 680\n"
+        << "      }\n"
+        << "      Image_Coffee : {\n"
+        << "        render : 0\n"
+        << "        class : BitmapImageSource\n"
+        << "        data : {\n"
+        << "          path : \"" + img_coffee + "\"\n"
+        << "          opacity : 100\n"
+        << "          color : -1\n"
+        << "          useColorKey : 0\n"
+        << "          keyColor : -1\n"
+        << "          keySimilarity : 10\n"
+        << "          keyBlend : 0\n"
+        << "          monitor : 0\n"
+        << "        }\n"
+        << "        cx : 198\n"
+        << "        cy : 198\n"
+        << "      }\n"
+        << "      Image_Afk : {\n"
+        << "        render : 0\n"
+        << "        class : BitmapImageSource\n"
+        << "        data : {\n"
+        << "          path : \"" + img_afk + "\"\n"
+        << "          opacity : 100\n"
+        << "          color : -1\n"
+        << "          useColorKey : 0\n"
+        << "          keyColor : -1\n"
+        << "         keySimilarity : 10\n"
+        << "          keyBlend : 0\n"
+        << "          monitor : 0\n"
+        << "        }\n"
+        << "        cx : 800\n"
+        << "        cy : 200\n"
+        << "        x : 560\n"
+        << "      }\n"
+        << "      Capture_CTRL+F12 : {\n"
+        << "        render : 1\n"
+        << "        class : GlobalSource\n"
+        << "        data : {\n"
+        << "          name : f12-game\n"
+        << "        }\n"
+        << "        cx : 1920\n"
+        << "        cy : 1080\n"
+        << "      }\n"
+        << "    }\n"
+        << "  }\n"
+        << "}\n"
+        << "global sources : {\n"
+        << "  f12-game : {\n"
+        << "    class : GraphicsCapture\n"
+        << "    data : {\n"
+        << "      window : ""\n"
+        << "      windowClass : TWNClientFramework\n"
+        << "      stretchImage : 0\n"
+        << "      ignoreAspect : 0\n"
+        << "      captureMouse : 1\n"
+        << "      invertMouse : 0\n"
+        << "      useHotkey : 1\n"
+        << "      hotkey : 635\n"
+        << "      gamma : 100\n"
+        << "    }\n"
+        << "    cx : 1920\n"
+        << "    cy : 1080\n"
+        << "  }\n"
+        << "}\n"
+        << "\n";
+
+
+
+    scenefile.close();
+
+
+
+}
+
+
 
 void genericHelper::executeAddonHexchat(QStringList follows){
 
@@ -224,12 +499,11 @@ void genericHelper::executeAddonHexchat(QStringList follows){
 }
 
 bool genericHelper::openLogWithNotepad() {
-  QProcess notepad;
-  notepad.start(
-        "notepad.exe",
-        QStringList() << genericHelper::getAppDir() + QDir::separator() + "twitcher.log");
 
-  notepad.waitForFinished();
+  QProcess *notepad = new QProcess(qApp);
+  notepad->start("notepad.exe", QStringList() << genericHelper::getAppDir() + QDir::separator() + "twitcher.log");
+
+
 
   return true;
 }
@@ -336,3 +610,11 @@ void genericHelper::log(QString logstring) {
 
     file.close();
 }
+
+void genericHelper::deleteLog() {
+    QFile file(genericHelper::getAppDir() + QDir::separator() + "twitcher.log");
+    file.remove();
+    file.close();
+}
+
+

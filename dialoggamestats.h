@@ -6,6 +6,9 @@
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonValue>
+#include <QTreeWidgetItem>
+#include <QDesktopServices>
+#include <QUrl>
 
 namespace Ui {
 class dialogGameStats;
@@ -24,11 +27,14 @@ public:
 private:
     Ui::dialogGameStats *ui;
     bool dialogShown;
+    QUrl gamebrowserurl;
 
 public slots:
     void updateGameStatsFromJsonResponse(const QJsonObject &jsonObject);
 private slots:
     void on_pushButtonClose_clicked();
+    void on_treeWidgetGameStats_itemClicked(QTreeWidgetItem *item, int column);
+    void on_treeWidgetGameStats_itemDoubleClicked(QTreeWidgetItem *item, int column);
 };
 
 #endif // DIALOGGAMESTATS_H

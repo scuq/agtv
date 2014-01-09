@@ -25,6 +25,8 @@
 #include "dialoggamestats.h"
 #include "dialogsettings.h"
 #include "twitchernativeeventfilter.h"
+#include "imageloader.h"
+#include "updatecheck.h"
 
 namespace Ui {
 class twitcherMainWindow;
@@ -43,12 +45,17 @@ private slots:
 
     void toForground();
 
+    void updateNotify(const QString &latestVersion);
+
     void trayIconClicked(QSystemTrayIcon::ActivationReason);
     void on_actionClose_to_Tray_triggered();
 
 
     void updateFromJsonResponse(const QJsonDocument &jsonResponseBuffer);
     void updateFormFieldsSlot();
+
+    void loadGameImage();
+
     void errorPopup(QString message);
     void on_actionSetup_Twitch_Auth_triggered();
 
@@ -77,19 +84,27 @@ private slots:
 
     void on_pushButtonCancel_clicked();
 
-    void on_lineEditBroadcastTitle_textChanged(const QString &arg1);
+
 
     void on_actionGame_stats_triggered();
 
     void on_actionLog_triggered();
 
-    void on_lineEditBroadcastTitle_textEdited(const QString &arg1);
+
 
     void on_lineEditGameTitle_textEdited(const QString &arg1);
 
     void on_actionQuit_triggered();
 
     void on_actionSettings_triggered();
+
+    void on_plainTextEditBroadcastTitle_textChanged();
+
+    void on_lineEditGameTitle_editingFinished();
+
+    void on_actionReport_Issue_google_triggered();
+
+    void on_actionReport_Issue_email_triggered();
 
 private:
     Ui::twitcherMainWindow *ui;
@@ -101,6 +116,7 @@ private:
     dialogSettings *diaSettings;
 
     TwitchApi *tw;
+    imageLoader *imgl;
     QHash<QString, QString> apiPutParams;
     QCompleter *completer;
     QStringList completerList;
@@ -108,8 +124,10 @@ private:
     QTimer *refreshTimer;
     QStringList following;
     bool found;
+    bool startup;
     QString currentGame;
     QString topGame;
+    QUrl currentGameImage;
     double currentGameCount;
     double topGameCount;
     int errorCount;
@@ -119,6 +137,9 @@ private:
 
     QPixmap nok;
     QPixmap ok;
+    QPixmap game;
+
+    updateCheck *uc;
 
     void registerHotkey();
 

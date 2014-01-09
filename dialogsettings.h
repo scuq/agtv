@@ -27,6 +27,10 @@ private slots:
 private:
     Ui::dialogSettings *ui;
     bool dialogShown;
+
+signals:
+void valueChanged();
+
 };
 
 #endif // DIALOGSETTINGS_H

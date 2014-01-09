@@ -8,5 +8,7 @@
         <file>chat.png</file>
         <file>ok.png</file>
         <file>nok.png</file>
+        <file>bird32.png</file>
+        <file>noimg.png</file>
     </qresource>
 </RCC>

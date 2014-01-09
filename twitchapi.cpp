@@ -14,9 +14,11 @@ void TwitchApi::setOAuthAccessToken(QString oauthtoken) {
     this->oAuthAccessToken = oauthtoken;
 }
 
-void TwitchApi::setStatusAndGameTitle( const QString &urlString, QHash<QString, QString> urlParams )
+void TwitchApi::setStatusAndGameTitle(QString user, QHash<QString, QString> urlParams )
 {
-    this->putRequest(urlString, urlParams);
+
+    genericHelper::log("twitch-api setStatusAndGameTitle - https://api.twitch.tv/kraken/channels/.");
+    this->putRequest("https://api.twitch.tv/kraken/channels/"+user, urlParams);
 }
 
 void TwitchApi::getUser()
@@ -55,6 +57,19 @@ void TwitchApi::getGame()
 
 
 }
+
+void TwitchApi::getKrakenChannel()
+{
+
+
+    genericHelper::log("twitch-api getKrakenChannel - https://api.twitch.tv/kraken/channel");
+    this->getRequestAuthenticated("https://api.twitch.tv/kraken/channel");
+
+
+
+}
+
+
 
 void TwitchApi::getChannel(QString user)
 {
@@ -161,6 +176,8 @@ void TwitchApi::parseNetworkResponse( QNetworkReply *finished )
     if (!jsonObject["top"].isNull()){
 
         emit twitchGameReady ( jsonObject );
+    } else if (!jsonObject["stream_key"].isNull()) {
+        emit twitchStreamKeyReady ( jsonObject );
     }
 
 }

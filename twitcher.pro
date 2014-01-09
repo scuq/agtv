@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = twitcher
 TEMPLATE = app
 
-VERSION = 14.017
+VERSION = 14.0111
 
 DEFINES += VERSION=\\\"$$VERSION\\\"
 
@@ -26,7 +26,9 @@ SOURCES += main.cpp\
     dialogobssettings.cpp \
     dialoggamestats.cpp \
     twitchernativeeventfilter.cpp \
-    dialogsettings.cpp
+    dialogsettings.cpp \
+    imageloader.cpp \
+    updatecheck.cpp
 
 HEADERS  += twitchermainwindow.h \
     generichelper.h \
@@ -36,7 +38,10 @@ HEADERS  += twitchermainwindow.h \
     dialogobssettings.h \
     dialoggamestats.h \
     twitchernativeeventfilter.h \
-    dialogsettings.h
+    dialogsettings.h \
+    version.h \
+    imageloader.h \
+    updatecheck.h
 
 FORMS    += twitchermainwindow.ui \
     dialogoauthsetup.ui \

@@ -19,11 +19,13 @@ class TwitchApi : public QObject
     Q_OBJECT
 public:
     explicit TwitchApi(QObject *parent = 0, QString oauthtoken = "NONE");
-    void setStatusAndGameTitle(const QString &url, QHash<QString, QString> urlParams);
+    //void setStatusAndGameTitle(const QString &url, QHash<QString, QString> urlParams);
+    void setStatusAndGameTitle(QString user, QHash<QString, QString> urlParams);
     void getUser();
     void getStream(QString user);
     void getChannel(QString user);
     void getGame();
+    void getKrakenChannel();
     void searchGames(QString searchStr);
     void setOAuthAccessToken(QString oauthtoken);
     void getFollows(QString user);
@@ -40,6 +42,7 @@ private:
 signals:
     void twitchReady( const QJsonDocument &twitchAsJSON );
     void twitchGameReady( const QJsonObject &twitchAsJSONObj );
+    void twitchStreamKeyReady(const QJsonObject &twitchAsJSONObj);
     void networkError( QString errmessage );
 
 public slots:

@@ -51,3 +51,30 @@ chat_login scope
 - added global shortcut Alt+F12 to bring twitcher to front
 - added settings menu allows to change update interval
 
+14.018
+- disabled window resizing
+- fixed wrong icon association
+- added clear log on startup setting
+- set default update intervall to 12 seconds
+- fixed "log" notepad startup
+- hide empty toolbar
+- added basic .exe product infos
+
+14.019
+- added game image label
+- replaced broadcasting title lineEdit with multiline plainText
+- added write obs profile support (if you reauth twitcher, it' will request the new permission scope channel_read,
+  this allows twitcher to fetch your stream_key and write a OBS profile
+- added basic default config for OBS scenes (Write scenes config in OBS settings).
+- added report issue (google code)
+- added report issue (email)
+
+14.0110
+- added qt5 imageformats\*.dll's to installer - needed to display fetech jpeg image files
+- single click on an entry in the game ranking table will open the twitch game directory in your default browser
+
+14.0111
+- changed game ranking click from single to double click
+- micro fixes
+- added "check for new version" for your convenience
+

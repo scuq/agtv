@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "generichelper.h"
+#include "twitchapi.h"
 
 namespace Ui {
 class dialogOBSSettings;
@@ -29,10 +30,21 @@ private slots:
 
     void on_checkBox_clicked();
 
+    void on_checkBoxWriteTwitcherOBSConfig_stateChanged(int arg1);
+
+    void on_checkBoxWriteScenesConfig_stateChanged(int arg1);
+
+public slots:
+    void updateStreamKeyFromJsonResponse(const QJsonObject &jsonObject);
+
 private:
     Ui::dialogOBSSettings *ui;
     bool dialogShown;
+    TwitchApi *tw;
+    QString streamkey;
 
+signals:
+void valueChanged();
 
 };
 
