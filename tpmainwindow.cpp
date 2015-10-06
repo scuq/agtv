@@ -203,7 +203,7 @@ void tpMainWindow::closeEvent(QCloseEvent *event)
     if (genericHelper::getCloseToTray() == true) {
 
     if (trayIcon->isVisible()) {
-        trayIcon->showMessage(tr("Twitcher closed to tray."),
+        trayIcon->showMessage(genericHelper::getAppName()+" closed to tray.",
         tr(""));
         hide();
 
@@ -708,7 +708,7 @@ void tpMainWindow::on_actionAbout_Qt_triggered()
 
 void tpMainWindow::on_actionReport_Bug_triggered()
 {
-    QString link = "https://github.com/scuq/twitcher/issues";
+    QString link = "https://github.com/scuq/agtv/issues";
     QDesktopServices::openUrl(QUrl(link));
 }
 
