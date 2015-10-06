@@ -5,6 +5,13 @@ TwitchApi::TwitchApi(QObject *parent, QString oauthtoken) :
     QObject(parent)
 {
     QObject::connect(&m_nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponse(QNetworkReply*)));
+    QObject::connect(&m_namM3u8, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseM3u8(QNetworkReply*)));
+    QObject::connect(&m_follows, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseFollows(QNetworkReply*)));
+    QObject::connect(&m_channelaccesstoken, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseChannelAccessToken(QNetworkReply*)));
+    QObject::connect(&m_bookmark, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseBookmark(QNetworkReply*)));
+    QObject::connect(&m_stream, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseStream(QNetworkReply*)));
+
+
     this->oAuthAccessToken = oauthtoken;
 
 
@@ -32,7 +39,7 @@ void TwitchApi::getFollows(QString user)
 {
 
     genericHelper::log("twitch-api getFollows - https://api.twitch.tv/kraken/users/"+user+"/follows/channels");
-    this->getRequest("https://api.twitch.tv/kraken/users/"+user+"/follows/channels");
+    this->getRequestFollows("https://api.twitch.tv/kraken/users/"+user+"/follows/channels");
 }
 
 
@@ -41,11 +48,31 @@ void TwitchApi::getStream(QString user)
 {
 
     genericHelper::log("twitch-api getStream - https://api.twitch.tv/kraken/streams/"+user);
-    this->getRequest("https://api.twitch.tv/kraken/streams/"+user);
+    this->getRequestStream("https://api.twitch.tv/kraken/streams/"+user);
 
 
 
 }
+
+void TwitchApi::getBookmarkStatus(QString channel)
+{
+    genericHelper::log("twitch-api getBookmarkStatus - https://api.twitch.tv/kraken/streams/"+channel);
+    this->getRequestBookmark("https://api.twitch.tv/kraken/streams/"+channel);
+
+}
+
+/**
+void TwitchApi::getPlaylist(QString user)
+{
+
+    genericHelper::log("twitch-api getPlaylist - https://api.twitch.tv/kraken/streams/"+user);
+    //this->getRequest("http://usher.twitch.tv/api/channel/hls/"+user+".m3u8?player=twitchweb&&token="+this->oAuthAccessToken+"&sig={sig}&allow_audio_only=true&allow_source=true&type=any&p={random}");
+
+
+
+
+}
+**/
 
 void TwitchApi::getGame()
 {
@@ -79,6 +106,28 @@ void TwitchApi::getChannel(QString user)
 
 }
 
+void TwitchApi::getChannelAccessToken(QString channel)
+{
+    genericHelper::log("twitch-api getChannelAccessToken - https://api.twitch.tv/kraken/channels/"+channel);
+    this->getRequestChannelAccessToken("https://api.twitch.tv/api/channels/"+channel+"/access_token");
+
+}
+
+void TwitchApi::getPlayList(QString channel, QString token, QString sig)
+{
+
+
+
+    genericHelper::log("twitch-api getPlayList - http://usher.justin.tv/api/channel/hls/"+channel+".m3u8?token="+token+"&sig="+sig+"&allow_audio_only=true&allow_source=true&type=any&p="+QString::number(QDateTime::currentMSecsSinceEpoch()));
+    this->getRequestM3u8("http://usher.justin.tv/api/channel/hls/"+channel+".m3u8?token="+token+"&sig="+sig+"&allow_audio_only=true&allow_source=true&type=any&p="+QString::number(QDateTime::currentMSecsSinceEpoch()));
+    // http://usher.twitch.tv/api/channel/hls/{channel}.m3u8?player=twitchweb&&token={token}&sig={sig}&allow_audio_only=true&allow_source=true&type=any&p={random}'
+}
+
+QString TwitchApi::getPlayListUrl(QString channel, QString token, QString sig)
+{
+    return "http://usher.justin.tv/api/channel/hls/"+channel+".m3u8?token="+token+"&sig="+sig+"&allow_audio_only=true&allow_source=true&type=any&p="+QString::number(QDateTime::currentMSecsSinceEpoch());
+}
+
 
 void TwitchApi::searchGames(QString searchStr)
 {
@@ -107,6 +156,7 @@ void TwitchApi::putRequest( const QString &urlString, QHash<QString, QString> ur
     QNetworkRequest req ( url );
 
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setRawHeader( "User-Agent" , "iOS / Safari 7: Mozilla/5.0 (iPad; CPU OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11B554a Safari/9537.53" );
     req.setRawHeader("Authorization", "OAuth "+this->oAuthAccessToken.toLatin1());
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
@@ -123,6 +173,7 @@ void TwitchApi::getRequestAuthenticated( const QString &urlString )
 
     QNetworkRequest req ( url );
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setRawHeader( "User-Agent" , "iOS / Safari 7: Mozilla/5.0 (iPad; CPU OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11B554a Safari/9537.53" );
     req.setRawHeader("Authorization", "OAuth "+this->oAuthAccessToken.toLatin1());
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
@@ -130,6 +181,69 @@ void TwitchApi::getRequestAuthenticated( const QString &urlString )
 
 
 }
+
+void TwitchApi::getRequestM3u8( const QString &urlString )
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.apple.mpegurl");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    m_namM3u8.get( req  );
+
+
+}
+
+void TwitchApi::getRequestFollows(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    m_follows.get( req  );
+}
+
+void TwitchApi::getRequestBookmark(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    m_bookmark.get( req  );
+
+}
+
+void TwitchApi::getRequestStream(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    m_stream.get( req  );
+}
+
+void TwitchApi::getRequestChannelAccessToken(const QString &urlString)
+{
+
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    m_channelaccesstoken.get( req  );
+
+
+}
+
+
 
 void TwitchApi::getRequest( const QString &urlString )
 {
@@ -159,7 +273,9 @@ void TwitchApi::parseNetworkResponse( QNetworkReply *finished )
     // QNetworkReply is a QIODevice. So we read from it just like it was a file
     QByteArray data = finished->readAll();
 
-  //  qDebug() << data;
+
+
+    qDebug() << data;
 
     json_buffer = QJsonDocument::fromJson(data);
 
@@ -179,5 +295,111 @@ void TwitchApi::parseNetworkResponse( QNetworkReply *finished )
     } else if (!jsonObject["stream_key"].isNull()) {
         emit twitchStreamKeyReady ( jsonObject );
     }
+
+}
+
+void TwitchApi::parseNetworkResponseStream(QNetworkReply *finished)
+{
+    if ( finished->error() != QNetworkReply::NoError )
+    {
+        // A communication error has occurred
+        //qDebug()<< finished->errorString();
+        emit networkError( finished->errorString() );
+
+        return;
+    }
+
+    // QNetworkReply is a QIODevice. So we read from it just like it was a file
+    QByteArray data = finished->readAll();
+    json_buffer = QJsonDocument::fromJson(data);
+
+
+
+   // qDebug()<< json_buffer;
+    emit twitchReadyStream( json_buffer );
+}
+
+void TwitchApi::parseNetworkResponseM3u8(QNetworkReply *finished)
+{
+    // QNetworkReply is a QIODevice. So we read from it just like it was a file
+    QByteArray data = finished->readAll();
+qDebug() << "parseNetworkResponseM3u8";
+    emit twitchReadyM3u8( data );
+
+
+//  qDebug() << data;
+}
+
+void TwitchApi::parseNetworkResponseFollows(QNetworkReply *finished)
+{
+    if ( finished->error() != QNetworkReply::NoError )
+    {
+        // A communication error has occurred
+        //qDebug()<< finished->errorString();
+        emit networkError( finished->errorString() );
+
+        return;
+    }
+
+    // QNetworkReply is a QIODevice. So we read from it just like it was a file
+    QByteArray data = finished->readAll();
+    json_buffer = QJsonDocument::fromJson(data);
+
+
+
+   // qDebug()<< json_buffer;
+    emit twitchReadyFollows( json_buffer );
+}
+
+void TwitchApi::parseNetworkResponseBookmark(QNetworkReply *finished)
+{
+    if ( finished->error() != QNetworkReply::NoError )
+    {
+        // A communication error has occurred
+        //qDebug()<< finished->errorString();
+        emit networkError( finished->errorString() );
+
+        return;
+    }
+
+    // QNetworkReply is a QIODevice. So we read from it just like it was a file
+    QByteArray data = finished->readAll();
+    json_buffer = QJsonDocument::fromJson(data);
+
+
+
+   // qDebug()<< json_buffer;
+    emit twitchReadyBookmark( json_buffer );
+}
+
+void TwitchApi::parseNetworkResponseChannelAccessToken(QNetworkReply *finished)
+{
+    if ( finished->error() != QNetworkReply::NoError )
+    {
+        // A communication error has occurred
+        //qDebug()<< finished->errorString();
+        emit networkError( finished->errorString() );
+
+        return;
+    }
+
+    // QNetworkReply is a QIODevice. So we read from it just like it was a file
+    QByteArray data = finished->readAll();
+
+
+
+
+
+    json_buffer = QJsonDocument::fromJson(data);
+
+
+
+   // qDebug()<< json_buffer;
+    emit twitchReadyChannelAccessToken( json_buffer );
+
+
+    // new parser
+
+
 
 }

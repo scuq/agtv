@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>hexchat.png</file>
+        <file>obs.png</file>
+        <file>twitch.png</file>
+        <file>agtv.ico</file>
+        <file>agtv_16.png</file>
+        <file>agtv_32.png</file>
+    </qresource>
+</RCC>

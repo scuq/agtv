@@ -12,6 +12,10 @@
 #include <QCoreApplication>
 #include <QDesktopServices>
 #include <QTextStream>
+#include <QTimer>
+#include "processlauncher.h"
+#include <QThread>
+#include <QHash>
 
 
 
@@ -25,20 +29,47 @@ public:
     }
 
     static QString getAppDir();
+    static QString getAppName();
     static void log(QString logstring);
     static void deleteLog();
     static QString getOAuthAccessToken();
     static void setOAuthAccessToken(QString oauthtoken);
+    static int getConcurrentStreams();
+    static void setConcurrentStreams(int concurrentstreams);
+    static int getPrimaryScreenWidth();
+    static void setPrimaryScreenWidth(int screenwidth);
+    static bool setPosition(QString posname, QString geo);
+    static bool deletePosition(QString posname);
+    static QString getPosition(QString posname);
+    static QHash<QString, QString> getPositions();
+    static int getStreamWidth();
+    static void setStreamWidth(int streamWidth);
+    static int getPlayerCacheSize();
+    static void setPlayerCacheSize(int cachesize);
+    static QString getPlayerQuality();
+    static void setPlayerQuality(QString quality);
+    static int getSelectedScreen();
+    static void setSelectedScreen(int selectedScreen);
+    static int getStreamHeight();
+    static void setStreamHeight(int streamHeight);
     static void setUsername(QString username);
     static QString getUsername();
     static void setFollows(QStringList follows);
     static QStringList getFollows();
+    static void setBookmarks(QStringList follows);
+    static QStringList getBookmarks();
+    static void setViewerStreams(QStringList streams);
+    static QStringList getViewerStreams();
+    static void setViewerStreamsMute(QStringList mutes);
+    static QStringList getViewerStreamsMute();
     static void setOBSBin(QString obsbinpath);
     static QString getOBSBin();
     static void executeOBS();
     static void writeTwitcherOBSConfig(QString streamkey);
     static void writeTwitcherOBSScenesConfig();
     static void executeAddonHexchat(QStringList follows);
+    static void executeAddonLivestreamer(QString player, QString url, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
+
     static bool openLogWithNotepad();
     static void setErrorTimestamp();
     static bool getEnoughTimeSinceLastErrorElapsed();
@@ -46,6 +77,10 @@ public:
     static void setUpdateInterval(int interval);
     static bool getClearLogOnStartup();
     static void setClearLogOnStartup(bool clearlog);
+    static bool getCloseToTray();
+    static void setCloseToTray(bool closetotray);
+    static bool getStreamOnlineNotify();
+    static void setStreamOnlineNotify(bool streamonlinenotify);
     static bool getLoadGameImages();
     static void setLoadGameImages(bool gameimages);
     static bool getCheckUpdate();
@@ -56,5 +91,7 @@ signals:
 public slots:
 
 };
+
+
 
 #endif // GENERICHELPER_H

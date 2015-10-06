@@ -27,8 +27,13 @@ void dialogOauthSetup::errorPopup(QString message) {
 }
 
 void dialogOauthSetup::successPopup(const QJsonDocument message) {
-    int ret = QMessageBox::information(this, tr("twitcher"),
+    int ret = QMessageBox::information(this, genericHelper::getAppName(),
                                     message.toJson(),
+                                    QMessageBox::Ok
+                                    );
+
+    ret = QMessageBox::information(this, tr("twitcher"),
+                                    "Please restart "+genericHelper::getAppName(),
                                     QMessageBox::Ok
                                     );
 
@@ -61,7 +66,7 @@ bool dialogOauthSetup::getDialogShown()
 void dialogOauthSetup::on_pushButtonAuthorizeOnTwitch_clicked()
 {
 
-    QString link = "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=XXXXXXXXXXXXX&redirect_uri=http://oauth.abyle.org/&scope=channel_editor+user_read+chat_login+channel_read";
+    QString link = "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id="+twitchclientid+"&redirect_uri=http://oauth.abyle.org/&scope=channel_editor+user_read+chat_login+channel_read";
     QDesktopServices::openUrl(QUrl(link));
 }
 

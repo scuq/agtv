@@ -1,41 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>dialogOauthSetup</class>
- <widget class="QDialog" name="dialogOauthSetup">
+ <widget class="QWidget" name="dialogOauthSetup">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>158</height>
+    <width>328</width>
+    <height>241</height>
    </rect>
   </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>400</width>
-    <height>158</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>400</width>
-    <height>158</height>
-   </size>
-  </property>
   <property name="windowTitle">
-   <string>twitcher - OAuth setup</string>
+   <string>agtv - Twitch auth setup</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="twitcher.qrc">
-    <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
+   <iconset resource="agtv.qrc">
+    <normaloff>:/images/agtv_32.png</normaloff>:/images/agtv_32.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="1">
+    <widget class="QPushButton" name="pushButtonAuthorizeOnTwitch">
+     <property name="toolTip">
+      <string>Authorize this app (twitcher) on twitch.tv</string>
+     </property>
+     <property name="text">
+      <string>Authorize</string>
+     </property>
+     <property name="icon">
+      <iconset resource="agtv.qrc">
+       <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
@@ -43,7 +39,7 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
+   <item row="1" column="1">
     <widget class="QLineEdit" name="lineEditOAuthToken">
      <property name="toolTip">
       <string>Paste your Access-Token here.</string>
@@ -56,7 +52,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="2">
+   <item row="2" column="1">
     <widget class="QPushButton" name="pushButtonSave">
      <property name="toolTip">
       <string>Save OAuthToken</string>
@@ -65,26 +61,23 @@
       <string>Save</string>
      </property>
      <property name="icon">
-      <iconset resource="twitcher.qrc">
+      <iconset>
        <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
      </property>
     </widget>
    </item>
-   <item row="0" column="2">
-    <widget class="QPushButton" name="pushButtonAuthorizeOnTwitch">
-     <property name="toolTip">
-      <string>Authorize this app (twitcher) on twitch.tv</string>
-     </property>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="pushButtonTestOAuth">
      <property name="text">
-      <string>Authorize</string>
+      <string>Test Authentication</string>
      </property>
      <property name="icon">
-      <iconset resource="twitcher.qrc">
+      <iconset resource="agtv.qrc">
        <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
      </property>
     </widget>
    </item>
-   <item row="4" column="2">
+   <item row="4" column="1">
     <widget class="QPushButton" name="pushButtonREvoke">
      <property name="toolTip">
       <string>Revoke twitcher permissions from twitch.tv</string>
@@ -93,18 +86,7 @@
       <string>Revoke</string>
      </property>
      <property name="icon">
-      <iconset resource="twitcher.qrc">
-       <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2">
-    <widget class="QPushButton" name="pushButtonTestOAuth">
-     <property name="text">
-      <string>Test Authentication</string>
-     </property>
-     <property name="icon">
-      <iconset resource="twitcher.qrc">
+      <iconset resource="agtv.qrc">
        <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
      </property>
     </widget>
@@ -112,7 +94,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="twitcher.qrc"/>
+  <include location="agtv.qrc"/>
  </resources>
  <connections/>
 </ui>

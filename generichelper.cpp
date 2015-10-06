@@ -4,7 +4,7 @@
 void genericHelper::setOAuthAccessToken(QString oauthtoken){
 
 
-         QSettings settings("Abyle", "twitcher");
+         QSettings settings("Abyle", genericHelper::getAppName());
          settings.setValue("oauthAccessToken", oauthtoken);
          settings.sync();
 
@@ -14,7 +14,7 @@ void genericHelper::setOAuthAccessToken(QString oauthtoken){
 void genericHelper::setUsername(QString username){
 
 
-         QSettings settings("Abyle", "twitcher");
+         QSettings settings("Abyle", genericHelper::getAppName());
          settings.setValue("username", username);
          settings.sync();
 
@@ -24,7 +24,7 @@ void genericHelper::setUsername(QString username){
 void genericHelper::setOBSBin(QString obsbinpath){
 
 
-         QSettings settings("Abyle", "twitcher");
+         QSettings settings("Abyle", genericHelper::getAppName());
          settings.setValue("obsbin", obsbinpath);
          settings.sync();
 
@@ -36,7 +36,7 @@ void genericHelper::setOBSBin(QString obsbinpath){
 void genericHelper::setUpdateInterval(int interval){
 
 
-         QSettings settings("Abyle", "twitcher");
+         QSettings settings("Abyle", genericHelper::getAppName());
          settings.setValue("update_interval", QString::number(interval));
          settings.sync();
 
@@ -45,7 +45,7 @@ void genericHelper::setUpdateInterval(int interval){
 
 int genericHelper::getUpdateInterval(){
 
-    QSettings settings("Abyle", "twitcher");
+    QSettings settings("Abyle", genericHelper::getAppName());
 
     QString _interval = "5";
 
@@ -61,10 +61,59 @@ int genericHelper::getUpdateInterval(){
 
 
 
+void genericHelper::setViewerStreamsMute(QStringList mutes){
+
+
+         QSettings settings("Abyle", genericHelper::getAppName());
+         settings.setValue("viewerstreamsmute", mutes.join(","));
+         settings.sync();
+
+
+}
+
+QStringList genericHelper::getViewerStreamsMute(){
+
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QStringList _viewerstreamsmute;
+
+    if (settings.value("viewerstreamsmute", "").toString().length() > 1) {
+        _viewerstreamsmute = settings.value("viewerstreamsmute", "").toString().split(",");
+
+    }
+
+    return _viewerstreamsmute;
+}
+
+
+void genericHelper::setViewerStreams(QStringList streams){
+
+
+         QSettings settings("Abyle", genericHelper::getAppName());
+         settings.setValue("viewerstreams", streams.join(","));
+         settings.sync();
+
+
+}
+
+QStringList genericHelper::getViewerStreams(){
+
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QStringList _viewerstreams;
+
+    if (settings.value("viewerstreams", "").toString().length() > 1) {
+        _viewerstreams = settings.value("viewerstreams", "").toString().split(",");
+
+    }
+
+    return _viewerstreams;
+}
+
 void genericHelper::setFollows(QStringList follows){
 
 
-         QSettings settings("Abyle", "twitcher");
+         QSettings settings("Abyle", genericHelper::getAppName());
          settings.setValue("follows", follows.join(","));
          settings.sync();
 
@@ -73,7 +122,7 @@ void genericHelper::setFollows(QStringList follows){
 
 QStringList genericHelper::getFollows(){
 
-    QSettings settings("Abyle", "twitcher");
+    QSettings settings("Abyle", genericHelper::getAppName());
 
     QStringList _follows;
 
@@ -85,12 +134,35 @@ QStringList genericHelper::getFollows(){
     return _follows;
 }
 
+void genericHelper::setBookmarks(QStringList bookmarks){
+
+
+         QSettings settings("Abyle", genericHelper::getAppName());
+         settings.setValue("bookmarks", bookmarks.join(","));
+         settings.sync();
+
+
+}
+
+QStringList genericHelper::getBookmarks(){
+
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QStringList _bookmarks;
+
+    if (settings.value("bookmarks", "").toString().length() > 1) {
+        _bookmarks = settings.value("bookmarks", "").toString().split(",");
+
+    }
+
+    return _bookmarks;
+}
 
 
 void genericHelper::setCheckUpdate(bool checkupdate){
 
 
-         QSettings settings("Abyle", "twitcher");
+         QSettings settings("Abyle", genericHelper::getAppName());
          settings.setValue("check_update", checkupdate);
          settings.sync();
 
@@ -99,7 +171,7 @@ void genericHelper::setCheckUpdate(bool checkupdate){
 
 bool genericHelper::getCheckUpdate(){
 
-    QSettings settings("Abyle", "twitcher");
+    QSettings settings("Abyle", genericHelper::getAppName());
 
     bool _checkupdate;
 
@@ -117,7 +189,7 @@ bool genericHelper::getCheckUpdate(){
 void genericHelper::setLoadGameImages(bool gameimages){
 
 
-         QSettings settings("Abyle", "twitcher");
+         QSettings settings("Abyle", genericHelper::getAppName());
          settings.setValue("load_game_images", gameimages);
          settings.sync();
 
@@ -126,7 +198,7 @@ void genericHelper::setLoadGameImages(bool gameimages){
 
 bool genericHelper::getLoadGameImages(){
 
-    QSettings settings("Abyle", "twitcher");
+    QSettings settings("Abyle", genericHelper::getAppName());
 
     bool _gameimages;
 
@@ -146,16 +218,58 @@ bool genericHelper::getLoadGameImages(){
 void genericHelper::setClearLogOnStartup(bool clearlog){
 
 
-         QSettings settings("Abyle", "twitcher");
+         QSettings settings("Abyle", genericHelper::getAppName());
          settings.setValue("clear_log_on_start", clearlog);
          settings.sync();
 
 
 }
 
+bool genericHelper::getCloseToTray()
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    bool _closetotray;
+
+    if (settings.value("close_to_tray", "").toString().length() > 1) {
+        _closetotray = settings.value("close_to_tray", "").toBool();
+
+    }
+
+    return _closetotray;
+}
+
+void genericHelper::setCloseToTray(bool closetotray)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.setValue("close_to_tray", closetotray);
+    settings.sync();
+}
+
+bool genericHelper::getStreamOnlineNotify()
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    bool _streamonlinenotify;
+
+    if (settings.value("stream_online_notify", "").toString().length() > 1) {
+        _streamonlinenotify = settings.value("stream_online_notify", "").toBool();
+
+    }
+
+    return _streamonlinenotify;
+}
+
+void genericHelper::setStreamOnlineNotify(bool streamonlinenotify)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.setValue("stream_online_notify", streamonlinenotify);
+    settings.sync();
+}
+
 bool genericHelper::getClearLogOnStartup(){
 
-    QSettings settings("Abyle", "twitcher");
+    QSettings settings("Abyle", genericHelper::getAppName());
 
     bool _clearlog;
 
@@ -171,7 +285,7 @@ bool genericHelper::getClearLogOnStartup(){
 
 QString genericHelper::getUsername(){
 
-    QSettings settings("Abyle", "twitcher");
+    QSettings settings("Abyle", genericHelper::getAppName());
 
     QString _username = "";
 
@@ -185,7 +299,7 @@ QString genericHelper::getUsername(){
 
 QString genericHelper::getOBSBin(){
 
-    QSettings settings("Abyle", "twitcher");
+    QSettings settings("Abyle", genericHelper::getAppName());
 
     QString _obsbin = "";
 
@@ -226,7 +340,7 @@ void genericHelper::writeTwitcherOBSConfig(QString streamkey){
 
 
 
-    QFile profilefile(QString(::getenv("APPDATA")) + QDir::separator() + "OBS" + QDir::separator() + "profiles" + QDir::separator() + "twitcher.ini");
+    QFile profilefile(QString(::getenv("APPDATA")) + QDir::separator() + "OBS" + QDir::separator() + "profiles" + QDir::separator() + genericHelper::getAppName()+".ini");
     if (!profilefile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
     return;
 
@@ -276,7 +390,7 @@ void genericHelper::writeTwitcherOBSScenesConfig(){
 
     scenefile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
 
-    QString obsSceneImageFilePath = QCoreApplication::applicationFilePath().replace("/twitcher.exe","") + QDir::separator() + "OBS-Images";
+    QString obsSceneImageFilePath = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","") + QDir::separator() + "OBS-Images";
 
     QString img_blackout = obsSceneImageFilePath + QDir::separator() + "blackout.png";
     img_blackout = img_blackout.replace("/", "\\");
@@ -295,7 +409,7 @@ void genericHelper::writeTwitcherOBSScenesConfig(){
     img_afk = img_afk.replace("\\", "\\\\");
 
 
-    qDebug() << obsSceneImageFilePath;
+
 
 
 
@@ -412,6 +526,7 @@ void genericHelper::writeTwitcherOBSScenesConfig(){
 
 
 
+
 void genericHelper::executeAddonHexchat(QStringList follows){
 
 
@@ -421,7 +536,7 @@ void genericHelper::executeAddonHexchat(QStringList follows){
 
 
 
-    addonHexchatBin = QCoreApplication::applicationFilePath().replace("/twitcher.exe","") + QDir::separator() +
+    addonHexchatBin = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","") + QDir::separator() +
             "3rdparty-addons" + QDir::separator() +
             "hexchat" + QDir::separator() + "hexchat.exe";
 
@@ -501,7 +616,7 @@ void genericHelper::executeAddonHexchat(QStringList follows){
 bool genericHelper::openLogWithNotepad() {
 
   QProcess *notepad = new QProcess(qApp);
-  notepad->start("notepad.exe", QStringList() << genericHelper::getAppDir() + QDir::separator() + "twitcher.log");
+  notepad->start("notepad.exe", QStringList() << genericHelper::getAppDir() + QDir::separator() + genericHelper::getAppName()+".log");
 
 
 
@@ -511,7 +626,7 @@ bool genericHelper::openLogWithNotepad() {
 void genericHelper::setErrorTimestamp() {
 
 
-    QSettings settings("Abyle", "twitcher");
+    QSettings settings("Abyle", genericHelper::getAppName());
     settings.setValue("errorTimestamp",  QDateTime::currentMSecsSinceEpoch());
     settings.sync();
 }
@@ -519,7 +634,7 @@ void genericHelper::setErrorTimestamp() {
 bool genericHelper::getEnoughTimeSinceLastErrorElapsed() {
 
 
-    QSettings settings("Abyle", "twitcher");
+    QSettings settings("Abyle", genericHelper::getAppName());
 
     QString _errortime = "";
 
@@ -545,9 +660,260 @@ bool genericHelper::getEnoughTimeSinceLastErrorElapsed() {
 }
 
 
+
+
+int genericHelper::getStreamHeight(){
+
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QString _viewerstreamheight = "";
+
+    if (settings.value("viewerstreamheight", "").toString().length() > 1) {
+        _viewerstreamheight = settings.value("viewerstreamheight", "").toString();
+
+    }
+
+    return _viewerstreamheight.toInt();
+
+
+}
+
+int genericHelper::getStreamWidth(){
+
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QString _viewerstreamwidth = "";
+
+    if (settings.value("viewerstreamwidth", "").toString().length() > 1) {
+        _viewerstreamwidth = settings.value("viewerstreamwidth", "").toString();
+
+    }
+
+    return _viewerstreamwidth.toInt();
+
+
+}
+
+int genericHelper::getSelectedScreen(){
+
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QString _viewerselectedscreen = "";
+
+    if (settings.value("viewerselectedscreen", "").toString().length() > 0) {
+        _viewerselectedscreen = settings.value("viewerselectedscreen", "").toString();
+
+    }
+
+    return _viewerselectedscreen.toInt();
+
+
+}
+
+
+
+int genericHelper::getConcurrentStreams(){
+
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QString _viewerconcurrentstreams = "";
+
+    if (settings.value("viewerconcurrentstreams", "").toString().length() > 0) {
+        _viewerconcurrentstreams = settings.value("viewerconcurrentstreams", "").toString();
+
+    }
+
+    return _viewerconcurrentstreams.toInt();
+
+
+}
+
+void genericHelper::setConcurrentStreams(int concurrentstreams){
+
+
+         QSettings settings("Abyle", genericHelper::getAppName());
+         settings.setValue("viewerconcurrentstreams", QString::number(concurrentstreams));
+         settings.sync();
+
+
+}
+
+
+
+
+void genericHelper::setSelectedScreen(int selectedScreen){
+
+
+         QSettings settings("Abyle", genericHelper::getAppName());
+         settings.setValue("viewerselectedscreen", QString::number(selectedScreen));
+         settings.sync();
+
+
+}
+
+void genericHelper::setStreamWidth(int streamWidth){
+
+
+         QSettings settings("Abyle", genericHelper::getAppName());
+         settings.setValue("viewerstreamwidth", QString::number(streamWidth));
+         settings.sync();
+
+
+}
+
+void genericHelper::setPrimaryScreenWidth(int screenwidth){
+
+
+         QSettings settings("Abyle", genericHelper::getAppName());
+         settings.setValue("viewerprimaryscreenwidth", QString::number(screenwidth));
+         settings.sync();
+
+
+}
+
+bool genericHelper::setPosition(QString posname, QString geo)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.setValue("position_"+posname, geo);
+    settings.sync();
+
+    return true;
+}
+
+bool genericHelper::deletePosition(QString posname)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.remove("position_"+posname);
+    settings.sync();
+
+    return true;
+}
+
+QString genericHelper::getPosition(QString posname)
+{
+
+    if (posname == "<default>") {
+        return "10,10,500,500";
+    }
+
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QString _pos = "";
+
+    if (settings.value("position_"+posname, "").toString().length() > 1) {
+        _pos = settings.value("position_"+posname, "").toString();
+
+    }
+
+    return _pos;
+}
+
+QHash<QString, QString> genericHelper::getPositions()
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QHash<QString, QString> hash;
+
+    foreach (QString setting, settings.allKeys()) {
+
+        if (setting.startsWith("position_")) {
+
+            hash.insert(setting.replace("position_",""), settings.value(setting).toString());
+        }
+    }
+
+    return hash;
+}
+
+
+
+int genericHelper::getPrimaryScreenWidth(){
+
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QString _viewerprimaryscreenwidth = "";
+
+    if (settings.value("viewerprimaryscreenwidth", "").toString().length() > 1) {
+        _viewerprimaryscreenwidth = settings.value("viewerprimaryscreenwidth", "").toString();
+
+    }
+
+    return _viewerprimaryscreenwidth.toInt();
+
+
+}
+
+
+
+void genericHelper::setPlayerQuality(QString quality){
+
+
+         QSettings settings("Abyle", genericHelper::getAppName());
+         settings.setValue("viewerplayerquality", quality);
+         settings.sync();
+
+
+}
+
+QString genericHelper::getPlayerQuality(){
+
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QString _viewerplayerquality = "";
+
+    if (settings.value("viewerplayerquality", "").toString().length() > 1) {
+        _viewerplayerquality = settings.value("viewerplayerquality", "").toString();
+
+    }
+
+    return _viewerplayerquality;
+
+
+}
+
+
+void genericHelper::setPlayerCacheSize(int cachesize){
+
+
+         QSettings settings("Abyle", genericHelper::getAppName());
+         settings.setValue("viewerplayercachesize", QString::number(cachesize));
+         settings.sync();
+
+
+}
+
+int genericHelper::getPlayerCacheSize(){
+
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QString _viewerplayercachesize = "";
+
+    if (settings.value("viewerplayercachesize", "").toString().length() > 1) {
+        _viewerplayercachesize = settings.value("viewerplayercachesize", "").toString();
+
+    }
+
+    return _viewerplayercachesize.toInt();
+
+
+}
+
+
+
+void genericHelper::setStreamHeight(int streamHeight){
+
+
+         QSettings settings("Abyle", genericHelper::getAppName());
+         settings.setValue("viewerstreamheight", QString::number(streamHeight));
+         settings.sync();
+
+
+}
+
+
 QString genericHelper::getOAuthAccessToken(){
 
-    QSettings settings("Abyle", "twitcher");
+    QSettings settings("Abyle", genericHelper::getAppName());
 
     QString _oauthtoken = "";
 
@@ -563,9 +929,9 @@ QString genericHelper::getOAuthAccessToken(){
 
 QString genericHelper::getAppDir(){
 
-    QString _appDir = QDir::homePath() + QDir::separator () + "twitcher";
+    QString _appDir = QDir::homePath() + QDir::separator () + genericHelper::getAppName();
 
-    QSettings settings("Abyle", "twitcher");
+    QSettings settings("Abyle", genericHelper::getAppName());
 
     if (settings.value("appDir", "").toString().length() > 1) {
 
@@ -575,7 +941,7 @@ QString genericHelper::getAppDir(){
     } else {
 
 
-        QSettings settings("Abyle","twitcher");
+        QSettings settings("Abyle",genericHelper::getAppName());
         settings.setValue("appDir", _appDir);
         settings.sync();
     }
@@ -599,8 +965,13 @@ QString genericHelper::getAppDir(){
 
 }
 
+QString genericHelper::getAppName()
+{
+    return "agtv";
+}
+
 void genericHelper::log(QString logstring) {
-    QFile file(genericHelper::getAppDir() + QDir::separator() + "twitcher.log");
+    QFile file(genericHelper::getAppDir() + QDir::separator() + genericHelper::getAppName()+".log");
     if (!file.open(QIODevice::Append | QIODevice::WriteOnly | QIODevice::Text))
     return;
 
@@ -612,7 +983,7 @@ void genericHelper::log(QString logstring) {
 }
 
 void genericHelper::deleteLog() {
-    QFile file(genericHelper::getAppDir() + QDir::separator() + "twitcher.log");
+    QFile file(genericHelper::getAppDir() + QDir::separator() + genericHelper::getAppName()+".log");
     file.remove();
     file.close();
 }

@@ -12,6 +12,7 @@
 #include <QtCore/QJsonValue>
 #include "generichelper.h"
 #include "twitchapi.h"
+#include "twitchclientid.h"
 
 namespace Ui {
 class dialogOauthSetup;
