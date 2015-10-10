@@ -16,6 +16,7 @@ public:
    AdvQSortFilterProxyModel(QObject* parent);
    QVariant data ( const QModelIndex & index, int role ) const;
    bool updateCol(int keycol, QVariant key,  int updatecol, QVariant updatedata);
+   QVariant getColData(int keycol, QVariant key, int updatecol);
    void setShowOffline(bool showoffline);
 
 protected:

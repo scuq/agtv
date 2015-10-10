@@ -19,6 +19,12 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     restoreGeometry(genericHelper::getGeometry("main").toByteArray());
     restoreState(genericHelper::getWindowstate("main").toByteArray());
 
+    this->ui->tabWidget->setCurrentIndex(genericHelper::getSelectedTab());
+
+
+
+
+
 
 
 
@@ -45,16 +51,22 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     stmodel = new QStandardItemModel(0,3,this);
     stproxymodel = new AdvQSortFilterProxyModel(this);
 
+    stmodelbookmarks = new QStandardItemModel(0,3,this);
+    stproxymodelbookmarks = new AdvQSortFilterProxyModel(this);
+
+
+
     stproxymodel->setSourceModel(stmodel);
 
     QStringList horzHeaders;
     horzHeaders << "Name" << "Status" << "Status Message";
     stmodel->setHorizontalHeaderLabels(horzHeaders);
 
-    stmodelbookmarks = new QStandardItemModel(0,3,this);
-    stproxymodelbookmarks = new AdvQSortFilterProxyModel(this);
+
 
     stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
+
+
 
 
     stmodelbookmarks->setHorizontalHeaderLabels(horzHeaders);
@@ -122,6 +134,20 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     if (genericHelper::getUsername() == "") {
         this->disableInput();
+    }
+
+
+    if (genericHelper::getShowOfflineStreamers() == true) {
+        this->stproxymodel->setShowOffline(true);
+        this->stproxymodelbookmarks->setShowOffline(true);
+        this->ui->actionShow_Offline_Streamers->setChecked(true);
+
+
+    } else {
+        this->stproxymodel->setShowOffline(false);
+        this->stproxymodelbookmarks->setShowOffline(false);
+        this->ui->actionShow_Offline_Streamers->setChecked(false);
+
     }
 
 
@@ -761,6 +787,8 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
 
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
+    int stateTrans = false;
+
 
    for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
        onlinename = "";
@@ -774,10 +802,16 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
 
 
 
+              if (this->stproxymodel->getColData(0,onlinename.toLower(),1) != "online") {
+                stateTrans = true;
+              }
               bool updateok = stproxymodel->updateCol(0,onlinename.toLower(),1,"online");
-              if ((updateok == true) && (genericHelper::getStreamOnlineNotify() == true)) {
+
+              if ((stateTrans == true) && (updateok == true) && (genericHelper::getStreamOnlineNotify() == true)) {
                   emit (on_notifyByTray(onlinename+" is now online.",iter.value().toObject()["channel"].toObject()["status"].toString()));
               }
+
+
 
 
 
@@ -926,7 +960,7 @@ void tpMainWindow::on_actionCredits_triggered()
 void tpMainWindow::on_actionShow_Offline_Streamers_toggled(bool arg1)
 {
 
-
+    genericHelper::setShowOfflineStreamers(arg1);
 
     this->stproxymodel->setShowOffline(arg1);
     stproxymodel->setSourceModel(stmodel);
@@ -1077,4 +1111,9 @@ void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint
 void tpMainWindow::on_actionLogfile_triggered()
 {
      genericHelper::openLogWithNotepad();
+}
+
+void tpMainWindow::on_tabWidget_currentChanged(int index)
+{
+    genericHelper::setSelectedTab(index);
 }

@@ -51,6 +51,8 @@ public:
     static void setPlayerQuality(QString quality);
     static int getSelectedScreen();
     static void setSelectedScreen(int selectedScreen);
+    static int getSelectedTab();
+    static void setSelectedTab(int tab);
     static int getStreamHeight();
     static void setStreamHeight(int streamHeight);
     static void setUsername(QString username);
@@ -100,7 +102,8 @@ public:
     static void setJoinBookmarks(bool join);
     static bool getStreamPositioning();
     static void setStreamPositioning(bool positioning);
-
+    static bool getShowOfflineStreamers();
+    static void setShowOfflineStreamers(bool showoffline);
 
 
 signals:
@@ -108,6 +111,7 @@ signals:
 public slots:
 
 };
+
 
 
 

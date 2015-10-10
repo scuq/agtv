@@ -109,6 +109,8 @@ private slots:
 
     void on_actionLogfile_triggered();
 
+    void on_tabWidget_currentChanged(int index);
+
 private:
     Ui::tpMainWindow *ui;
 

@@ -63,6 +63,27 @@ bool AdvQSortFilterProxyModel::updateCol(int keycol, QVariant key, int updatecol
 
 }
 
+QVariant AdvQSortFilterProxyModel::getColData(int keycol, QVariant key, int updatecol)
+{
+
+    QVariant data = "";
+
+    for(int i = 0; i<this->sourceModel()->rowCount(); ++i)
+    {
+        QModelIndex key_index = this->sourceModel()->index(i,keycol);
+        QModelIndex update_index = this->sourceModel()->index(i,updatecol);
+
+        if ( this->sourceModel()->itemData(key_index)[0].toString() == key.toString() )  {
+
+            data = this->sourceModel()->data(update_index,0);
+        }
+    }
+
+    return data;
+
+
+}
+
 void AdvQSortFilterProxyModel::setShowOffline(bool showoffline)
 {
     this->showOffline = showoffline;

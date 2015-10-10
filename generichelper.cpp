@@ -323,6 +323,30 @@ void genericHelper::setStreamPositioning(bool positioning)
     settings.sync();
 }
 
+bool genericHelper::getShowOfflineStreamers()
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    bool _showoffline;
+
+    if (settings.value("show_offline_streamers", "").toString().length() > 1) {
+        _showoffline = settings.value("show_offline_streamers", "").toBool();
+
+    } else {
+        _showoffline = true;
+    }
+
+    return _showoffline;
+}
+
+void genericHelper::setShowOfflineStreamers(bool showoffline)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.setValue("show_offline_streamers", showoffline);
+    settings.sync();
+}
+
+
 
 
 bool genericHelper::getCheckUpdate(){
@@ -913,6 +937,28 @@ void genericHelper::setSelectedScreen(int selectedScreen){
          settings.setValue("viewerselectedscreen", QString::number(selectedScreen));
          settings.sync();
 
+
+}
+
+int genericHelper::getSelectedTab()
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QString _selectedtab = "";
+
+    if (settings.value("selectedtab", "").toString().length() > 0) {
+        _selectedtab = settings.value("selectedtab", "").toString();
+
+    }
+
+    return _selectedtab.toInt();
+}
+
+void genericHelper::setSelectedTab(int tab)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.setValue("selectedtab", QString::number(tab));
+    settings.sync();
 
 }
 
