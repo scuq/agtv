@@ -7,6 +7,18 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // delete logfile if clear log on startup setting is true
+    if (genericHelper::getClearLogOnStartup() == true) {
+        genericHelper::deleteLog();
+    }
+
+
+    restoreGeometry(genericHelper::getGeometry("main").toByteArray());
+    restoreState(genericHelper::getWindowstate("main").toByteArray());
+
+
+
+
     xOffset = 0;
     yOffset = 0;
 
@@ -17,6 +29,8 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     updateInterval = 12000;
 
+
+
     // ignore update intervals <9 seconds
     if (genericHelper::getUpdateInterval() >= 9) {
         updateInterval = genericHelper::getUpdateInterval() * 1000;
@@ -24,14 +38,39 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     this->ui->mainToolBar->hide();
 
+
+    stmodel = new QStandardItemModel(0,3,this);
+    stproxymodel = new AdvQSortFilterProxyModel(this);
+
+    stproxymodel->setSourceModel(stmodel);
+
+    QStringList horzHeaders;
+    horzHeaders << "Name" << "Status" << "Status Message";
+    stmodel->setHorizontalHeaderLabels(horzHeaders);
+
+    stmodelbookmarks = new QStandardItemModel(0,3,this);
+    stproxymodelbookmarks = new AdvQSortFilterProxyModel(this);
+
+    stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
+
+
+    stmodelbookmarks->setHorizontalHeaderLabels(horzHeaders);
+
+    this->ui->tableView->horizontalHeader()->show();
+    this->ui->tableViewBookmarks->horizontalHeader()->show();
+
+
+
+    this->ui->tableView->setModel(stproxymodel);
+    this->ui->tableViewBookmarks->setModel(stproxymodelbookmarks);
+
+
     diaOauthSetup = new dialogOauthSetup(this);
     diaPositioner = new DialogPositioner(this);
     diaLaunch = new DialogLaunch(this);
     diaOptions = new DialogOptions(this);
 
-    if (genericHelper::getUsername() == "") {
-        this->disableInput();
-    } else {
+
 
 
     // init twitch api object
@@ -45,6 +84,11 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(this, SIGNAL(setStreamUrl(QString)), diaLaunch, SLOT(setStreamUrl(QString)));
     QObject::connect(diaLaunch, SIGNAL(startStreamPlay(QString, QString, QString, int, int, int , int, bool, QString)), this, SLOT(executePlayer(QString, QString, QString, int, int, int , int, bool, QString)));
 
+    QObject::connect(diaOauthSetup, SIGNAL(twitchAuthSetupChanged(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
+
+
+    QObject::connect(this->ui->lineEditFilter, SIGNAL(textChanged(QString)), this->stproxymodel, SLOT(setFilterRegExp(QString)));
+    QObject::connect(this->ui->lineEditFilterBookmark, SIGNAL(textChanged(QString)), this->stproxymodelbookmarks, SLOT(setFilterRegExp(QString)));
 
     this->loadData();
 
@@ -63,7 +107,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(refreshTimer, SIGNAL(timeout()), this, SLOT(on_loadData()));
     refreshTimer->start(updateInterval);
 
-    }
+
 
     // some stuff needed for the tray icon
     createActions();
@@ -71,7 +115,11 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     setIcon();
     trayIcon->show();
 
+    showOfflineStreamers = true;
 
+    if (genericHelper::getUsername() == "") {
+        this->disableInput();
+    }
 
 
 }
@@ -86,6 +134,13 @@ tpMainWindow::~tpMainWindow()
 
 void tpMainWindow::disableInput()
 {
+
+    refreshTimer->stop();
+
+    genericHelper::setClearLogOnStartup(true);
+
+
+
     QList<QWidget*> widgets = this->findChildren<QWidget*>();
 
 
@@ -110,6 +165,32 @@ void tpMainWindow::disableInput()
                 }
 }
 
+void tpMainWindow::enableInput()
+{
+    QList<QWidget*> widgets = this->findChildren<QWidget*>();
+
+
+                foreach (QWidget *widget, widgets)
+                {
+
+                    if (
+                    (widget->objectName() != "mainToolBar") &&
+                    (widget->objectName() != "menuBar") &&
+                    (widget->objectName() != "menuFile") &&
+                    (widget->objectName() != "pushButtonAuthorizeOnTwitch") &&
+                    (widget->objectName() != "lineEditOAuthToken") &&
+                    (widget->objectName() != "pushButtonTestOAuth") &&
+                    (widget->objectName() != "pushButtonREvoke") &&
+                    (widget->objectName() != "pushButtonSave") &&
+                    (widget->objectName() != "dialogOauthSetup")
+                    )
+                    {
+
+                    widget->setEnabled(true);
+                    }
+                }
+}
+
 void tpMainWindow::loadBookmarks()
 {
     QStringList loadedbookmarks;
@@ -119,39 +200,46 @@ void tpMainWindow::loadBookmarks()
 
     QStringList currentbookmarks;
 
-    QTreeWidgetItemIterator it(this->ui->treeWidgetBookmarks);
-    while (*it) {
-        if ((*it)->text(0) != "")
-            currentbookmarks << (*it)->text(0);
-        ++it;
-    }
+
+
+
+      for( int row = 0; row < this->stmodelbookmarks->rowCount(); ++row )
+      {
+        currentbookmarks << this->stmodelbookmarks->item( row, 0 )->text();
+
+      }
+
 
 
 
      QListIterator<QString> itr (loadedbookmarks);
-
+    int i = 0;
      while (itr.hasNext()) {
            QString current = itr.next();
 
            if (currentbookmarks.count(current) <= 0) {
 
-               QTreeWidgetItem * item = new QTreeWidgetItem();
+
 
                tw->getStream(current);
 
-                if (this->ui->treeWidgetBookmarks->findItems(current,Qt::MatchExactly,0).length() <= 0) {
-
-                   item->setText(0,current);
-                   item->setText(1,"offline");
-
-                   item->setTextColor(1,  QColor(255,2,29));
+                if (this->stmodelbookmarks->findItems(current,Qt::MatchExactly,0).length() <= 0) {
 
 
-                   this->ui->treeWidgetBookmarks->addTopLevelItem(item);
+                   QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(current));
+                   stmodelbookmarks->setItem(i, 0, qsitem0);
+                   QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
+                   stmodelbookmarks->setItem(i, 1, qsitem1);
+                   QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
+                   stmodelbookmarks->setItem(i, 2, qsitem2);
+
+
+
                 }
            }
 
            tw->getBookmarkStatus(current);
+           ++i;
      }
 }
 
@@ -159,34 +247,39 @@ void tpMainWindow::saveBookmarks()
 {
     QStringList currentbookmarks;
 
-    QTreeWidgetItemIterator it(this->ui->treeWidgetBookmarks);
-    while (*it) {
-        if ((*it)->text(0) != "")
-            currentbookmarks << (*it)->text(0);
-        ++it;
-    }
+    //QTreeWidgetItemIterator it(this->ui->treeWidgetBookmarks);
+    //while (*it) {
+     //   if ((*it)->text(0) != "")
+     //       currentbookmarks << (*it)->text(0);
+     //   ++it;
+    //}
 
+    for( int row = 0; row < this->stmodelbookmarks->rowCount(); ++row )
+    {
+      currentbookmarks << this->stmodelbookmarks->item( row, 0 )->text();
+
+    }
 
     genericHelper::setBookmarks(currentbookmarks);
 }
 
 void tpMainWindow::enableDelete()
 {
-    this->ui->pushButtonDeleteBookmark->setEnabled(true);
-    this->ui->pushButtonDeleteBookmarkCancel->setEnabled(true);
-    this->ui->lineEditDeleteBookmark->setEnabled(true);
-    this->ui->lineEditNewBookmark->setEnabled(false);
-    this->ui->pushButtonAddBookmark->setEnabled(false);
+    //this->ui->pushButtonDeleteBookmark->setEnabled(true);
+    //this->ui->pushButtonDeleteBookmarkCancel->setEnabled(true);
+    //this->ui->lineEditDeleteBookmark->setEnabled(true);
+    //this->ui->lineEditNewBookmark->setEnabled(false);
+    //this->ui->pushButtonAddBookmark->setEnabled(false);
     launchBookmarkEnabled = false;
 }
 
 void tpMainWindow::disableDelete()
 {
-    this->ui->pushButtonDeleteBookmark->setEnabled(false);
-    this->ui->pushButtonDeleteBookmarkCancel->setEnabled(false);
-    this->ui->lineEditDeleteBookmark->setEnabled(false);
-    this->ui->lineEditNewBookmark->setEnabled(true);
-    this->ui->pushButtonAddBookmark->setEnabled(true);
+    //this->ui->pushButtonDeleteBookmark->setEnabled(false);
+    //this->ui->pushButtonDeleteBookmarkCancel->setEnabled(false);
+    //this->ui->lineEditDeleteBookmark->setEnabled(false);
+    //this->ui->lineEditNewBookmark->setEnabled(true);
+    //this->ui->pushButtonAddBookmark->setEnabled(true);
     launchBookmarkEnabled = true;
 }
 
@@ -200,6 +293,8 @@ void tpMainWindow::loadData()
 
 void tpMainWindow::closeEvent(QCloseEvent *event)
 {
+
+
     if (genericHelper::getCloseToTray() == true) {
 
     if (trayIcon->isVisible()) {
@@ -219,18 +314,38 @@ void tpMainWindow::closeEvent(QCloseEvent *event)
 
 void tpMainWindow::createActions()
 {
+
+    //tray
     open = new QAction(tr("&Open"), this);
     connect(open, SIGNAL(triggered()), this, SLOT(show()));
 
 
     close = new QAction(tr("&Quit"), this);
     connect(close, SIGNAL(triggered()), this, SLOT(myQuit()));
+
+    open_in_browser = new QAction(tr("&Open in Browser"), this);
+    connect(open_in_browser, SIGNAL(triggered()), this, SLOT(openStreamBrowser()));
+
+    open_in_browser_bookmark = new QAction(tr("&Open in Browser"), this);
+    connect(open_in_browser_bookmark, SIGNAL(triggered()), this, SLOT(openStreamBrowserBookmark()));
+
+
+
+    delete_bookmark = new QAction(tr("&Remove"), this);
+    connect(delete_bookmark, SIGNAL(triggered()), this, SLOT(deleteBookmark()));
+
+    add_bookmark = new QAction(tr("&Add"), this);
+    connect(add_bookmark, SIGNAL(triggered()), this, SLOT(addBookmark()));
+
+
 }
 
 
 void tpMainWindow::myQuit()
 {
 
+    genericHelper::saveGeometry("main",saveGeometry());
+    genericHelper::saveWindowstate("main",saveState());
 
     for( int i=0; i<this->playerThreads.count(); ++i )
     {
@@ -240,6 +355,10 @@ void tpMainWindow::myQuit()
       //  i.next()->terminate();
    // }
 
+
+
+
+
     qApp->quit();
 
 }
@@ -247,6 +366,78 @@ void tpMainWindow::myQuit()
 void tpMainWindow::on_loadData()
 {
     this->loadData();
+}
+
+void tpMainWindow::openStreamBrowser()
+{
+
+    QString link = "http://www.twitch.tv/"+this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toString()+"/";
+    QDesktopServices::openUrl(QUrl(link));
+}
+
+void tpMainWindow::openStreamBrowserBookmark()
+{
+
+
+
+    QString link = "http://www.twitch.tv/"+this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toString()+"/";
+    QDesktopServices::openUrl(QUrl(link));
+}
+
+void tpMainWindow::deleteBookmark()
+{
+
+    refreshTimer->stop();
+
+    //get selections
+    QItemSelection selection = this->ui->tableViewBookmarks->selectionModel()->selection();
+
+    //find out selected rows
+    QList<int> removeRows;
+    foreach(QModelIndex index, selection.indexes()) {
+        if(!removeRows.contains(index.row())) {
+            removeRows.append(index.row());
+        }
+    }
+
+    qDebug() << selection;
+
+    //loop through all selected rows
+    for(int i=0;i<removeRows.count();++i)
+    {
+        //decrement all rows after the current - as the row-number will change if we remove the current
+        for(int j=i;j<removeRows.count();++j) {
+            if(removeRows.at(j) > removeRows.at(i)) {
+                removeRows[j]--;
+            }
+        }
+        //remove the selected row
+        this->stproxymodelbookmarks->removeRows(removeRows.at(i), 1);
+    }
+
+   //this->disableDelete();
+
+   this->saveBookmarks();
+   this->loadBookmarks();
+
+
+   refreshTimer->start(updateInterval);
+
+}
+
+void tpMainWindow::addBookmark()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Add Bookmark"), tr("Channel/Streamer name"), QLineEdit::Normal,"");
+    if (ok && !text.isEmpty()) {
+
+
+
+
+        genericHelper::addBookmark(text);
+        this->loadBookmarks();
+
+    }
 }
 
 
@@ -295,10 +486,7 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
     qresargs << "-d" << "20";
 
 
-    args << "--autoscale";
-    args << "--qt-minimal-view";
-    args << "--no-qt-system-tray";
-    args << "--network-caching=5000" ;
+    args = genericHelper::getVlcArgs();
 
     if (mute == true) {
         args << "--volume=0";
@@ -324,38 +512,63 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
     QFile playerBinFile( playerBin );
     QFile qresBinFile( qresBin );
 
-
-    if( (qresBinFile.exists()) && (playerBinFile.exists()) )
-
-    {
-
-        processLauncher *processL = new processLauncher();
-
-        processL->setProgramStr("\""+qresBin+"\"");
-        processL->setArgs(qresargs);
-
-        genericHelper::log("starting player: "+qresBin+" "+qresargs.join(" "));
-
-        processL->moveToThread(processLaunchThread);
-
-
-
-        // connect the thread start started signal to the process slot of the riftLogWatcher class
-        QObject::connect(processLaunchThread, SIGNAL(started()), processL, SLOT(launch()));
-
-        processLaunchThread->start();
+    if (genericHelper::getStreamPositioning() == true) {
 
 
 
 
 
+        if( (qresBinFile.exists()) && (playerBinFile.exists()) )
+
+        {
+
+            processLauncher *processL = new processLauncher();
+
+            processL->setProgramStr("\""+qresBin+"\"");
+            processL->setArgs(qresargs);
+
+            genericHelper::log("starting player: "+qresBin+" "+qresargs.join(" "));
+
+            processL->moveToThread(processLaunchThread);
 
 
 
+            // connect the thread start started signal to the process slot of the riftLogWatcher class
+            QObject::connect(processLaunchThread, SIGNAL(started()), processL, SLOT(launch()));
+
+            processLaunchThread->start();
 
 
 
+        }
+
+
+    } else {
+        if( playerBinFile.exists() )
+
+        {
+
+            processLauncher *processL = new processLauncher();
+
+            processL->setProgramStr("\""+playerBin+"\"");
+            processL->setArgs(args);
+
+            genericHelper::log("starting player: "+playerBin+" "+args.join(" "));
+
+            processL->moveToThread(processLaunchThread);
+
+
+
+            // connect the thread start started signal to the process slot of the riftLogWatcher class
+            QObject::connect(processLaunchThread, SIGNAL(started()), processL, SLOT(launch()));
+
+            processLaunchThread->start();
+
+
+
+        }
     }
+
     genericHelper::log("player or qres binary not found, not starting: "+qresBin+" "+qresargs.join(" "));
     this->playerThreads.append(processLaunchThread);
 
@@ -442,9 +655,12 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
                    QTreeWidgetItem * item = new QTreeWidgetItem();
 
 
+
                    tw->getStream(_val.toObject()["channel"].toObject()["name"].toString());
 
-                   if (this->ui->treeWidget->findItems(_val.toObject()["channel"].toObject()["name"].toString(),Qt::MatchExactly,0).length() <= 0) {
+
+                   if (this->stmodel->findItems(_val.toObject()["channel"].toObject()["name"].toString(),Qt::MatchExactly,0).length() <= 0) {
+
                         if (_val.toObject()["channel"].toObject()["name"].toString().length() > 0) {
 
                            item->setText(0,_val.toObject()["channel"].toObject()["name"].toString());
@@ -453,8 +669,17 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
                            item->setTextColor(1,  QColor(255,2,29));
 
 
-                           this->ui->treeWidget->addTopLevelItem(item);
+                           QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(_val.toObject()["channel"].toObject()["name"].toString()));
+                           stmodel->setItem(i, 0, qsitem0);
+                           QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
+                           stmodel->setItem(i, 1, qsitem1);
+                           QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(_val.toObject()["channel"].toObject()["status"].toString()));
+                           stmodel->setItem(i, 2, qsitem2);
+
+                           genericHelper::addFollow(_val.toObject()["channel"].toObject()["name"].toString());
                         }
+
+
                    }
 
             }
@@ -462,10 +687,9 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
        }
 
        }
-       this->ui->treeWidget->resizeColumnToContents(0);
-       this->ui->treeWidget->resizeColumnToContents(1);
-       this->ui->treeWidget->resizeColumnToContents(2);
-       this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
+
+       this->ui->tableView->resizeColumnsToContents();
+       //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
 
 
 
@@ -480,9 +704,13 @@ void tpMainWindow::updateFromJsonResponseBookmark(const QJsonDocument &jsonRespo
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
 
-   for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
+
+    for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
+       onlinename = "";
+       status = "";
        if (iter.key() == "stream")
        {
+
 
           if (iter.value() != QJsonValue::Null)
           {
@@ -490,34 +718,37 @@ void tpMainWindow::updateFromJsonResponseBookmark(const QJsonDocument &jsonRespo
               status = iter.value().toObject()["channel"].toObject()["status"].toString();
 
 
-              QTreeWidgetItemIterator it(this->ui->treeWidgetBookmarks);
-                 while (*it) {
-                     if ((*it)->text(0) == onlinename) {
-                         if (((*it)->text(1) == "offline") && (genericHelper::getStreamOnlineNotify() == true)) {
-
-                              if (trayIcon->isVisible()) {
-                                    trayIcon->showMessage(onlinename+" online", iter.value().toObject()["channel"].toObject()["status"].toString());
-
-                              }
-                         }
-                         (*it)->setText(1,"online");
-                         (*it)->setTextColor(1,  QColor(85,85,255));
-                         (*it)->setText(2,status);
 
 
-                     }
-                     ++it;
-                 }
+
+
+              for(int i = 0; i<this->stmodelbookmarks->rowCount(); ++i)
+              {
+
+                  QModelIndex streamer_index = this->stmodelbookmarks->index(i,0);
+                  QModelIndex online_index = this->stmodelbookmarks->index(i,1);
+                  QModelIndex status_index = this->stmodelbookmarks->index(i,2);
+
+                  if ( this->stmodelbookmarks->itemData(streamer_index)[0].toString() == onlinename )  {
+                      this->stmodelbookmarks->setData(online_index,"online");
+                      this->stmodelbookmarks->setData(status_index,status);
+                  }
+
+
+
+
+            }
+
 
           }
 
 
        }
+
    }
-   this->ui->treeWidgetBookmarks->resizeColumnToContents(0);
-   this->ui->treeWidgetBookmarks->resizeColumnToContents(1);
-   this->ui->treeWidgetBookmarks->resizeColumnToContents(2);
-   this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
+
+    this->ui->tableViewBookmarks->resizeColumnsToContents();
+   //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
 }
 
 void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer)
@@ -528,8 +759,8 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
 
-
    for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
+       onlinename = "";
        if (iter.key() == "stream")
        {
 
@@ -537,21 +768,15 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
           {
               onlinename = iter.value().toObject()["channel"].toObject()["name"].toString();
 
-              QTreeWidgetItemIterator it(this->ui->treeWidget);
-                 while (*it) {
-                     if ((*it)->text(0).toLower() == onlinename.toLower()) {
-                         if (((*it)->text(1) == "offline") && (genericHelper::getStreamOnlineNotify() == true)) {
 
-                              if (trayIcon->isVisible()) {
-                                  trayIcon->showMessage(onlinename+" online", iter.value().toObject()["channel"].toObject()["status"].toString());
 
-                              }
-                         }
-                         (*it)->setText(1,"online");
-                         (*it)->setTextColor(1,  QColor(85,85,255));
-                     }
-                     ++it;
-                 }
+
+              bool updateok = stproxymodel->updateCol(0,onlinename.toLower(),1,"online");
+              if ((updateok == true) && (genericHelper::getStreamOnlineNotify() == true)) {
+                  emit (on_notifyByTray(onlinename+" is now online.",iter.value().toObject()["channel"].toObject()["status"].toString()));
+              }
+
+
 
           }
 
@@ -585,68 +810,9 @@ void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
 
 
 
-void tpMainWindow::on_pushButtonAddBookmark_clicked()
-{
-    QTreeWidgetItem * item = new QTreeWidgetItem();
 
 
-    item->setText(0,this->ui->lineEditNewBookmark->text().toLower());
 
-
-    this->ui->treeWidgetBookmarks->addTopLevelItem(item);
-
-    this->saveBookmarks();
-    this->loadBookmarks();
-}
-
-void tpMainWindow::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
-{
-
-    if (item->text(1) == "online") {
-
-        if (launchBookmarkEnabled == true) {
-
-            tw->getChannelAccessToken(item->text(0));
-
-            if (diaLaunch->getDialogShown() == true)
-            {
-                diaLaunch->close();
-
-                diaLaunch->show();
-
-            } else {
-
-
-                diaLaunch->show();
-                diaLaunch->setDialogShown();
-            }
-            emit setStreamTitle( item->text(0), "" );
-        }
-    }
-}
-
-void tpMainWindow::on_treeWidgetBookmarks_itemDoubleClicked(QTreeWidgetItem *item, int column)
-{
-    if (item->text(1) == "online") {
-
-        tw->getChannelAccessToken(item->text(0));
-
-        if (diaLaunch->getDialogShown() == true)
-        {
-            diaLaunch->close();
-
-            diaLaunch->show();
-
-        } else {
-
-
-            diaLaunch->show();
-            diaLaunch->setDialogShown();
-        }
-        emit setStreamTitle( item->text(0), "" );
-
-    }
-}
 
 void tpMainWindow::on_actionPositioner_triggered()
 {
@@ -675,23 +841,28 @@ void tpMainWindow::on_actionHexChat_triggered()
     genericHelper::executeAddonHexchat(genericHelper::getFollows());
 }
 
-void tpMainWindow::on_treeWidgetBookmarks_itemClicked(QTreeWidgetItem *item, int column)
+void tpMainWindow::trayIconClicked(QSystemTrayIcon::ActivationReason reason)
 {
 
-    this->ui->lineEditDeleteBookmark->setText(item->text(0));
-    this->enableDelete();
+        if(reason == QSystemTrayIcon::DoubleClick) {
+            this->show();
+            this->raise();
+        }
+
 }
 
-void tpMainWindow::on_treeWidgetBookmarks_itemSelectionChanged()
+void tpMainWindow::on_notifyByTray(QString title, QString message)
 {
+    if (trayIcon->isVisible()) {
+        trayIcon->showMessage(title, message);
 
+    }
 }
 
-void tpMainWindow::on_pushButtonDeleteBookmarkCancel_clicked()
-{
-    this->ui->lineEditDeleteBookmark->setText("");
-    this->disableDelete();
-}
+
+
+
+
 
 void tpMainWindow::on_actionAbout_triggered()
 {
@@ -739,24 +910,7 @@ void tpMainWindow::on_actionQuit_triggered()
     this->myQuit();
 }
 
-void tpMainWindow::on_pushButtonDeleteBookmark_clicked()
-{
-    QTreeWidgetItemIterator it(this->ui->treeWidgetBookmarks);
-       while (*it) {
-           if ((*it)->text(0) ==  this->ui->lineEditDeleteBookmark->text()) {
-               delete (*it);
 
-
-
-
-           }
-           ++it;
-       }
-
-       this->disableDelete();
-       this->saveBookmarks();
-       this->loadBookmarks();
-}
 
 void tpMainWindow::on_actionCredits_triggered()
 {
@@ -764,4 +918,160 @@ void tpMainWindow::on_actionCredits_triggered()
                             "Icons made by <a href=http://www.freepik.com title=Freepik>Freepik</a> from <a href=http://www.flaticon.com title=Flaticon>www.flaticon.com</a></br>"
 
                                                ""));
+}
+
+void tpMainWindow::on_actionShow_Offline_Streamers_toggled(bool arg1)
+{
+
+
+
+    this->stproxymodel->setShowOffline(arg1);
+    stproxymodel->setSourceModel(stmodel);
+
+    this->stproxymodelbookmarks->setShowOffline(arg1);
+    stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
+
+
+}
+
+void tpMainWindow::on_Ready()
+{
+    refreshTimer->start(updateInterval);
+    this->enableInput();
+}
+
+void tpMainWindow::on_SwitchInputEnabled(bool enable)
+{
+    if (enable == true) {
+        this->enableInput();
+    } else {
+        this->disableInput();
+    }
+}
+
+
+
+void tpMainWindow::on_actionShow_Offline_Streamers_triggered()
+{
+
+}
+
+void tpMainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
+{
+
+    if (this->ui->tableView->selectionModel()->selectedRows().count() > 0) {
+        QMenu *tableviewContextMenu = new QMenu("Following", this);
+
+
+        tableviewContextMenu->addAction(open_in_browser);
+
+        tableviewContextMenu->popup(this->ui->tableView->viewport()->mapToGlobal(pos));
+
+
+    }
+
+
+
+}
+
+void tpMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
+{
+
+    QString _streamer;
+    QString _status;
+
+
+
+   _status = this->stproxymodel->data(index.sibling(index.row(),1),0).toString();
+   _streamer = this->stproxymodel->data(index.sibling(index.row(),0),0).toString();
+
+
+
+
+    if (_status == "online") {
+
+        if (launchBookmarkEnabled == true) {
+
+            tw->getChannelAccessToken(_streamer);
+
+            if (diaLaunch->getDialogShown() == true)
+            {
+                diaLaunch->close();
+
+                diaLaunch->show();
+
+            } else {
+
+
+                diaLaunch->show();
+                diaLaunch->setDialogShown();
+            }
+            emit setStreamTitle( _streamer, "" );
+        }
+    }
+}
+
+void tpMainWindow::on_tableViewBookmarks_doubleClicked(const QModelIndex &index)
+{
+    QString _streamer;
+    QString _status;
+
+
+
+   _status = this->stproxymodelbookmarks->data(index.sibling(index.row(),1),0).toString();
+   _streamer = this->stproxymodelbookmarks->data(index.sibling(index.row(),0),0).toString();
+
+
+
+
+    if (_status == "online") {
+
+        if (launchBookmarkEnabled == true) {
+
+            tw->getChannelAccessToken(_streamer);
+
+            if (diaLaunch->getDialogShown() == true)
+            {
+                diaLaunch->close();
+
+                diaLaunch->show();
+
+            } else {
+
+
+                diaLaunch->show();
+                diaLaunch->setDialogShown();
+            }
+            emit setStreamTitle( _streamer, "" );
+        }
+    }
+
+}
+
+void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint &pos)
+{
+
+     if ((this->ui->tableViewBookmarks->selectionModel()->selectedRows().count() > 0) || (this->stmodelbookmarks->rowCount() <= 0)) {
+
+
+
+
+        QMenu *tableviewbookmarksContextMenu = new QMenu("Bookmarks", this);
+
+
+        tableviewbookmarksContextMenu->addAction(add_bookmark);
+        tableviewbookmarksContextMenu->addAction(delete_bookmark);
+
+        if ((this->stmodelbookmarks->rowCount() > 0)) {
+            tableviewbookmarksContextMenu->addAction(open_in_browser_bookmark);
+        }
+
+        tableviewbookmarksContextMenu->popup(this->ui->tableView->viewport()->mapToGlobal(pos));
+
+    }
+}
+
+void tpMainWindow::on_actionLogfile_triggered()
+{
+     genericHelper::openLogWithNotepad();
 }

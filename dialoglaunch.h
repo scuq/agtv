@@ -17,6 +17,7 @@ public:
     ~DialogLaunch();
     void setDialogShown();
     bool getDialogShown();
+    void refreshUiData();
 
 
 public slots:

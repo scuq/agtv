@@ -120,6 +120,17 @@ void genericHelper::setFollows(QStringList follows){
 
 }
 
+void genericHelper::addFollow(QString follow)
+{
+
+    QStringList currentfollows = genericHelper::getFollows();
+    if (currentfollows.count(follow) <= 0) {
+        currentfollows << follow;
+        genericHelper::setFollows(currentfollows);
+    }
+
+}
+
 QStringList genericHelper::getFollows(){
 
     QSettings settings("Abyle", genericHelper::getAppName());
@@ -144,6 +155,59 @@ void genericHelper::setBookmarks(QStringList bookmarks){
 
 }
 
+void genericHelper::addBookmark(QString bookmark)
+{
+    QStringList currentbookmarks = genericHelper::getBookmarks();
+    if (currentbookmarks.count(bookmark) <= 0) {
+        currentbookmarks << bookmark;
+        genericHelper::setBookmarks(currentbookmarks);
+    }
+
+}
+
+void genericHelper::saveGeometry(QString window, QVariant geo)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.setValue("geo_"+window, geo);
+    settings.sync();
+}
+
+void genericHelper::saveWindowstate(QString window, QVariant state)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.setValue("windowstate_"+window, state);
+    settings.sync();
+}
+
+QVariant genericHelper::getGeometry(QString window)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QVariant _geo;
+
+
+        _geo = settings.value("geo_"+window, "");
+
+
+
+
+    return _geo;
+}
+
+QVariant genericHelper::getWindowstate(QString window)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QVariant _ws;
+
+
+        _ws = settings.value("windowstate_"+window, "");
+
+
+
+    return _ws;
+}
+
 QStringList genericHelper::getBookmarks(){
 
     QSettings settings("Abyle", genericHelper::getAppName());
@@ -158,6 +222,32 @@ QStringList genericHelper::getBookmarks(){
     return _bookmarks;
 }
 
+void genericHelper::setVlcArgs(QStringList args)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.setValue("vlc_args", args.join(","));
+    settings.sync();
+}
+
+QStringList genericHelper::getVlcArgs()
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    QStringList _vlcargs;
+
+    if (settings.value("vlc_args", "").toString().length() > 1) {
+        _vlcargs = settings.value("vlc_args", "").toString().split(",");
+
+    } else {
+        _vlcargs << "--autoscale";
+        _vlcargs << "--qt-minimal-view";
+        _vlcargs << "--no-qt-system-tray";
+        _vlcargs << "--network-caching=5000" ;
+    }
+
+    return _vlcargs;
+}
+
 
 void genericHelper::setCheckUpdate(bool checkupdate){
 
@@ -167,6 +257,70 @@ void genericHelper::setCheckUpdate(bool checkupdate){
          settings.sync();
 
 
+}
+
+bool genericHelper::getJoinFollow()
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    bool _join_follow;
+
+    if (settings.value("join_follow", "").toString().length() > 1) {
+        _join_follow = settings.value("join_follow", "").toBool();
+
+    }
+    return _join_follow;
+}
+
+void genericHelper::setJoinFollow(bool join)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.setValue("join_follow", join);
+    settings.sync();
+
+}
+
+bool genericHelper::getJoinBookmarks()
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    bool _join_bookmarks;
+
+    if (settings.value("join_bookmarks", "").toString().length() > 1) {
+        _join_bookmarks = settings.value("join_bookmarks", "").toBool();
+
+    }
+    return _join_bookmarks;
+}
+
+void genericHelper::setJoinBookmarks(bool join)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.setValue("join_bookmarks", join);
+    settings.sync();
+}
+
+bool genericHelper::getStreamPositioning()
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+
+    bool _positioning;
+
+    if (settings.value("stream_positioning", "").toString().length() > 1) {
+        _positioning = settings.value("stream_positioning", "").toBool();
+
+    } else {
+        _positioning = false;
+    }
+
+    return _positioning;
+}
+
+void genericHelper::setStreamPositioning(bool positioning)
+{
+    QSettings settings("Abyle", genericHelper::getAppName());
+    settings.setValue("stream_positioning", positioning);
+    settings.sync();
 }
 
 bool genericHelper::getCheckUpdate(){
@@ -555,13 +709,22 @@ void genericHelper::executeAddonHexchat(QStringList follows){
         if (!file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text))
         return;
 
-        // build follow channel join list
-        QString followjoins="";
+        QString joins="";
 
-        for (int i = 0; i < follows.size(); ++i)
-        {
+        if (genericHelper::getJoinFollow() == true) {
+            for (int i = 0; i < genericHelper::getFollows().size(); ++i)
+            {
 
-            followjoins += "J=#" + follows.at(i) + "\n";
+                joins += "J=#" + genericHelper::getFollows().at(i) + "\n";
+            }
+        }
+
+        if (genericHelper::getJoinBookmarks() == true) {
+            for (int i = 0; i < genericHelper::getBookmarks().size(); ++i)
+            {
+
+                joins += "J=#" + genericHelper::getBookmarks().at(i) + "\n";
+            }
         }
 
 
@@ -573,7 +736,7 @@ void genericHelper::executeAddonHexchat(QStringList follows){
             << "P=oauth:"+genericHelper::getOAuthAccessToken()+"\n"
             << "L=7\n"
             << "J=#"+genericHelper::getUsername()+"\n"
-            << followjoins
+            << joins
             << "F=24\n"
             << "D=0\n"
             << "S=irc.twitch.tv/6667\n"

@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = agtv
 TEMPLATE = app
 
-VERSION = 15.1001
+VERSION = 15.1010
 
 
 DEFINES += VERSION=\\\"$$VERSION\\\"
@@ -29,7 +29,9 @@ SOURCES += main.cpp\
     dialogoauthsetup.cpp \
     dialogpositioner.cpp \
     dialoglaunch.cpp \
-    dialogoptions.cpp
+    dialogoptions.cpp \
+    advqsortfilterproxymodel.cpp \
+    imageloader.cpp
 
 HEADERS  += tpmainwindow.h \
     generichelper.h \
@@ -40,7 +42,9 @@ HEADERS  += tpmainwindow.h \
     dialoglaunch.h \
     dialogoptions.h \
     version.h \
-    twitchclientid.h
+    twitchclientid.h \
+    advqsortfilterproxymodel.h \
+    imageloader.h
 
 FORMS    += tpmainwindow.ui \
     dialogoauthsetup.ui \

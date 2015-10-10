@@ -20,11 +20,30 @@ DialogLaunch::~DialogLaunch()
 void DialogLaunch::setDialogShown()
 {
     dialogShown = true;
+    this->refreshUiData();
+
+
 }
 
 bool DialogLaunch::getDialogShown()
 {
+     this->refreshUiData();
     return dialogShown;
+}
+
+void DialogLaunch::refreshUiData()
+{
+    restoreGeometry(genericHelper::getGeometry("launch").toByteArray());
+    qDebug() << genericHelper::getStreamPositioning();
+    if (genericHelper::getStreamPositioning() == false) {
+        this->ui->comboBoxPosSelect->setEnabled(false);
+        this->ui->comboBoxPosSelect->setHidden(true);
+        this->ui->labelPos->setHidden(true);
+    } else {
+        this->ui->comboBoxPosSelect->setEnabled(true);
+        this->ui->comboBoxPosSelect->setHidden(false);
+        this->ui->labelPos->setHidden(false);
+    }
 }
 
 void DialogLaunch::setStreamTitle(QString streamtitle, QString position)
@@ -87,4 +106,6 @@ void DialogLaunch::on_pushButtonStart_clicked()
     this->streamurl = "";
     this->ui->pushButtonStart->setEnabled(false);
     this->hide();
+    genericHelper::saveGeometry("launch",saveGeometry());
+
 }

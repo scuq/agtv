@@ -17,6 +17,8 @@ public:
     ~DialogOptions();
     void setDialogShown();
     bool getDialogShown();
+    void refreshUiData();
+
 private slots:
     void on_pushButtonOk_clicked();
 

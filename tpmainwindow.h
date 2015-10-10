@@ -17,8 +17,13 @@
 #include "processlauncher.h"
 #include "dialogoptions.h"
 #include <QSystemTrayIcon>
+#include <QInputDialog>
 #include <QCloseEvent>
 #include <QThread>
+//#include <streamtablemodel.h>
+#include <QStandardItemModel>
+#include "advqsortfilterproxymodel.h"
+#include "imageloader.h"
 
 namespace Ui {
 class tpMainWindow;
@@ -46,11 +51,6 @@ private slots:
 
     void on_actionSetup_Twitch_Auth_triggered();
 
-    void on_pushButtonAddBookmark_clicked();
-
-    void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
-
-    void on_treeWidgetBookmarks_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
     void on_actionPositioner_triggered();
 
@@ -58,11 +58,10 @@ private slots:
 
     void on_actionHexChat_triggered();
 
-    void on_treeWidgetBookmarks_itemClicked(QTreeWidgetItem *item, int column);
+    void trayIconClicked(QSystemTrayIcon::ActivationReason);
 
-    void on_treeWidgetBookmarks_itemSelectionChanged();
+    void on_notifyByTray(QString title, QString message);
 
-    void on_pushButtonDeleteBookmarkCancel_clicked();
 
     void on_actionAbout_triggered();
 
@@ -76,14 +75,39 @@ private slots:
 
     void on_loadData();
 
+    void openStreamBrowser();
+
+    void openStreamBrowserBookmark();
+
+    void deleteBookmark();
+
+    void addBookmark();
 
     void on_actionOptions_triggered();
 
     void on_actionQuit_triggered();
 
-    void on_pushButtonDeleteBookmark_clicked();
+
 
     void on_actionCredits_triggered();
+
+    void on_actionShow_Offline_Streamers_toggled(bool arg1);
+
+    void on_Ready();
+
+    void on_SwitchInputEnabled(bool enable);
+
+    void on_actionShow_Offline_Streamers_triggered();
+
+    void on_tableView_customContextMenuRequested(const QPoint &pos);
+
+    void on_tableView_doubleClicked(const QModelIndex &index);
+
+    void on_tableViewBookmarks_doubleClicked(const QModelIndex &index);
+
+    void on_tableViewBookmarks_customContextMenuRequested(const QPoint &pos);
+
+    void on_actionLogfile_triggered();
 
 private:
     Ui::tpMainWindow *ui;
@@ -98,8 +122,17 @@ private:
     int yOffset;
     bool launchBookmarkEnabled;
 
+    QStandardItemModel *stmodel;
+    AdvQSortFilterProxyModel *stproxymodel;
+
+    QStandardItemModel *stmodelbookmarks;
+    AdvQSortFilterProxyModel *stproxymodelbookmarks;
+
+
     QPixmap offline;
     QPixmap online;
+
+    bool showOfflineStreamers;
 
     QTimer *refreshTimer;
     int updateInterval;
@@ -113,6 +146,7 @@ private:
     QDesktopWidget *desktop;
     void updateCurrentScreenData();
     void disableInput();
+    void enableInput();
     void loadBookmarks();
     void saveBookmarks();
     void enableDelete();
@@ -121,6 +155,8 @@ private:
 
 
     QList<QThread*> playerThreads;
+
+
 
     // tray icon
     void closeEvent(QCloseEvent *); // Overriding the window's close event
@@ -133,10 +169,16 @@ private:
     QMenu *trayIconMenu;
     bool localTitleEdit;
 
+    //tableview context meu
+    QAction *open_in_browser;
+    QAction *open_in_browser_bookmark;
+    QAction *delete_bookmark;
+    QAction *add_bookmark;
+
+
 
 
     TwitchApi *tw;
-    TwitchApi *tw2;
 
 public slots:
     void executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");

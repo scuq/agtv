@@ -13,6 +13,7 @@
 #include "generichelper.h"
 #include "twitchapi.h"
 #include "twitchclientid.h"
+#include "imageloader.h"
 
 namespace Ui {
 class dialogOauthSetup;
@@ -27,25 +28,39 @@ public:
     ~dialogOauthSetup();
     void setDialogShown();
     bool getDialogShown();
+    void refreshUiData();
 
 private slots:
     void on_pushButtonAuthorizeOnTwitch_clicked();
 
-    void on_pushButtonSave_clicked();
-
     void on_pushButtonTestOAuth_clicked();
-    void successPopup(const QJsonDocument message);
+    void on_AuthSuccess(const QJsonDocument message);
     void errorPopup(QString message);
 
-    void on_pushButtonREvoke_clicked();
+
+    void on_pushButtonOk_clicked();
+
+    void on_pushButtonRevoke_clicked();
+
+    void on_pushButtonCancel_clicked();
+
+    void loadProfileImage();
+
+    void on_lineEditOAuthToken_textChanged(const QString &arg1);
+
+
 
 signals:
-void valueChanged();
+void twitchAuthSetupChanged(bool);
 
 private:
     Ui::dialogOauthSetup *ui;
     bool dialogShown;
     TwitchApi *tw;
+    imageLoader *imgl;
+    QPixmap profileimage;
+    QString profileimageUrl;
+    bool setupModeStarted = false;
 };
 
 #endif // DIALOGOAUTHSETUP_H

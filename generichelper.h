@@ -55,9 +55,17 @@ public:
     static void setUsername(QString username);
     static QString getUsername();
     static void setFollows(QStringList follows);
+    static void addFollow(QString follow);
     static QStringList getFollows();
     static void setBookmarks(QStringList follows);
+    static void addBookmark(QString bookmark);
+    static void saveGeometry(QString window, QVariant geo);
+    static void saveWindowstate(QString window, QVariant state);
+    static QVariant getGeometry(QString window);
+    static QVariant getWindowstate(QString window);
     static QStringList getBookmarks();
+    static void setVlcArgs(QStringList args);
+    static QStringList getVlcArgs();
     static void setViewerStreams(QStringList streams);
     static QStringList getViewerStreams();
     static void setViewerStreamsMute(QStringList mutes);
@@ -85,6 +93,14 @@ public:
     static void setLoadGameImages(bool gameimages);
     static bool getCheckUpdate();
     static void setCheckUpdate(bool checkupdate);
+    static bool getJoinFollow();
+    static void setJoinFollow(bool join);
+    static bool getJoinBookmarks();
+    static void setJoinBookmarks(bool join);
+    static bool getStreamPositioning();
+    static void setStreamPositioning(bool positioning);
+
+
 
 signals:
 

@@ -29,7 +29,7 @@
     <widget class="QComboBox" name="comboBoxPosSelect"/>
    </item>
    <item row="1" column="0">
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="labelPos">
      <property name="text">
       <string>Position</string>
      </property>

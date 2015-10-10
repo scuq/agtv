@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>328</width>
-    <height>241</height>
+    <width>463</width>
+    <height>493</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,14 +17,14 @@
    <iconset resource="agtv.qrc">
     <normaloff>:/images/agtv_32.png</normaloff>:/images/agtv_32.png</iconset>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="1">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <widget class="QPushButton" name="pushButtonAuthorizeOnTwitch">
      <property name="toolTip">
       <string>Authorize this app (twitcher) on twitch.tv</string>
      </property>
      <property name="text">
-      <string>Authorize</string>
+      <string>Authorize via Browser...</string>
      </property>
      <property name="icon">
       <iconset resource="agtv.qrc">
@@ -32,41 +32,23 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>OAuthToken</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
+   <item>
     <widget class="QLineEdit" name="lineEditOAuthToken">
      <property name="toolTip">
       <string>Paste your Access-Token here.</string>
      </property>
      <property name="statusTip">
-      <string/>
+      <string>Paste OAuth Token</string>
      </property>
      <property name="whatsThis">
       <string/>
      </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="pushButtonSave">
-     <property name="toolTip">
-      <string>Save OAuthToken</string>
-     </property>
-     <property name="text">
-      <string>Save</string>
-     </property>
-     <property name="icon">
-      <iconset>
-       <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item>
     <widget class="QPushButton" name="pushButtonTestOAuth">
      <property name="text">
       <string>Test Authentication</string>
@@ -77,8 +59,8 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
-    <widget class="QPushButton" name="pushButtonREvoke">
+   <item>
+    <widget class="QPushButton" name="pushButtonRevoke">
      <property name="toolTip">
       <string>Revoke twitcher permissions from twitch.tv</string>
      </property>
@@ -90,6 +72,139 @@
        <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_3">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Profile</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetDefaultConstraint</enum>
+     </property>
+     <item>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Username</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="labelAuthStatus">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Auth</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>EMail</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="labelEmail">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="labelUsername">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelProfileImage">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>128</horstretch>
+         <verstretch>128</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>128</width>
+         <height>128</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="pushButtonOk">
+       <property name="toolTip">
+        <string>Save OAuthToken</string>
+       </property>
+       <property name="text">
+        <string>Save</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonCancel">
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>
