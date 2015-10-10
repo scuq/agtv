@@ -28,6 +28,7 @@ public:
         return instance;
     }
 
+
     static QString getAppDir();
     static QString getAppName();
     static void log(QString logstring);

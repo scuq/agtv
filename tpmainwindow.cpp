@@ -7,6 +7,9 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+
+
+
     // delete logfile if clear log on startup setting is true
     if (genericHelper::getClearLogOnStartup() == true) {
         genericHelper::deleteLog();

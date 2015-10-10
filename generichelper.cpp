@@ -323,6 +323,8 @@ void genericHelper::setStreamPositioning(bool positioning)
     settings.sync();
 }
 
+
+
 bool genericHelper::getCheckUpdate(){
 
     QSettings settings("Abyle", genericHelper::getAppName());
