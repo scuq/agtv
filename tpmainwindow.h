@@ -49,6 +49,10 @@ private slots:
 
     void updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer);
 
+    void updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer);
+
+    void updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer);
+
     void on_actionSetup_Twitch_Auth_triggered();
 
 
@@ -78,6 +82,8 @@ private slots:
     void openStreamBrowser();
 
     void openStreamBrowserBookmark();
+
+    void addBookmarkHosted();
 
     void deleteBookmark();
 
@@ -131,6 +137,7 @@ private:
     AdvQSortFilterProxyModel *stproxymodelbookmarks;
 
 
+
     QPixmap offline;
     QPixmap online;
 
@@ -176,6 +183,8 @@ private:
     QAction *open_in_browser_bookmark;
     QAction *delete_bookmark;
     QAction *add_bookmark;
+    QAction *add_hosted_bookmark;
+
 
 
 

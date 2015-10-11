@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>886</width>
-    <height>583</height>
+    <width>708</width>
+    <height>523</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,7 +29,16 @@
    <iconset resource="agtv.qrc">
     <normaloff>:/images/agtv_32.png</normaloff>:/images/agtv_32.png</iconset>
   </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-image: url(:/images/bg.png);</string>
+  </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
      <number>4</number>
@@ -51,7 +60,7 @@
       <item>
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -62,6 +71,12 @@
            <widget class="QTableView" name="tableView">
             <property name="contextMenuPolicy">
              <enum>Qt::CustomContextMenu</enum>
+            </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-image: url(:/images/bg2.png);</string>
             </property>
             <property name="autoScroll">
              <bool>false</bool>
@@ -108,7 +123,18 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEditFilter"/>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Filter</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditFilter"/>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -121,6 +147,9 @@
            <widget class="QTableView" name="tableViewBookmarks">
             <property name="contextMenuPolicy">
              <enum>Qt::CustomContextMenu</enum>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-image: url(:/images/bg2.png);</string>
             </property>
             <property name="autoScroll">
              <bool>false</bool>
@@ -173,7 +202,18 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEditFilterBookmark"/>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Filter</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditFilterBookmark"/>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -188,7 +228,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>886</width>
+     <width>708</width>
      <height>31</height>
     </rect>
    </property>
@@ -257,7 +297,7 @@
      <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
    </property>
    <property name="text">
-    <string>Setup Twitch Auth</string>
+    <string>Twitch Profile</string>
    </property>
   </action>
   <action name="actionPositioner">

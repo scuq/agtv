@@ -56,15 +56,21 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
 
 
+
     stproxymodel->setSourceModel(stmodel);
 
     QStringList horzHeaders;
+
     horzHeaders << "Name" << "Status" << "Status Message";
+
     stmodel->setHorizontalHeaderLabels(horzHeaders);
 
 
 
+
     stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
+
+
 
 
 
@@ -95,6 +101,8 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(tw, SIGNAL(twitchReadyFollows(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollows(const QJsonDocument)));
     QObject::connect(tw, SIGNAL(twitchReadyBookmark(const QJsonDocument)), this, SLOT(updateFromJsonResponseBookmark(const QJsonDocument)));
     QObject::connect(tw, SIGNAL(twitchReadyStream(const QJsonDocument)), this, SLOT(updateFromJsonResponseStream(const QJsonDocument)));
+    QObject::connect(tw, SIGNAL(twitchReadyChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseChannel(const QJsonDocument)));
+    QObject::connect(tw, SIGNAL(twitchReadyHost(const QJsonDocument)), this, SLOT(updateFromJsonResponseHost(const QJsonDocument)));
     QObject::connect(this, SIGNAL(setStreamTitle(QString,QString)), diaLaunch, SLOT(setStreamTitle(QString,QString)));
     QObject::connect(this, SIGNAL(setStreamUrl(QString)), diaLaunch, SLOT(setStreamUrl(QString)));
     QObject::connect(diaLaunch, SIGNAL(startStreamPlay(QString, QString, QString, int, int, int , int, bool, QString)), this, SLOT(executePlayer(QString, QString, QString, int, int, int , int, bool, QString)));
@@ -251,6 +259,7 @@ void tpMainWindow::loadBookmarks()
 
 
                tw->getStream(current);
+               tw->getChannel(current);
 
                 if (this->stmodelbookmarks->findItems(current,Qt::MatchExactly,0).length() <= 0) {
 
@@ -358,7 +367,8 @@ void tpMainWindow::createActions()
     open_in_browser_bookmark = new QAction(tr("&Open in Browser"), this);
     connect(open_in_browser_bookmark, SIGNAL(triggered()), this, SLOT(openStreamBrowserBookmark()));
 
-
+    add_hosted_bookmark = new QAction(tr("&Add Hosted to Bookmarks"), this);
+    connect(add_hosted_bookmark, SIGNAL(triggered()), this, SLOT(addBookmarkHosted()));
 
     delete_bookmark = new QAction(tr("&Remove"), this);
     connect(delete_bookmark, SIGNAL(triggered()), this, SLOT(deleteBookmark()));
@@ -413,6 +423,25 @@ void tpMainWindow::openStreamBrowserBookmark()
     QDesktopServices::openUrl(QUrl(link));
 }
 
+void tpMainWindow::addBookmarkHosted()
+{
+
+       QString hostedfor;
+       hostedfor = this->ui->tableView->selectionModel()->selectedRows(2).at(0).data().toString();
+
+       if (genericHelper::getBookmarks().count(hostedfor) <= 0) {
+           genericHelper::addBookmark(hostedfor);
+           this->loadBookmarks();
+       }
+
+
+
+
+       this->ui->tabWidget->setCurrentIndex(1);
+       //this->ui->lineEditFilterBookmark->setText(hostedfor);
+
+}
+
 void tpMainWindow::deleteBookmark()
 {
 
@@ -429,7 +458,7 @@ void tpMainWindow::deleteBookmark()
         }
     }
 
-    qDebug() << selection;
+
 
     //loop through all selected rows
     for(int i=0;i<removeRows.count();++i)
@@ -658,8 +687,7 @@ void tpMainWindow::onChannelAccessTokenReady(const QJsonDocument &jsonResponseBu
 
 void tpMainWindow::startM3u8Player(QString m3u8playlist)
 {
-    //qDebug() << "startM3u8Player";
-    //qDebug() <<    m3u8playlist;
+
 }
 
 void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer)
@@ -686,6 +714,7 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
 
 
                    tw->getStream(_val.toObject()["channel"].toObject()["name"].toString());
+                   tw->getChannel(_val.toObject()["channel"].toObject()["name"].toString());
 
 
                    if (this->stmodel->findItems(_val.toObject()["channel"].toObject()["name"].toString(),Qt::MatchExactly,0).length() <= 0) {
@@ -822,9 +851,69 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
    }
 }
 
+void tpMainWindow::updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer)
+{
+    QString channelid;
+
+    QJsonObject jsonObject = jsonResponseBuffer.object();
 
 
 
+
+    channelid = QString::number(jsonObject["_id"].toDouble(),'f',0);
+
+
+
+    tw->getHost(channelid);
+
+
+
+
+
+
+}
+
+void tpMainWindow::updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer)
+{
+    //qDebug() << jsonResponseBuffer;
+    QJsonObject jsonObject = jsonResponseBuffer.object();
+
+    QString hostlogin;
+    QString targetlogin;
+
+    for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
+        hostlogin = "";
+        targetlogin = "";
+        if (iter.key() == "hosts")
+        {
+
+           if (iter.value() != QJsonValue::Null)
+           {
+
+                if (iter.value().toArray().at(0).toObject().keys().count("target_login") > 0) {
+
+                    hostlogin = iter.value().toArray().at(0).toObject()["host_login"].toString();
+                    targetlogin = iter.value().toArray().at(0).toObject()["target_login"].toString();
+
+
+
+                    if (this->stproxymodel->getColData(0,hostlogin.toLower(),1) != "online") {
+
+
+                    bool updateok = stproxymodel->updateCol(0,hostlogin.toLower(),1,"hosting");
+                    updateok = stproxymodel->updateCol(0,hostlogin.toLower(),2,targetlogin);
+
+
+
+                    }
+                }
+
+            }
+
+        }
+
+    }
+}
 
 
 
@@ -1002,7 +1091,16 @@ void tpMainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
 
         tableviewContextMenu->addAction(open_in_browser);
 
+        if (this->stproxymodel->getColData(0,this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toString(),1) == "hosting") {
+            tableviewContextMenu->addAction(add_hosted_bookmark);
+        }
+
         tableviewContextMenu->popup(this->ui->tableView->viewport()->mapToGlobal(pos));
+
+
+        //add_hosted_bookmark
+
+
 
 
     }

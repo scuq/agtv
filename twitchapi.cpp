@@ -10,6 +10,8 @@ TwitchApi::TwitchApi(QObject *parent, QString oauthtoken) :
     QObject::connect(&m_channelaccesstoken, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseChannelAccessToken(QNetworkReply*)));
     QObject::connect(&m_bookmark, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseBookmark(QNetworkReply*)));
     QObject::connect(&m_stream, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseStream(QNetworkReply*)));
+    QObject::connect(&m_channel, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseChannel(QNetworkReply*)));
+    QObject::connect(&m_host, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseHost(QNetworkReply*)));
 
 
     this->oAuthAccessToken = oauthtoken;
@@ -102,8 +104,14 @@ void TwitchApi::getChannel(QString user)
 {
 
     genericHelper::log("twitch-api getChannel - https://api.twitch.tv/kraken/channels/"+user);
-    this->getRequest("https://api.twitch.tv/kraken/channels/"+user);
+    this->getRequestChannel("https://api.twitch.tv/kraken/channels/"+user);
 
+}
+
+void TwitchApi::getHost(QString channelid)
+{
+    genericHelper::log("twitch-api getHost - https://tmi.twitch.tv/hosts?include_logins=1&host="+channelid);
+    this->getRequestHost("https://tmi.twitch.tv/hosts?include_logins=1&host="+channelid);
 }
 
 void TwitchApi::getChannelAccessToken(QString channel)
@@ -229,6 +237,28 @@ void TwitchApi::getRequestStream(const QString &urlString)
     m_stream.get( req  );
 }
 
+void TwitchApi::getRequestChannel(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    m_channel.get( req  );
+}
+
+void TwitchApi::getRequestHost(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    m_host.get( req  );
+}
+
 void TwitchApi::getRequestChannelAccessToken(const QString &urlString)
 {
 
@@ -275,7 +305,7 @@ void TwitchApi::parseNetworkResponse( QNetworkReply *finished )
 
 
 
-    qDebug() << data;
+   // qDebug() << data;
 
     json_buffer = QJsonDocument::fromJson(data);
 
@@ -317,6 +347,48 @@ void TwitchApi::parseNetworkResponseStream(QNetworkReply *finished)
 
    // qDebug()<< json_buffer;
     emit twitchReadyStream( json_buffer );
+}
+
+void TwitchApi::parseNetworkResponseHost(QNetworkReply *finished)
+{
+    if ( finished->error() != QNetworkReply::NoError )
+    {
+        // A communication error has occurred
+        //qDebug()<< finished->errorString();
+        emit networkError( finished->errorString() );
+
+        return;
+    }
+
+    // QNetworkReply is a QIODevice. So we read from it just like it was a file
+    QByteArray data = finished->readAll();
+    json_buffer = QJsonDocument::fromJson(data);
+
+
+
+   // qDebug()<< json_buffer;
+    emit twitchReadyHost( json_buffer );
+}
+
+void TwitchApi::parseNetworkResponseChannel(QNetworkReply *finished)
+{
+    if ( finished->error() != QNetworkReply::NoError )
+    {
+        // A communication error has occurred
+        //qDebug()<< finished->errorString();
+        emit networkError( finished->errorString() );
+
+        return;
+    }
+
+    // QNetworkReply is a QIODevice. So we read from it just like it was a file
+    QByteArray data = finished->readAll();
+    json_buffer = QJsonDocument::fromJson(data);
+
+
+
+   // qDebug()<< json_buffer;
+    emit twitchReadyChannel( json_buffer );
 }
 
 void TwitchApi::parseNetworkResponseM3u8(QNetworkReply *finished)

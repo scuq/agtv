@@ -26,6 +26,7 @@ public:
     void getStream(QString user);
     void getBookmarkStatus(QString channel);
     void getChannel(QString user);
+    void getHost(QString channelid);
     void getChannelAccessToken(QString channel);
     void getPlayList(QString channel, QString token, QString sig);
     QString getPlayListUrl(QString channel, QString token, QString sig);
@@ -42,6 +43,8 @@ private:
     void getRequestFollows( const QString &url );
     void getRequestBookmark( const QString &url );
     void getRequestStream( const QString &url );
+    void getRequestChannel( const QString &url );
+    void getRequestHost( const QString &url );
     void getRequestChannelAccessToken( const QString &url );
     void getRequestAuthenticated( const QString &url );
     void putRequest( const QString &url, QHash<QString, QString> urlParams);
@@ -51,6 +54,8 @@ private:
     QNetworkAccessManager m_channelaccesstoken;
     QNetworkAccessManager m_bookmark;
     QNetworkAccessManager m_stream;
+    QNetworkAccessManager m_channel;
+    QNetworkAccessManager m_host;
 
 
 
@@ -65,6 +70,8 @@ signals:
     void twitchReadyM3u8( QString m3u8playlist );
     void twitchReadyBookmark( const QJsonDocument &twitchAsJSON );
     void twitchReadyStream( const QJsonDocument &twitchAsJSON );
+    void twitchReadyChannel( const QJsonDocument &twitchAsJSON );
+    void twitchReadyHost( const QJsonDocument &twitchAsJSON );
     void twitchGameReady( const QJsonObject &twitchAsJSONObj );
     void twitchStreamKeyReady(const QJsonObject &twitchAsJSONObj);
     void networkError( QString errmessage );
@@ -72,6 +79,8 @@ signals:
 public slots:
     void parseNetworkResponse( QNetworkReply *finished );
     void parseNetworkResponseStream( QNetworkReply *finished );
+    void parseNetworkResponseHost( QNetworkReply *finished );
+    void parseNetworkResponseChannel( QNetworkReply *finished );
     void parseNetworkResponseM3u8( QNetworkReply *finished );
     void parseNetworkResponseFollows( QNetworkReply *finished );
     void parseNetworkResponseBookmark( QNetworkReply *finished );

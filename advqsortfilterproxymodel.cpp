@@ -22,6 +22,10 @@ QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) cons
         if (index.column() == 1) {
             if (index.data().toString() == "online") {
                 return QVariant(goodBackground);
+            } else {
+                if (index.data().toString() == "hosting") {
+                    return QVariant(unkownBackground);
+                }
             }
         }
 

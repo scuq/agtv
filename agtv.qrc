@@ -6,5 +6,8 @@
         <file>agtv.ico</file>
         <file>agtv_16.png</file>
         <file>agtv_32.png</file>
+        <file>bg.png</file>
+        <file>bg2.png</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>
