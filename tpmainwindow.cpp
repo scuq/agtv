@@ -960,7 +960,7 @@ void tpMainWindow::on_updateNotify(const QString &latestVersion)
 
     if (reply == QMessageBox::Yes) {
 
-       QDesktopServices::openUrl(QUrl("http://agtv.abyle.org/downloads/agtv-"+latestVersionNumber+"-core-"+this->currArch+"-install.exe"));
+       QDesktopServices::openUrl(QUrl("http://agtv.abyle.org/downloads/agtv-"+latestVersionNumber+"-core-"+this->currArch+"-installer.exe"));
 
       } else {
         genericHelper::log("update dismissed.");
