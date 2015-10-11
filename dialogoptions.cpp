@@ -39,13 +39,19 @@ void DialogOptions::refreshUiData()
     this->ui->checkBoxJoinFollowed->setChecked(genericHelper::getJoinFollow());
     this->ui->plainTextEdit->appendPlainText(genericHelper::getVlcArgs().join(" "));
     this->ui->checkBoxStreamPositioning->setChecked(genericHelper::getStreamPositioning());
+    this->ui->checkBoxUpdateCheck->setChecked(genericHelper::getCheckUpdate());
     restoreGeometry(genericHelper::getGeometry("options").toByteArray());
 
 }
 
 void DialogOptions::on_pushButtonOk_clicked()
 {
+    if (this->ui->checkBoxUpdateCheck->checkState() == Qt::Checked) {
 
+        genericHelper::setCheckUpdate(true);
+    } else {
+        genericHelper::setCheckUpdate(false);
+    }
     if (this->ui->checkBoxStreamPositioning->checkState() == Qt::Checked) {
 
         genericHelper::setStreamPositioning(true);

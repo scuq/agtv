@@ -24,6 +24,7 @@
 #include <QStandardItemModel>
 #include "advqsortfilterproxymodel.h"
 #include "imageloader.h"
+#include "updatecheck.h"
 
 namespace Ui {
 class tpMainWindow;
@@ -55,6 +56,7 @@ private slots:
 
     void on_actionSetup_Twitch_Auth_triggered();
 
+    void on_updateNotify(const QString &latestVersion);
 
     void on_actionPositioner_triggered();
 
@@ -186,7 +188,9 @@ private:
     QAction *add_hosted_bookmark;
 
 
+    updateCheck *uc;
 
+    QString currArch;
 
 
     TwitchApi *tw;

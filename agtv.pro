@@ -11,16 +11,39 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = agtv
 TEMPLATE = app
 
-VERSION_MAJOR = 15
-VERSION_MINOR = 10
-VERSION_PATCH = 30
-VERSION_BUILD = 2
+VERSION_MAJOR = 0
+VERSION_MINOR = 0
+VERSION_PATCH = 0
+VERSION_BUILD = 0
 
-# Get build from file
-VERSION_BUILD_FILE = $$cat($$OUT_PWD\buildnr.txt)
+
+
+VERSION_MAJOR_FILE = $$cat($$PWD\MAJOR.ver)
+VERSION_MINOR_FILE = $$cat($$PWD\MINOR.ver)
+VERSION_PATCH_FILE = $$cat($$PWD\PATCH.ver)
+VERSION_BUILD_FILE = $$cat($$PWD\BUILD.ver)
+
+VERSION_BUILD_FILE ~= s, ,,g
+
+greaterThan(VERSION_MAJOR_FILE, 0) {
+        VERSION_MAJOR = $$format_number($${VERSION_MAJOR_FILE}, ibase=10 width=1 zeropad)
+}
+
+greaterThan(VERSION_MINOR_FILE, 0) {
+        VERSION_MINOR = $$format_number($${VERSION_MINOR_FILE}, ibase=10 width=1 zeropad)
+}
+
+greaterThan(VERSION_PATCH_FILE, 0) {
+        VERSION_PATCH = $$format_number($${VERSION_PATCH_FILE}, ibase=10 width=1 zeropad)
+}
+
 greaterThan(VERSION_BUILD_FILE, 0) {
         VERSION_BUILD = $$format_number($${VERSION_BUILD_FILE}, ibase=10 width=1 zeropad)
 }
+
+
+
+
 
 QMAKE_TARGET_COMPANY = "AbyleDotOrg"
 QMAKE_TARGET_PRODUCT = "agtv"
@@ -42,10 +65,16 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 #Target version
 VERSION = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}.$${VERSION_BUILD}
 
-DEFINES += VERSION=\\\"$$VERSION\\\"
 
+DEFINES += VERSION=\\\"$$VERSION\\\"
+DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
 
 #if defined(Q_OS_WINDOW)
+
+    SSL_DIR = "C:/OpenSSL-Win32/"
+
+    LIBS += -L"$${SSL_DIR}lib" -llibeay32
+    INCLUDEPATH += "$${SSL_DIR}include"
 
     RC_ICONS=agtv.ico
 
@@ -54,8 +83,17 @@ DEFINES += VERSION=\\\"$$VERSION\\\"
 
     BUILDBASE = z:/build/agtv/
 
-    release: DESTDIR = z:/build/agtv/release
-    debug:   DESTDIR = z:/build/agtv/debug
+    release: DESTDIR = $${BUILDBASE}release
+    release: DESTDIR_RELEASE = $${BUILDBASE}release
+    release: DESTDIR_RELEASE ~= s,/,\\,g
+    release: QT_INSTALL_BINS_WIN = $$[QT_INSTALL_BINS]
+    release: QT_INSTALL_PLUGINS_WIN = $$[QT_INSTALL_PLUGINS]
+    release: QT_INSTALL_PLUGINS_WIN ~= s,/,\\,g
+    release: QT_INSTALL_BINS_WIN ~= s,/,\\,g
+    release: PWD_WIN = $${PWD}
+    release: PWD_WIN ~= s,/,\\,g
+    release: SSL_DIR ~= s,/,\\,g
+    debug:   DESTDIR = $${BUILDBASE}debug
 
 
     OBJECTS_DIR = $$BUILDBASE/junk/.obj
@@ -63,7 +101,44 @@ DEFINES += VERSION=\\\"$$VERSION\\\"
     RCC_DIR = $$BUILDBASE/junk/.qrc
     UI_DIR = $$BUILDBASE/junk/.ui
 
+    release{
+
+
+        write_file($${DESTDIR_RELEASE}\\version.txt, VERSION)
+        write_file($${DESTDIR_RELEASE}\\arch.txt, QMAKE_TARGET.arch)
+
+
+        QMAKE_POST_LINK += $$quote(cmd /c copy $$escape_expand(\")$${PWD_WIN}\\agtv.ico$$escape_expand(\") $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cmd /c copy $$escape_expand(\")$${PWD_WIN}\\agtv.nsi$$escape_expand(\") $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+
+        QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\icu*.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Core.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Gui.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Network.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Widgets.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+
+        QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\libEGL.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\libGLESv2.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+
+
+        QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\imageformats $${DESTDIR_RELEASE}\\imageformats$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\imageformats\\*d.dll$$escape_expand(\\n\\t))
+
+        QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\platforms $${DESTDIR_RELEASE}\\platforms$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\platforms\\*d.dll$$escape_expand(\\n\\t))
+
+
+
+        QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\ssleay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libeay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+        QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libssl32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+
+
+    }
 #endif
+
+
+
 
 
 SOURCES += main.cpp\
@@ -76,7 +151,8 @@ SOURCES += main.cpp\
     dialoglaunch.cpp \
     dialogoptions.cpp \
     advqsortfilterproxymodel.cpp \
-    imageloader.cpp
+    imageloader.cpp \
+    updatecheck.cpp
 
 HEADERS  += tpmainwindow.h \
     generichelper.h \
@@ -86,10 +162,10 @@ HEADERS  += tpmainwindow.h \
     dialogpositioner.h \
     dialoglaunch.h \
     dialogoptions.h \
-    version.h \
     twitchclientid.h \
     advqsortfilterproxymodel.h \
-    imageloader.h
+    imageloader.h \
+    updatecheck.h
 
 FORMS    += tpmainwindow.ui \
     dialogoauthsetup.ui \
@@ -100,4 +176,6 @@ FORMS    += tpmainwindow.ui \
 RESOURCES += \
     agtv.qrc
 
-DISTFILES +=
+DISTFILES += \
+    README.md \
+    agtv.nsi

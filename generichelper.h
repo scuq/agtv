@@ -104,6 +104,7 @@ public:
     static void setStreamPositioning(bool positioning);
     static bool getShowOfflineStreamers();
     static void setShowOfflineStreamers(bool showoffline);
+    static QString getUpdateCheckUrl();
 
 
 signals:

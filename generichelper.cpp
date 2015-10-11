@@ -346,6 +346,11 @@ void genericHelper::setShowOfflineStreamers(bool showoffline)
     settings.sync();
 }
 
+QString genericHelper::getUpdateCheckUrl()
+{
+    return "http://agtv.abyle.org/version/latest_"+genericHelper::getAppName();
+}
+
 
 
 

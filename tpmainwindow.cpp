@@ -1,13 +1,14 @@
 #include "tpmainwindow.h"
 #include "ui_tpmainwindow.h"
 
+
 tpMainWindow::tpMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::tpMainWindow)
 {
     ui->setupUi(this);
 
-
+    currArch = CURRARCH;
 
 
     // delete logfile if clear log on startup setting is true
@@ -24,6 +25,9 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
 
 
+
+
+    uc = new updateCheck(this);
 
 
 
@@ -113,6 +117,12 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(this->ui->lineEditFilter, SIGNAL(textChanged(QString)), this->stproxymodel, SLOT(setFilterRegExp(QString)));
     QObject::connect(this->ui->lineEditFilterBookmark, SIGNAL(textChanged(QString)), this->stproxymodelbookmarks, SLOT(setFilterRegExp(QString)));
 
+    QObject::connect(uc, SIGNAL(updateReady(const QString)), this, SLOT(on_updateNotify(const QString)));
+
+    if (genericHelper::getCheckUpdate() == true) {
+        uc->getCheck();
+    }
+
     this->loadData();
 
 
@@ -175,6 +185,7 @@ void tpMainWindow::disableInput()
     refreshTimer->stop();
 
     genericHelper::setClearLogOnStartup(true);
+    genericHelper::setCheckUpdate(true);
 
 
 
@@ -931,6 +942,30 @@ void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
         diaOauthSetup->show();
         diaOauthSetup->setDialogShown();
     }
+}
+
+void tpMainWindow::on_updateNotify(const QString &latestVersion)
+{
+    qDebug() << "update";
+    QString latestVersionNumber = latestVersion;
+
+
+
+    QMessageBox::StandardButton reply;
+
+    reply = QMessageBox::question(this, tr("twitcher"),
+                                    "New version ("+latestVersionNumber+") available, do you want to update?",
+                                    QMessageBox::Yes|QMessageBox::No);
+
+
+    if (reply == QMessageBox::Yes) {
+
+       QDesktopServices::openUrl(QUrl("http://agtv.abyle.org/downloads/agtv-"+latestVersionNumber+"-core-"+this->currArch+"-install.exe"));
+
+      } else {
+        genericHelper::log("update dismissed.");
+      }
+
 }
 
 
