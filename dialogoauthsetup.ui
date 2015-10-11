@@ -178,9 +178,8 @@
        <property name="text">
         <string>Save</string>
        </property>
-       <property name="icon">
-        <iconset>
-         <normaloff>:/images/bird.png</normaloff>:/images/bird.png</iconset>
+       <property name="flat">
+        <bool>false</bool>
        </property>
       </widget>
      </item>

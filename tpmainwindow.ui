@@ -32,9 +32,6 @@
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
-  <property name="styleSheet">
-   <string notr="true">background-image: url(:/images/bg.png);</string>
-  </property>
   <widget class="QWidget" name="centralWidget">
    <property name="styleSheet">
     <string notr="true"/>
@@ -60,7 +57,7 @@
       <item>
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -74,9 +71,6 @@
             </property>
             <property name="autoFillBackground">
              <bool>false</bool>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-image: url(:/images/bg2.png);</string>
             </property>
             <property name="autoScroll">
              <bool>false</bool>
@@ -147,9 +141,6 @@
            <widget class="QTableView" name="tableViewBookmarks">
             <property name="contextMenuPolicy">
              <enum>Qt::CustomContextMenu</enum>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-image: url(:/images/bg2.png);</string>
             </property>
             <property name="autoScroll">
              <bool>false</bool>

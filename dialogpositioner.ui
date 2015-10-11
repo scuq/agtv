@@ -47,6 +47,9 @@
        <height>423</height>
       </size>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background-image: url(:/images/bg3.png);</string>
+     </property>
      <property name="title">
       <string/>
      </property>

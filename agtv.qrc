@@ -8,6 +8,7 @@
         <file>agtv_32.png</file>
         <file>bg.png</file>
         <file>bg2.png</file>
+        <file>bg3.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

@@ -129,7 +129,14 @@
     </widget>
    </item>
    <item row="7" column="1">
-    <widget class="QPlainTextEdit" name="plainTextEdit"/>
+    <widget class="QPlainTextEdit" name="plainTextEdit">
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/images/bg2.png);</string>
+     </property>
+    </widget>
    </item>
    <item row="5" column="1">
     <widget class="QCheckBox" name="checkBoxJoinFollowed">
