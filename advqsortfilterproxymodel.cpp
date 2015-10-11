@@ -99,11 +99,12 @@ bool AdvQSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelInde
     QModelIndex index0 = sourceModel()->index(source_row, 0, source_parent);
     QModelIndex index1 = sourceModel()->index(source_row, 1, source_parent);
     QModelIndex index2 = sourceModel()->index(source_row, 2, source_parent);
+    QModelIndex index3 = sourceModel()->index(source_row, 3, source_parent);
 
     if (showOffline == true) {
 
-        return (sourceModel()->data(index0).toString().contains(filterRegExp()) || sourceModel()->data(index2).toString().contains(filterRegExp()));
+        return (sourceModel()->data(index0).toString().contains(filterRegExp()) || sourceModel()->data(index3).toString().contains(filterRegExp()));
     } else {
-        return ((sourceModel()->data(index0).toString().contains(filterRegExp()) || sourceModel()->data(index2).toString().contains(filterRegExp())) && sourceModel()->data(index1).toString() != "offline");
+        return ((sourceModel()->data(index0).toString().contains(filterRegExp()) || sourceModel()->data(index3).toString().contains(filterRegExp())) && sourceModel()->data(index1).toString() != "offline");
     }
 }

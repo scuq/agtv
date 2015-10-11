@@ -52,10 +52,10 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     this->ui->mainToolBar->hide();
 
 
-    stmodel = new QStandardItemModel(0,3,this);
+    stmodel = new QStandardItemModel(0,4,this);
     stproxymodel = new AdvQSortFilterProxyModel(this);
 
-    stmodelbookmarks = new QStandardItemModel(0,3,this);
+    stmodelbookmarks = new QStandardItemModel(0,4,this);
     stproxymodelbookmarks = new AdvQSortFilterProxyModel(this);
 
 
@@ -65,7 +65,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     QStringList horzHeaders;
 
-    horzHeaders << "Name" << "Status" << "Status Message";
+    horzHeaders << "Name" << "Status" << "Game" << "Status Message";
 
     stmodel->setHorizontalHeaderLabels(horzHeaders);
 
@@ -281,6 +281,8 @@ void tpMainWindow::loadBookmarks()
                    stmodelbookmarks->setItem(i, 1, qsitem1);
                    QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
                    stmodelbookmarks->setItem(i, 2, qsitem2);
+                   QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
+                   stmodelbookmarks->setItem(i, 3, qsitem3);
 
 
 
@@ -438,7 +440,7 @@ void tpMainWindow::addBookmarkHosted()
 {
 
        QString hostedfor;
-       hostedfor = this->ui->tableView->selectionModel()->selectedRows(2).at(0).data().toString();
+       hostedfor = this->ui->tableView->selectionModel()->selectedRows(3).at(0).data().toString();
 
        if (genericHelper::getBookmarks().count(hostedfor) <= 0) {
            genericHelper::addBookmark(hostedfor);
@@ -720,7 +722,7 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
 
                    QJsonValue _val = iter.value().toArray().at(i);
 
-                   QTreeWidgetItem * item = new QTreeWidgetItem();
+
 
 
 
@@ -732,18 +734,17 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
 
                         if (_val.toObject()["channel"].toObject()["name"].toString().length() > 0) {
 
-                           item->setText(0,_val.toObject()["channel"].toObject()["name"].toString());
-                           item->setText(1,"offline");
-                           item->setText(2,_val.toObject()["channel"].toObject()["status"].toString());
-                           item->setTextColor(1,  QColor(255,2,29));
+
 
 
                            QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(_val.toObject()["channel"].toObject()["name"].toString()));
                            stmodel->setItem(i, 0, qsitem0);
                            QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
                            stmodel->setItem(i, 1, qsitem1);
-                           QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(_val.toObject()["channel"].toObject()["status"].toString()));
+                           QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
                            stmodel->setItem(i, 2, qsitem2);
+                           QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(_val.toObject()["channel"].toObject()["status"].toString()));
+                           stmodel->setItem(i, 3, qsitem3);
 
                            genericHelper::addFollow(_val.toObject()["channel"].toObject()["name"].toString());
                         }
@@ -796,7 +797,7 @@ void tpMainWindow::updateFromJsonResponseBookmark(const QJsonDocument &jsonRespo
 
                   QModelIndex streamer_index = this->stmodelbookmarks->index(i,0);
                   QModelIndex online_index = this->stmodelbookmarks->index(i,1);
-                  QModelIndex status_index = this->stmodelbookmarks->index(i,2);
+                  QModelIndex status_index = this->stmodelbookmarks->index(i,3);
 
                   if ( this->stmodelbookmarks->itemData(streamer_index)[0].toString() == onlinename )  {
                       this->stmodelbookmarks->setData(online_index,"online");
@@ -870,6 +871,11 @@ void tpMainWindow::updateFromJsonResponseChannel(const QJsonDocument &jsonRespon
 
 
 
+    bool updateok = stproxymodel->updateCol(0,jsonObject["display_name"].toString().toLower(),2,jsonObject["game"].toString());
+    updateok = stproxymodelbookmarks->updateCol(0,jsonObject["display_name"].toString().toLower(),2,jsonObject["game"].toString());
+
+    this->ui->tableView->resizeColumnsToContents();
+    this->ui->tableViewBookmarks->resizeColumnsToContents();
 
     channelid = QString::number(jsonObject["_id"].toDouble(),'f',0);
 
@@ -912,7 +918,7 @@ void tpMainWindow::updateFromJsonResponseHost(const QJsonDocument &jsonResponseB
 
 
                     bool updateok = stproxymodel->updateCol(0,hostlogin.toLower(),1,"hosting");
-                    updateok = stproxymodel->updateCol(0,hostlogin.toLower(),2,targetlogin);
+                    updateok = stproxymodel->updateCol(0,hostlogin.toLower(),3,targetlogin);
 
 
 
