@@ -23,7 +23,7 @@ equals(DEVELOPER, "scuq") {
 
     message("setting paths and settings for everyone else.")
     SSL_DIR = "C:/OpenSSL-Win32/"
-    BUILDBASE = $$(USERPROFILE)
+    BUILDBASE = $$(USERPROFILE)/
 }
 
 
