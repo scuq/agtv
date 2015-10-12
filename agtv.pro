@@ -4,6 +4,32 @@
 #
 #-------------------------------------------------
 
+# if you want push a new version, execute new_version.bat
+# in the projekt home directory to push revision numbers
+
+
+#if defined(Q_OS_WINDOW)
+
+DEVELOPER = $$(USERNAME)
+
+equals(DEVELOPER, "scuq") {
+    message("setting paths and settings for $${DEVELOPER}}")
+
+    SSL_DIR = "C:/OpenSSL-Win32/"
+
+    BUILDBASE = z:/build/agtv/
+
+} else {
+
+    message("setting paths and settings for everyone else.")
+    SSL_DIR = "C:/OpenSSL-Win32/"
+    BUILDBASE = $$(USERPROFILE)
+}
+
+
+#endif
+
+
 QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -38,7 +64,7 @@ greaterThan(VERSION_PATCH_FILE, 0) {
 }
 
 greaterThan(VERSION_BUILD_FILE, 0) {
-        VERSION_BUILD = $$format_number($${VERSION_BUILD_FILE}, ibase=10 width=1 zeropad)
+        VERSION_BUILD = $$format_number($${VERSION_BUILD_FILE}, ibase=10 width=4 zeropad)
 }
 
 
@@ -71,7 +97,6 @@ DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
 
 #if defined(Q_OS_WINDOW)
 
-    SSL_DIR = "C:/OpenSSL-Win32/"
 
     LIBS += -L"$${SSL_DIR}lib" -llibeay32
     INCLUDEPATH += "$${SSL_DIR}include"
@@ -81,7 +106,6 @@ DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
 
     #LIBS+= -luser32
 
-    BUILDBASE = z:/build/agtv/
 
     release: DESTDIR = $${BUILDBASE}release
     release: DESTDIR_RELEASE = $${BUILDBASE}release
