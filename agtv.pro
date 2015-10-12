@@ -23,7 +23,11 @@ equals(DEVELOPER, "scuq") {
 
     message("setting paths and settings for everyone else.")
     SSL_DIR = "C:/OpenSSL-Win32/"
+<<<<<<< HEAD
     BUILDBASE = $$(USERPROFILE)
+=======
+    BUILDBASE = $$(USERPROFILE)/Documents/build/
+>>>>>>> abd03e3... build path changed
 }
 
 
