@@ -23,7 +23,7 @@ equals(DEVELOPER, "scuq") {
 
     message("setting paths and settings for everyone else.")
     SSL_DIR = "C:/OpenSSL-Win32/"
-    BUILDBASE = $$(USERPROFILE)
+    BUILDBASE = $$(USERPROFILE)/Documents/build/
 }
 
 
@@ -189,7 +189,8 @@ HEADERS  += tpmainwindow.h \
     twitchclientid.h \
     advqsortfilterproxymodel.h \
     imageloader.h \
-    updatecheck.h
+    updatecheck.h \
+    twitchclientid.h
 
 FORMS    += tpmainwindow.ui \
     dialogoauthsetup.ui \

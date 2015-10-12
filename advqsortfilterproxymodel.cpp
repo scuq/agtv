@@ -36,14 +36,14 @@ QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) cons
 
 
 
-    if ( role == Qt::TextAlignmentRole )
+/*    if ( role == Qt::TextAlignmentRole )
     {
         if (index.column() == 1) {
             return Qt::AlignVCenter | Qt::AlignHCenter;
 
         }
     }
-
+*/
     return QSortFilterProxyModel::data( index, role );
 }
 
