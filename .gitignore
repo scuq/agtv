@@ -1,1 +1,4 @@
 *.user
+twitchclientid.h
+*.autosave
+*.pro

@@ -139,7 +139,6 @@ QStringList genericHelper::getFollows(){
 
     if (settings.value("follows", "").toString().length() > 1) {
         _follows = settings.value("follows", "").toString().split(",");
-
     }
 
     return _follows;
@@ -712,13 +711,9 @@ void genericHelper::writeTwitcherOBSScenesConfig(){
 
 
 
-void genericHelper::executeAddonHexchat(QStringList follows){
-
+void genericHelper::executeAddonHexchat(QStringList channelsToJoin){
 
     QString addonHexchatBin = "";
-
-
-
 
 
     addonHexchatBin = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","") + QDir::separator() +
@@ -742,22 +737,11 @@ void genericHelper::executeAddonHexchat(QStringList follows){
 
         QString joins="";
 
-        if (genericHelper::getJoinFollow() == true) {
-            for (int i = 0; i < genericHelper::getFollows().size(); ++i)
-            {
+        for (int i = 0; i < channelsToJoin.size(); ++i)
+        {
 
-                joins += "J=#" + genericHelper::getFollows().at(i) + "\n";
-            }
+            joins += "J=#" + channelsToJoin.at(i) + "\n";
         }
-
-        if (genericHelper::getJoinBookmarks() == true) {
-            for (int i = 0; i < genericHelper::getBookmarks().size(); ++i)
-            {
-
-                joins += "J=#" + genericHelper::getBookmarks().at(i) + "\n";
-            }
-        }
-
 
         QTextStream out(&file);
         out << "v=2.9.6\n\n"
