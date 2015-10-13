@@ -7,31 +7,29 @@
 # if you want push a new version, execute new_version.bat
 # in the projekt home directory to push revision numbers
 
-
 #if defined(Q_OS_WINDOW)
 
 DEVELOPER = $$(USERNAME)
 
 equals(DEVELOPER, "scuq") {
     message("setting paths and settings for $${DEVELOPER}}")
-
     SSL_DIR = "C:/OpenSSL-Win32/"
-
     BUILDBASE = z:/build/agtv/
 
-} else {
+} equals(DEVELOPER, "DAS") {
+    message("setting paths and settings for $${DEVELOPER}}")
+    SSL_DIR = "c:/coding/openssl-win32/"
+    BUILDBASE = c:/coding/build/agtv/
 
+} else {
     message("setting paths and settings for everyone else.")
     SSL_DIR = "C:/OpenSSL-Win32/"
-<<<<<<< HEAD
-    BUILDBASE = $$(USERPROFILE)
-=======
-    BUILDBASE = $$(USERPROFILE)/Documents/build/
->>>>>>> abd03e3... build path changed
+    BUILDBASE = $$(USERPROFILE)/Documents/build/agtv/
 }
 
 
 #endif
+
 
 
 QT       += core gui network
@@ -149,11 +147,11 @@ DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
         QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\libGLESv2.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
 
 
-        QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\imageformats $${DESTDIR_RELEASE}\\imageformats$$escape_expand(\\n\\t))
-        QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\imageformats\\*d.dll$$escape_expand(\\n\\t))
+        #QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\imageformats $${DESTDIR_RELEASE}\\imageformats$$escape_expand(\\n\\t))
+        #QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\imageformats\\*d.dll$$escape_expand(\\n\\t))
 
-        QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\platforms $${DESTDIR_RELEASE}\\platforms$$escape_expand(\\n\\t))
-        QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\platforms\\*d.dll$$escape_expand(\\n\\t))
+        #QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\platforms $${DESTDIR_RELEASE}\\platforms$$escape_expand(\\n\\t))
+        #QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\platforms\\*d.dll$$escape_expand(\\n\\t))
 
 
 
@@ -193,7 +191,8 @@ HEADERS  += tpmainwindow.h \
     twitchclientid.h \
     advqsortfilterproxymodel.h \
     imageloader.h \
-    updatecheck.h
+    updatecheck.h \
+    twitchclientid.h
 
 FORMS    += tpmainwindow.ui \
     dialogoauthsetup.ui \
