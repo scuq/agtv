@@ -7,31 +7,29 @@
 # if you want push a new version, execute new_version.bat
 # in the projekt home directory to push revision numbers
 
-
 #if defined(Q_OS_WINDOW)
 
 DEVELOPER = $$(USERNAME)
 
 equals(DEVELOPER, "scuq") {
     message("setting paths and settings for $${DEVELOPER}}")
-
     SSL_DIR = "C:/OpenSSL-Win32/"
-
     BUILDBASE = z:/build/agtv/
 
-} else {
+} equals(DEVELOPER, "DAS") {
+    message("setting paths and settings for $${DEVELOPER}}")
+    SSL_DIR = "c:/coding/openssl-win32/"
+    BUILDBASE = c:/coding/build/agtv/
 
+} else {
     message("setting paths and settings for everyone else.")
     SSL_DIR = "C:/OpenSSL-Win32/"
-<<<<<<< HEAD
-    BUILDBASE = $$(USERPROFILE)
-=======
-    BUILDBASE = $$(USERPROFILE)/Documents/build/
->>>>>>> abd03e3... build path changed
+    BUILDBASE = $$(USERPROFILE)/Documents/build/agtv/
 }
 
 
 #endif
+
 
 
 QT       += core gui network
