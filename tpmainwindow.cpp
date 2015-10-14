@@ -441,7 +441,7 @@ void tpMainWindow::openStreamBrowserBookmark()
 
 void tpMainWindow::openChatHexChat()
 {
-    genericHelper::executeAddonHexchat(this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toStringList());
+    genericHelper::executeAddonHexchat(this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toStringList());
 
 }
 
