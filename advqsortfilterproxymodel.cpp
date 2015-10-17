@@ -36,7 +36,7 @@ QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) cons
 
 
 
-/*
+
     if ( role == Qt::TextAlignmentRole )
     {
         if (index.column() == 1) {
@@ -44,7 +44,7 @@ QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) cons
 
         }
     }
-*/
+
     return QSortFilterProxyModel::data( index, role );
 }
 
