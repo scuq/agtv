@@ -40,7 +40,15 @@ QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) cons
     if ( role == Qt::TextAlignmentRole )
     {
         if (index.column() == 1) {
+<<<<<<< HEAD
             //return Qt::AlignVCenter | Qt::AlignHCenter;
+=======
+            return Qt::AlignCenter;
+
+        }
+        if (index.column() == 2) {
+            return Qt::AlignCenter;
+>>>>>>> refs/remotes/origin/master
 
         }
     }
