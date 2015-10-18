@@ -60,7 +60,7 @@ private:
     imageLoader *imgl;
     QPixmap profileimage;
     QString profileimageUrl;
-    bool setupModeStarted = false;
+    bool setupModeStarted;
 };
 
 #endif // DIALOGOAUTHSETUP_H

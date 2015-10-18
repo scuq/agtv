@@ -140,43 +140,42 @@ DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
 
 
     release{
+        equals(DEVELOPER, "scuq") {
+            equals(WINDEPLOYMENT, "yes") {
 
-        equals(WINDEPLOYMENT, "yes") {
-
-            write_file($${DESTDIR_RELEASE}\\version.txt, VERSION)
-            write_file($${DESTDIR_RELEASE}\\arch.txt, QMAKE_TARGET.arch)
-
-
-            QMAKE_POST_LINK += $$quote(cmd /c copy $$escape_expand(\")$${PWD_WIN}\\agtv.ico$$escape_expand(\") $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c copy $$escape_expand(\")$${PWD_WIN}\\agtv.nsi$$escape_expand(\") $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\icu*.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Core.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Gui.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Network.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Widgets.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\libEGL.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\libGLESv2.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+                write_file($${DESTDIR_RELEASE}\\version.txt, VERSION)
+                write_file($${DESTDIR_RELEASE}\\arch.txt, QMAKE_TARGET.arch)
 
 
-            QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\imageformats $${DESTDIR_RELEASE}\\imageformats$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\imageformats\\*d.dll$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c copy $$escape_expand(\")$${PWD_WIN}\\agtv.ico$$escape_expand(\") $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c copy $$escape_expand(\")$${PWD_WIN}\\agtv.nsi$$escape_expand(\") $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
 
-            QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\platforms $${DESTDIR_RELEASE}\\platforms$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\platforms\\*d.dll$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\icu*.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Core.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Gui.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Network.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\Qt5Widgets.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+
+                QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\libEGL.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\libGLESv2.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+
+
+                QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\imageformats $${DESTDIR_RELEASE}\\imageformats$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\imageformats\\*d.dll$$escape_expand(\\n\\t))
+
+                QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\platforms $${DESTDIR_RELEASE}\\platforms$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\platforms\\*d.dll$$escape_expand(\\n\\t))
 
 
 
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\ssleay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libeay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libssl32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\ssleay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libeay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libssl32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
 
+            }
         }
     }
 #endif
-
-
 
 
 

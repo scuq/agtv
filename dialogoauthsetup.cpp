@@ -7,9 +7,7 @@ dialogOauthSetup::dialogOauthSetup(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
-
-
+    setupModeStarted = false;
 
     profileimageUrl = "";
 
@@ -19,20 +17,12 @@ dialogOauthSetup::dialogOauthSetup(QWidget *parent) :
         tw = new TwitchApi(this, "");
     }
 
-
     // init the image loader
     imgl = new imageLoader(this);
-
-
-
-
 
     QObject::connect(tw, SIGNAL(twitchReady(const QJsonDocument)), this, SLOT(on_AuthSuccess(const QJsonDocument)));
     QObject::connect(tw, SIGNAL(networkError(QString)), this, SLOT(errorPopup(QString)));
     QObject::connect(imgl, SIGNAL(downloaded()), this, SLOT(loadProfileImage()));
-
-
-
 }
 
 void dialogOauthSetup::errorPopup(QString message) {
