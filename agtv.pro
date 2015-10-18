@@ -9,7 +9,8 @@
 
 #if defined(Q_OS_WINDOW)
 
-DEVELOPER = $$(USERNAME)
+//DEVELOPER = $$(USERNAME)
+DEVELOPER = "DAS"
 
 equals(DEVELOPER, "scuq") {
     message("setting paths and settings for $${DEVELOPER}}")
@@ -155,9 +156,9 @@ DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
 
 
 
-        QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\ssleay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-        QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libeay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-        QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libssl32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+        #QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\ssleay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+        #QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libeay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+        #QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libssl32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
 
 
     }
@@ -192,6 +193,7 @@ HEADERS  += tpmainwindow.h \
     advqsortfilterproxymodel.h \
     imageloader.h \
     updatecheck.h \
+    twitchclientid.h \
     twitchclientid.h
 
 FORMS    += tpmainwindow.ui \

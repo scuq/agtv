@@ -380,6 +380,9 @@ void tpMainWindow::createActions()
     open_in_hexchat = new QAction(tr("Open in &HexChat"), this);
     connect(open_in_hexchat, SIGNAL(triggered()), this, SLOT(openChatHexChat()));
 
+    open_in_hexchat_bookmark = new QAction(tr("Open in &HexChat"), this);
+    connect(open_in_hexchat_bookmark, SIGNAL(triggered()), this, SLOT(openChatHexChatBookmark()));
+
     open_in_browser_bookmark = new QAction(tr("&Open in Browser"), this);
     connect(open_in_browser_bookmark, SIGNAL(triggered()), this, SLOT(openStreamBrowserBookmark()));
 
@@ -440,6 +443,11 @@ void tpMainWindow::openStreamBrowserBookmark()
 }
 
 void tpMainWindow::openChatHexChat()
+{
+    genericHelper::executeAddonHexchat(this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toStringList());
+
+}
+void tpMainWindow::openChatHexChatBookmark()
 {
     genericHelper::executeAddonHexchat(this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toStringList());
 
@@ -1265,7 +1273,7 @@ void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint
 
         if ((this->stmodelbookmarks->rowCount() > 0)) {
             tableviewbookmarksContextMenu->addAction(open_in_browser_bookmark);
-            tableviewbookmarksContextMenu->addAction(open_in_hexchat);
+            tableviewbookmarksContextMenu->addAction(open_in_hexchat_bookmark);
         }
 
         tableviewbookmarksContextMenu->popup(this->ui->tableView->viewport()->mapToGlobal(pos));
