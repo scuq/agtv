@@ -377,15 +377,12 @@ void tpMainWindow::createActions()
     open_in_browser = new QAction(tr("&Open in Browser"), this);
     connect(open_in_browser, SIGNAL(triggered()), this, SLOT(openStreamBrowser()));
 
-<<<<<<< HEAD
     open_in_hexchat = new QAction(tr("Open in &HexChat"), this);
     connect(open_in_hexchat, SIGNAL(triggered()), this, SLOT(openChatHexChat()));
 
     open_in_hexchat_bookmark = new QAction(tr("Open in &HexChat"), this);
     connect(open_in_hexchat_bookmark, SIGNAL(triggered()), this, SLOT(openChatHexChatBookmark()));
 
-=======
->>>>>>> refs/remotes/origin/master
     open_in_browser_bookmark = new QAction(tr("&Open in Browser"), this);
     connect(open_in_browser_bookmark, SIGNAL(triggered()), this, SLOT(openStreamBrowserBookmark()));
 
@@ -1219,10 +1216,8 @@ void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint
 
         if ((this->stmodelbookmarks->rowCount() > 0)) {
             tableviewbookmarksContextMenu->addAction(open_in_browser_bookmark);
-<<<<<<< HEAD
+
             tableviewbookmarksContextMenu->addAction(open_in_hexchat_bookmark);
-=======
->>>>>>> refs/remotes/origin/master
         }
 
         tableviewbookmarksContextMenu->popup(this->ui->tableView->viewport()->mapToGlobal(pos));

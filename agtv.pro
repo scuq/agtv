@@ -8,12 +8,8 @@
 # in the projekt home directory to push revision numbers
 
 
-
-<<<<<<< HEAD
 //DEVELOPER = $$(USERNAME)
 DEVELOPER = "DAS"
-=======
-DEVELOPER = $$(USERNAME)
 WINDEPLOYMENT = yes
 
 QMAKE_TARGET_COMPANY = "AbyleDotOrg"
@@ -38,7 +34,6 @@ DEFINES += SETTINGS_PRODUCT=\\\"$$QMAKE_TARGET_PRODUCT\\\"
 
 SSL_DIR = "C:/OpenSSL-Win32/"
 BUILDBASE = ../
->>>>>>> refs/remotes/origin/master
 
 equals(DEVELOPER, "scuq") {
     message("setting paths and settings for $${DEVELOPER}}")
@@ -171,17 +166,9 @@ DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
             QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\platforms $${DESTDIR_RELEASE}\\platforms$$escape_expand(\\n\\t))
             QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\platforms\\*d.dll$$escape_expand(\\n\\t))
 
-
-<<<<<<< HEAD
-        #QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\ssleay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-        #QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libeay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-        #QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libssl32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-=======
->>>>>>> refs/remotes/origin/master
-
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\ssleay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libeay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
-            QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libssl32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+            #QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\ssleay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+            #QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libeay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
+            #QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libssl32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
 
         }
     }

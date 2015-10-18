@@ -186,11 +186,8 @@ private:
     //tableview context meu
     QAction *open_in_browser;
     QAction *open_in_browser_bookmark;
-<<<<<<< HEAD
     QAction *open_in_hexchat;
     QAction *open_in_hexchat_bookmark;
-=======
->>>>>>> refs/remotes/origin/master
     QAction *delete_bookmark;
     QAction *add_bookmark;
     QAction *add_hosted_bookmark;
