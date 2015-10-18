@@ -515,37 +515,22 @@ void tpMainWindow::deleteBookmark()
 
 void tpMainWindow::addBookmark()
 {
-    bool ok;
     QString text = QInputDialog::getText(this, tr("Add Bookmark"), tr("Channel/Streamer name"), QLineEdit::Normal,"");
-    if (ok && !text.isEmpty()) {
-
-
-
-
+    if (!text.isEmpty()) {
         genericHelper::addBookmark(text);
         this->loadBookmarks();
-
     }
 }
-
 
 void tpMainWindow::createTrayIcon()
 {
     trayIconMenu = new QMenu(this);
-
-
     trayIconMenu->addAction(open);
     trayIconMenu->addSeparator();
     trayIconMenu->addAction(close);
-
-
     trayIcon = new QSystemTrayIcon(this);
     trayIcon->setContextMenu(trayIconMenu);
-
-
     connect(trayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(trayIconClicked(QSystemTrayIcon::ActivationReason)));
-
-
 }
 
 void tpMainWindow::setIcon(QString iconname)
@@ -560,10 +545,7 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
     QString playerarg = "";
     QStringList args;
     QStringList qresargs;
-
     QThread* processLaunchThread = new QThread;
-
-
 
     qresargs << "-f" << "^http://.+" << channel << ".+";
     qresargs << "-x" << QString::number(xOffset);
@@ -572,8 +554,6 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
     qresargs << "-t" << QString::number(streamHeight);
     qresargs << "-i" << "30";
     qresargs << "-d" << "20";
-
-
     args = genericHelper::getVlcArgs();
 
     if (mute == true) {
@@ -581,56 +561,32 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
     }
 
     args << url;
-
     qresBin = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","qres.exe");
 
     if (player == "vlc2") {
-
         playerBin = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","") + QDir::separator() +
                 "3rdparty-addons" + QDir::separator() +
                 "vlc" + QDir::separator() + "VLCPortable.exe";
-
     }
 
     qresargs << "-e" << "\""+playerBin+"\"";
     qresargs << "-u" << args.join(" ");
-
-
-
     QFile playerBinFile( playerBin );
     QFile qresBinFile( qresBin );
 
     if (genericHelper::getStreamPositioning() == true) {
-
-
-
-
-
         if( (qresBinFile.exists()) && (playerBinFile.exists()) )
 
         {
-
             processLauncher *processL = new processLauncher();
-
             processL->setProgramStr("\""+qresBin+"\"");
             processL->setArgs(qresargs);
-
             genericHelper::log("starting player: "+qresBin+" "+qresargs.join(" "));
-
             processL->moveToThread(processLaunchThread);
-
-
-
             // connect the thread start started signal to the process slot of the riftLogWatcher class
             QObject::connect(processLaunchThread, SIGNAL(started()), processL, SLOT(launch()));
-
             processLaunchThread->start();
-
-
-
         }
-
-
     } else {
         if( playerBinFile.exists() )
 
