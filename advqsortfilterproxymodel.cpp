@@ -18,10 +18,10 @@ QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) cons
         QBrush unkownBackground(QColor(102, 191, 255));
         QBrush goodBackground(QColor(110, 255, 96));
 
-        QRegExp rx ("^online");
+
 
         if (index.column() == 1) {
-            if (index.data().toString().contains(rx) ) {
+            if (genericHelper::isOnline(index.data().toString()) ) {
                 return QVariant(goodBackground);
             } else {
                 if (index.data().toString() == "hosting") {

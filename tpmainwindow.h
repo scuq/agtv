@@ -185,7 +185,6 @@ private:
     //tableview context meu
     QAction *open_in_browser;
     QAction *open_in_browser_bookmark;
-    QAction *open_in_hexchat;
     QAction *delete_bookmark;
     QAction *add_bookmark;
     QAction *add_hosted_bookmark;
