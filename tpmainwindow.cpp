@@ -377,12 +377,15 @@ void tpMainWindow::createActions()
     open_in_browser = new QAction(tr("&Open in Browser"), this);
     connect(open_in_browser, SIGNAL(triggered()), this, SLOT(openStreamBrowser()));
 
+<<<<<<< HEAD
     open_in_hexchat = new QAction(tr("Open in &HexChat"), this);
     connect(open_in_hexchat, SIGNAL(triggered()), this, SLOT(openChatHexChat()));
 
     open_in_hexchat_bookmark = new QAction(tr("Open in &HexChat"), this);
     connect(open_in_hexchat_bookmark, SIGNAL(triggered()), this, SLOT(openChatHexChatBookmark()));
 
+=======
+>>>>>>> refs/remotes/origin/master
     open_in_browser_bookmark = new QAction(tr("&Open in Browser"), this);
     connect(open_in_browser_bookmark, SIGNAL(triggered()), this, SLOT(openStreamBrowserBookmark()));
 
@@ -444,8 +447,7 @@ void tpMainWindow::openStreamBrowserBookmark()
 
 void tpMainWindow::openChatHexChat()
 {
-    genericHelper::executeAddonHexchat(this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toStringList());
-
+     genericHelper::executeAddonHexchat(this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toStringList());
 }
 void tpMainWindow::openChatHexChatBookmark()
 {
@@ -815,10 +817,14 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
 
               QString viewers = QString::number(iter.value().toObject()["viewers"].toInt(),'f',0);
 
-              if (this->stproxymodel->getColData(0,onlinename.toLower(),1) != "online") {
+
+
+              if (genericHelper::isOnline(this->stproxymodel->getColData(0,onlinename.toLower(),1).toString()) == false) {
                 stateTrans = true;
               }
+
               bool updateok = stproxymodel->updateCol(0,onlinename.toLower(),1,"online ("+viewers+")");
+
 
               if ((stateTrans == true) && (updateok == true) && (genericHelper::getStreamOnlineNotify() == true)) {
                   emit (on_notifyByTray(onlinename+" is now online.",iter.value().toObject()["channel"].toObject()["status"].toString()));
@@ -886,7 +892,7 @@ void tpMainWindow::updateFromJsonResponseHost(const QJsonDocument &jsonResponseB
 
 
 
-                    if (this->stproxymodel->getColData(0,hostlogin.toLower(),1) != "online") {
+                    if (genericHelper::isOnline(this->stproxymodel->getColData(0,hostlogin.toLower(),1).toString()) == false) {
 
 
                     bool updateok = stproxymodel->updateCol(0,hostlogin.toLower(),1,"hosting");
@@ -977,23 +983,7 @@ void tpMainWindow::on_actionTwitch_Browser_triggered()
 
 void tpMainWindow::on_actionHexChat_triggered()
 {
-    QStringList channels;
-    if (genericHelper::getJoinFollow() == true) {
-        for (int i = 0; i < genericHelper::getFollows().size(); ++i)
-        {
-
-            channels += genericHelper::getFollows().at(i);
-        }
-    }
-
-    if (genericHelper::getJoinBookmarks() == true) {
-        for (int i = 0; i < genericHelper::getBookmarks().size(); ++i)
-        {
-
-            channels += genericHelper::getBookmarks().at(i);
-        }
-    }
-    genericHelper::executeAddonHexchat(channels);
+    genericHelper::executeAddonHexchat(genericHelper::getFollows());
 }
 
 void tpMainWindow::trayIconClicked(QSystemTrayIcon::ActivationReason reason)
@@ -1119,7 +1109,6 @@ void tpMainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
 
 
         tableviewContextMenu->addAction(open_in_browser);
-         tableviewContextMenu->addAction(open_in_hexchat);
 
         if (this->stproxymodel->getColData(0,this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toString(),1) == "hosting") {
             tableviewContextMenu->addAction(add_hosted_bookmark);
@@ -1153,7 +1142,8 @@ void tpMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 
 
-    if (_status == "online") {
+
+    if (genericHelper::isOnline(_status) == true) {
 
         if (launchBookmarkEnabled == true) {
 
@@ -1189,7 +1179,7 @@ void tpMainWindow::on_tableViewBookmarks_doubleClicked(const QModelIndex &index)
 
 
 
-    if (_status == "online") {
+    if (genericHelper::isOnline(_status) == true) {
 
         if (launchBookmarkEnabled == true) {
 
@@ -1229,7 +1219,10 @@ void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint
 
         if ((this->stmodelbookmarks->rowCount() > 0)) {
             tableviewbookmarksContextMenu->addAction(open_in_browser_bookmark);
+<<<<<<< HEAD
             tableviewbookmarksContextMenu->addAction(open_in_hexchat_bookmark);
+=======
+>>>>>>> refs/remotes/origin/master
         }
 
         tableviewbookmarksContextMenu->popup(this->ui->tableView->viewport()->mapToGlobal(pos));

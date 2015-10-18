@@ -75,6 +75,7 @@ public:
     static QStringList getViewerStreamsMute();
     static void setOBSBin(QString obsbinpath);
     static QString getOBSBin();
+    static bool isOnline(QString status);
     static void executeOBS();
     static void writeTwitcherOBSConfig(QString streamkey);
     static void writeTwitcherOBSScenesConfig();

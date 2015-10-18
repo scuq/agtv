@@ -4,7 +4,7 @@
 void genericHelper::setOAuthAccessToken(QString oauthtoken){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("oauthAccessToken", oauthtoken);
          settings.sync();
 
@@ -14,7 +14,7 @@ void genericHelper::setOAuthAccessToken(QString oauthtoken){
 void genericHelper::setUsername(QString username){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("username", username);
          settings.sync();
 
@@ -24,7 +24,7 @@ void genericHelper::setUsername(QString username){
 void genericHelper::setOBSBin(QString obsbinpath){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("obsbin", obsbinpath);
          settings.sync();
 
@@ -36,7 +36,7 @@ void genericHelper::setOBSBin(QString obsbinpath){
 void genericHelper::setUpdateInterval(int interval){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("update_interval", QString::number(interval));
          settings.sync();
 
@@ -45,7 +45,7 @@ void genericHelper::setUpdateInterval(int interval){
 
 int genericHelper::getUpdateInterval(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _interval = "5";
 
@@ -64,7 +64,7 @@ int genericHelper::getUpdateInterval(){
 void genericHelper::setViewerStreamsMute(QStringList mutes){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("viewerstreamsmute", mutes.join(","));
          settings.sync();
 
@@ -73,7 +73,7 @@ void genericHelper::setViewerStreamsMute(QStringList mutes){
 
 QStringList genericHelper::getViewerStreamsMute(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QStringList _viewerstreamsmute;
 
@@ -89,7 +89,7 @@ QStringList genericHelper::getViewerStreamsMute(){
 void genericHelper::setViewerStreams(QStringList streams){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("viewerstreams", streams.join(","));
          settings.sync();
 
@@ -98,7 +98,7 @@ void genericHelper::setViewerStreams(QStringList streams){
 
 QStringList genericHelper::getViewerStreams(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QStringList _viewerstreams;
 
@@ -113,7 +113,7 @@ QStringList genericHelper::getViewerStreams(){
 void genericHelper::setFollows(QStringList follows){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("follows", follows.join(","));
          settings.sync();
 
@@ -133,7 +133,7 @@ void genericHelper::addFollow(QString follow)
 
 QStringList genericHelper::getFollows(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QStringList _follows;
 
@@ -147,7 +147,7 @@ QStringList genericHelper::getFollows(){
 void genericHelper::setBookmarks(QStringList bookmarks){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("bookmarks", bookmarks.join(","));
          settings.sync();
 
@@ -166,21 +166,21 @@ void genericHelper::addBookmark(QString bookmark)
 
 void genericHelper::saveGeometry(QString window, QVariant geo)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("geo_"+window, geo);
     settings.sync();
 }
 
 void genericHelper::saveWindowstate(QString window, QVariant state)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("windowstate_"+window, state);
     settings.sync();
 }
 
 QVariant genericHelper::getGeometry(QString window)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QVariant _geo;
 
@@ -195,7 +195,7 @@ QVariant genericHelper::getGeometry(QString window)
 
 QVariant genericHelper::getWindowstate(QString window)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QVariant _ws;
 
@@ -209,7 +209,7 @@ QVariant genericHelper::getWindowstate(QString window)
 
 QStringList genericHelper::getBookmarks(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QStringList _bookmarks;
 
@@ -223,14 +223,14 @@ QStringList genericHelper::getBookmarks(){
 
 void genericHelper::setVlcArgs(QStringList args)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("vlc_args", args.join(","));
     settings.sync();
 }
 
 QStringList genericHelper::getVlcArgs()
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QStringList _vlcargs;
 
@@ -251,7 +251,7 @@ QStringList genericHelper::getVlcArgs()
 void genericHelper::setCheckUpdate(bool checkupdate){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("check_update", checkupdate);
          settings.sync();
 
@@ -260,7 +260,7 @@ void genericHelper::setCheckUpdate(bool checkupdate){
 
 bool genericHelper::getJoinFollow()
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     bool _join_follow;
 
@@ -273,7 +273,7 @@ bool genericHelper::getJoinFollow()
 
 void genericHelper::setJoinFollow(bool join)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("join_follow", join);
     settings.sync();
 
@@ -281,7 +281,7 @@ void genericHelper::setJoinFollow(bool join)
 
 bool genericHelper::getJoinBookmarks()
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     bool _join_bookmarks;
 
@@ -294,14 +294,14 @@ bool genericHelper::getJoinBookmarks()
 
 void genericHelper::setJoinBookmarks(bool join)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("join_bookmarks", join);
     settings.sync();
 }
 
 bool genericHelper::getStreamPositioning()
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     bool _positioning;
 
@@ -317,14 +317,14 @@ bool genericHelper::getStreamPositioning()
 
 void genericHelper::setStreamPositioning(bool positioning)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("stream_positioning", positioning);
     settings.sync();
 }
 
 bool genericHelper::getShowOfflineStreamers()
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     bool _showoffline;
 
@@ -340,7 +340,7 @@ bool genericHelper::getShowOfflineStreamers()
 
 void genericHelper::setShowOfflineStreamers(bool showoffline)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("show_offline_streamers", showoffline);
     settings.sync();
 }
@@ -355,7 +355,7 @@ QString genericHelper::getUpdateCheckUrl()
 
 bool genericHelper::getCheckUpdate(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     bool _checkupdate;
 
@@ -373,7 +373,7 @@ bool genericHelper::getCheckUpdate(){
 void genericHelper::setLoadGameImages(bool gameimages){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("load_game_images", gameimages);
          settings.sync();
 
@@ -382,7 +382,7 @@ void genericHelper::setLoadGameImages(bool gameimages){
 
 bool genericHelper::getLoadGameImages(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     bool _gameimages;
 
@@ -402,7 +402,7 @@ bool genericHelper::getLoadGameImages(){
 void genericHelper::setClearLogOnStartup(bool clearlog){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("clear_log_on_start", clearlog);
          settings.sync();
 
@@ -411,7 +411,7 @@ void genericHelper::setClearLogOnStartup(bool clearlog){
 
 bool genericHelper::getCloseToTray()
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     bool _closetotray;
 
@@ -425,14 +425,14 @@ bool genericHelper::getCloseToTray()
 
 void genericHelper::setCloseToTray(bool closetotray)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("close_to_tray", closetotray);
     settings.sync();
 }
 
 bool genericHelper::getStreamOnlineNotify()
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     bool _streamonlinenotify;
 
@@ -446,14 +446,14 @@ bool genericHelper::getStreamOnlineNotify()
 
 void genericHelper::setStreamOnlineNotify(bool streamonlinenotify)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("stream_online_notify", streamonlinenotify);
     settings.sync();
 }
 
 bool genericHelper::getClearLogOnStartup(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     bool _clearlog;
 
@@ -469,7 +469,7 @@ bool genericHelper::getClearLogOnStartup(){
 
 QString genericHelper::getUsername(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _username = "";
 
@@ -483,7 +483,7 @@ QString genericHelper::getUsername(){
 
 QString genericHelper::getOBSBin(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _obsbin = "";
 
@@ -493,6 +493,19 @@ QString genericHelper::getOBSBin(){
     }
 
     return _obsbin;
+}
+
+bool genericHelper::isOnline(QString status)
+{
+
+        QRegExp regexEmail("^online" );
+
+        if( regexEmail.indexIn( status ) != -1 ) {
+            return true;
+        } else {
+            return false;
+        }
+
 }
 
 void genericHelper::executeOBS(){
@@ -804,7 +817,7 @@ bool genericHelper::openLogWithNotepad() {
 void genericHelper::setErrorTimestamp() {
 
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("errorTimestamp",  QDateTime::currentMSecsSinceEpoch());
     settings.sync();
 }
@@ -812,7 +825,7 @@ void genericHelper::setErrorTimestamp() {
 bool genericHelper::getEnoughTimeSinceLastErrorElapsed() {
 
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _errortime = "";
 
@@ -842,7 +855,7 @@ bool genericHelper::getEnoughTimeSinceLastErrorElapsed() {
 
 int genericHelper::getStreamHeight(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _viewerstreamheight = "";
 
@@ -858,7 +871,7 @@ int genericHelper::getStreamHeight(){
 
 int genericHelper::getStreamWidth(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _viewerstreamwidth = "";
 
@@ -874,7 +887,7 @@ int genericHelper::getStreamWidth(){
 
 int genericHelper::getSelectedScreen(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _viewerselectedscreen = "";
 
@@ -892,7 +905,7 @@ int genericHelper::getSelectedScreen(){
 
 int genericHelper::getConcurrentStreams(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _viewerconcurrentstreams = "";
 
@@ -909,7 +922,7 @@ int genericHelper::getConcurrentStreams(){
 void genericHelper::setConcurrentStreams(int concurrentstreams){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("viewerconcurrentstreams", QString::number(concurrentstreams));
          settings.sync();
 
@@ -922,7 +935,7 @@ void genericHelper::setConcurrentStreams(int concurrentstreams){
 void genericHelper::setSelectedScreen(int selectedScreen){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("viewerselectedscreen", QString::number(selectedScreen));
          settings.sync();
 
@@ -931,7 +944,7 @@ void genericHelper::setSelectedScreen(int selectedScreen){
 
 int genericHelper::getSelectedTab()
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _selectedtab = "";
 
@@ -945,7 +958,7 @@ int genericHelper::getSelectedTab()
 
 void genericHelper::setSelectedTab(int tab)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("selectedtab", QString::number(tab));
     settings.sync();
 
@@ -954,7 +967,7 @@ void genericHelper::setSelectedTab(int tab)
 void genericHelper::setStreamWidth(int streamWidth){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("viewerstreamwidth", QString::number(streamWidth));
          settings.sync();
 
@@ -964,7 +977,7 @@ void genericHelper::setStreamWidth(int streamWidth){
 void genericHelper::setPrimaryScreenWidth(int screenwidth){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("viewerprimaryscreenwidth", QString::number(screenwidth));
          settings.sync();
 
@@ -973,7 +986,7 @@ void genericHelper::setPrimaryScreenWidth(int screenwidth){
 
 bool genericHelper::setPosition(QString posname, QString geo)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("position_"+posname, geo);
     settings.sync();
 
@@ -982,7 +995,7 @@ bool genericHelper::setPosition(QString posname, QString geo)
 
 bool genericHelper::deletePosition(QString posname)
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.remove("position_"+posname);
     settings.sync();
 
@@ -996,7 +1009,7 @@ QString genericHelper::getPosition(QString posname)
         return "10,10,500,500";
     }
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _pos = "";
 
@@ -1010,7 +1023,7 @@ QString genericHelper::getPosition(QString posname)
 
 QHash<QString, QString> genericHelper::getPositions()
 {
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QHash<QString, QString> hash;
 
@@ -1029,7 +1042,7 @@ QHash<QString, QString> genericHelper::getPositions()
 
 int genericHelper::getPrimaryScreenWidth(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _viewerprimaryscreenwidth = "";
 
@@ -1048,7 +1061,7 @@ int genericHelper::getPrimaryScreenWidth(){
 void genericHelper::setPlayerQuality(QString quality){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("viewerplayerquality", quality);
          settings.sync();
 
@@ -1057,7 +1070,7 @@ void genericHelper::setPlayerQuality(QString quality){
 
 QString genericHelper::getPlayerQuality(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _viewerplayerquality = "";
 
@@ -1075,7 +1088,7 @@ QString genericHelper::getPlayerQuality(){
 void genericHelper::setPlayerCacheSize(int cachesize){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("viewerplayercachesize", QString::number(cachesize));
          settings.sync();
 
@@ -1084,7 +1097,7 @@ void genericHelper::setPlayerCacheSize(int cachesize){
 
 int genericHelper::getPlayerCacheSize(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _viewerplayercachesize = "";
 
@@ -1103,7 +1116,7 @@ int genericHelper::getPlayerCacheSize(){
 void genericHelper::setStreamHeight(int streamHeight){
 
 
-         QSettings settings("Abyle", genericHelper::getAppName());
+         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
          settings.setValue("viewerstreamheight", QString::number(streamHeight));
          settings.sync();
 
@@ -1113,7 +1126,7 @@ void genericHelper::setStreamHeight(int streamHeight){
 
 QString genericHelper::getOAuthAccessToken(){
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _oauthtoken = "";
 
@@ -1131,7 +1144,7 @@ QString genericHelper::getAppDir(){
 
     QString _appDir = QDir::homePath() + QDir::separator () + genericHelper::getAppName();
 
-    QSettings settings("Abyle", genericHelper::getAppName());
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     if (settings.value("appDir", "").toString().length() > 1) {
 
@@ -1141,7 +1154,7 @@ QString genericHelper::getAppDir(){
     } else {
 
 
-        QSettings settings("Abyle",genericHelper::getAppName());
+        QSettings settings(SETTINGS_COMPANY,genericHelper::getAppName());
         settings.setValue("appDir", _appDir);
         settings.sync();
     }
@@ -1167,7 +1180,7 @@ QString genericHelper::getAppDir(){
 
 QString genericHelper::getAppName()
 {
-    return "agtv";
+     return SETTINGS_PRODUCT;
 }
 
 void genericHelper::log(QString logstring) {

@@ -7,6 +7,7 @@
 #include <QColor>
 #include <QBrush>
 #include <QDebug>
+#include "generichelper.h"
 
 class AdvQSortFilterProxyModel : public QSortFilterProxyModel
 {
