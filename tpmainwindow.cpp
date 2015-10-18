@@ -849,13 +849,12 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
           {
               onlinename = iter.value().toObject()["channel"].toObject()["name"].toString();
 
-
-
+              QString viewers = QString::number(iter.value().toObject()["viewers"].toInt(),'f',0);
 
               if (this->stproxymodel->getColData(0,onlinename.toLower(),1) != "online") {
                 stateTrans = true;
               }
-              bool updateok = stproxymodel->updateCol(0,onlinename.toLower(),1,"online");
+              bool updateok = stproxymodel->updateCol(0,onlinename.toLower(),1,"online ("+viewers+")");
 
               if ((stateTrans == true) && (updateok == true) && (genericHelper::getStreamOnlineNotify() == true)) {
                   emit (on_notifyByTray(onlinename+" is now online.",iter.value().toObject()["channel"].toObject()["status"].toString()));
