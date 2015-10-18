@@ -86,6 +86,7 @@ private slots:
     void openStreamBrowserBookmark();
 
     void openChatHexChat();
+    void openChatHexChatBookmark();
 
     void addBookmarkHosted();
 
@@ -185,6 +186,11 @@ private:
     //tableview context meu
     QAction *open_in_browser;
     QAction *open_in_browser_bookmark;
+<<<<<<< HEAD
+    QAction *open_in_hexchat;
+    QAction *open_in_hexchat_bookmark;
+=======
+>>>>>>> master
     QAction *delete_bookmark;
     QAction *add_bookmark;
     QAction *add_hosted_bookmark;
