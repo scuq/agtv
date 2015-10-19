@@ -49,8 +49,6 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
         updateInterval = genericHelper::getUpdateInterval() * 1000;
     }
 
-    this->ui->mainToolBar->hide();
-
 
     stmodel = new QStandardItemModel(0,5,this);
     stproxymodel = new AdvQSortFilterProxyModel(this);
