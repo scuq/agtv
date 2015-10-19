@@ -52,9 +52,11 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     stmodel = new QStandardItemModel(0,5,this);
     stproxymodel = new AdvQSortFilterProxyModel(this);
+    stproxymodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     stmodelbookmarks = new QStandardItemModel(0,5,this);
     stproxymodelbookmarks = new AdvQSortFilterProxyModel(this);
+    stproxymodelbookmarks->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
 
 
