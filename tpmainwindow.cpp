@@ -1215,25 +1215,18 @@ void tpMainWindow::on_tableViewBookmarks_doubleClicked(const QModelIndex &index)
 
 void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint &pos)
 {
-
+     QMenu *tableviewbookmarksContextMenu = new QMenu("Bookmarks", this);
+     tableviewbookmarksContextMenu->addAction(add_bookmark);
      if ((this->ui->tableViewBookmarks->selectionModel()->selectedRows().count() > 0) || (this->stmodelbookmarks->rowCount() <= 0)) {
-
-
-
-
-        QMenu *tableviewbookmarksContextMenu = new QMenu("Bookmarks", this);
-
-
-        tableviewbookmarksContextMenu->addAction(add_bookmark);
         tableviewbookmarksContextMenu->addAction(delete_bookmark);
-
         if ((this->stmodelbookmarks->rowCount() > 0)) {
             tableviewbookmarksContextMenu->addAction(open_in_hexchat_bookmark);
         }
 
-        tableviewbookmarksContextMenu->popup(this->ui->tableView->viewport()->mapToGlobal(pos));
+
 
     }
+     tableviewbookmarksContextMenu->popup(this->ui->tableView->viewport()->mapToGlobal(pos));
 }
 
 void tpMainWindow::on_actionLogfile_triggered()
