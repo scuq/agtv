@@ -204,6 +204,7 @@ HEADERS  += tpmainwindow.h \
     advqsortfilterproxymodel.h \
     imageloader.h \
     updatecheck.h \
+    twitchclientid.h \
     twitchclientid.h
 
 FORMS    += tpmainwindow.ui \
