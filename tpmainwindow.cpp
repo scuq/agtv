@@ -753,8 +753,6 @@ void tpMainWindow::updateFromJsonResponseBookmark(const QJsonDocument &jsonRespo
 
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
-
-
     for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
        onlinename = "";
        status = "";
@@ -767,10 +765,6 @@ void tpMainWindow::updateFromJsonResponseBookmark(const QJsonDocument &jsonRespo
               onlinename = iter.value().toObject()["channel"].toObject()["name"].toString();
               status = iter.value().toObject()["channel"].toObject()["status"].toString();
               viewers = QString::number(iter.value().toObject()["viewers"].toInt(),'f',0);
-
-
-
-
 
               for(int i = 0; i<this->stmodelbookmarks->rowCount(); ++i)
               {
@@ -813,8 +807,9 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
 
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
-    int stateTrans = false;
+    bool isPlaylist;
 
+    int stateTrans = false;
 
    for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
        onlinename = "";
@@ -827,27 +822,31 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
 
               QString viewers = QString::number(iter.value().toObject()["viewers"].toInt(),'f',0);
 
-
-
               if (genericHelper::isOnline(this->stproxymodel->getColData(0,onlinename.toLower(),1).toString()) == false) {
                 stateTrans = true;
               }
 
+              isPlaylist = iter.value().toObject()["is_playlist"].toBool();
 
-              bool updateok = stproxymodel->updateCol(0,onlinename.toLower(),1,"online");
+              bool updateok;
+              if (! isPlaylist) {
+                // Should hopefully be only online mode
+                updateok = stproxymodel->updateCol(0,onlinename.toLower(),1,"online");
+              } else {
+                updateok = stproxymodel->updateCol(0,onlinename.toLower(),1,"playlist");
+              }
               updateok = stproxymodel->updateCol(0,onlinename.toLower(),2,viewers);
 
 
               if ((stateTrans == true) && (updateok == true) && (genericHelper::getStreamOnlineNotify() == true)) {
-                  emit (on_notifyByTray(onlinename+" is now online.",iter.value().toObject()["channel"].toObject()["status"].toString()));
+                  if (! isPlaylist) {
+                    emit (on_notifyByTray(onlinename+" is now online.",iter.value().toObject()["channel"].toObject()["status"].toString()));
+                  } else {
+                    emit (on_notifyByTray(onlinename+" is now in playlist mode.",iter.value().toObject()["channel"].toObject()["status"].toString()));
+                  }
               }
 
-
-
-
-
           }
-
 
        }
    }
@@ -859,8 +858,6 @@ void tpMainWindow::updateFromJsonResponseChannel(const QJsonDocument &jsonRespon
 
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
-
-
     bool updateok = stproxymodel->updateCol(0,jsonObject["display_name"].toString().toLower(),3,jsonObject["game"].toString());
     updateok = stproxymodelbookmarks->updateCol(0,jsonObject["display_name"].toString().toLower(),3,jsonObject["game"].toString());
 
@@ -869,21 +866,14 @@ void tpMainWindow::updateFromJsonResponseChannel(const QJsonDocument &jsonRespon
 
     channelid = QString::number(jsonObject["_id"].toDouble(),'f',0);
 
-
     this->ui->tableView->resizeColumnsToContents();
 
     tw->getHost(channelid);
-
-
-
-
-
 
 }
 
 void tpMainWindow::updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer)
 {
-    //qDebug() << jsonResponseBuffer;
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
     QString hostlogin;
@@ -1155,9 +1145,7 @@ void tpMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 
 
 
-
-
-    if (genericHelper::isOnline(_status) == true) {
+    if (genericHelper::isOnline(_status)) {
 
         if (launchBookmarkEnabled == true) {
 
