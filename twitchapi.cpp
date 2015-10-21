@@ -49,8 +49,8 @@ void TwitchApi::getFollows(QString user)
 void TwitchApi::getStream(QString user)
 {
 
-    genericHelper::log("twitch-api getStream - https://api.twitch.tv/kraken/streams/"+user);
-    this->getRequestStream("https://api.twitch.tv/kraken/streams/"+user);
+    genericHelper::log("twitch-api getStream - https://api.twitch.tv/kraken/streams/"+user+"?stream_type=all");
+    this->getRequestStream("https://api.twitch.tv/kraken/streams/"+user+"?stream_type=all");
 
 
 

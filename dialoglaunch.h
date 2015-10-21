@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include "generichelper.h"
+#include "imageloader.h"
 
 namespace Ui {
 class DialogLaunch;
@@ -23,9 +24,12 @@ public:
 public slots:
     void setStreamTitle(QString streamtitle, QString position);
     void setStreamUrl(QString streamurl);
+    void setStreamLogoUrl(QString streamlogourl);
 
 private slots:
     void on_pushButtonStart_clicked();
+
+    void loadStreamLogoImage();
 
 private:
     Ui::DialogLaunch *ui;
@@ -37,6 +41,10 @@ private:
      int y;
      int w;
      int h;
+
+     imageLoader *imgl;
+     QPixmap streamLogoImage;
+     QString streamLogoUrl;
 
 signals:
      void startStreamPlay(QString, QString, QString, int, int, int , int, bool, QString);

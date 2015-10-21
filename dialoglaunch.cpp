@@ -9,6 +9,10 @@ DialogLaunch::DialogLaunch(QWidget *parent) :
     this->loadPositions();
     this->ui->pushButtonStart->setEnabled(false);
 
+    // init the image loader
+    imgl = new imageLoader(this);
+
+    QObject::connect(imgl, SIGNAL(downloaded()), this, SLOT(loadStreamLogoImage()));
 }
 
 DialogLaunch::~DialogLaunch()
@@ -44,11 +48,11 @@ void DialogLaunch::refreshUiData()
         this->ui->comboBoxPosSelect->setHidden(false);
         this->ui->labelPos->setHidden(false);
     }
+    this->ui->labelStreamLogo->setPixmap(QPixmap());
 }
 
 void DialogLaunch::setStreamTitle(QString streamtitle, QString position)
 {
-
     this->ui->pushButtonStart->setEnabled(false);
     this->streamurl = "";
     this->loadPositions();
@@ -58,13 +62,16 @@ void DialogLaunch::setStreamTitle(QString streamtitle, QString position)
 
 void DialogLaunch::setStreamUrl(QString streamurl)
 {
-
-
     this->streamurl = streamurl;
 
     this->ui->pushButtonStart->setEnabled(true);
+}
 
+void DialogLaunch::setStreamLogoUrl(QString streamlogourl)
+{
+    this->streamLogoUrl = streamlogourl;
 
+    imgl->download(QUrl(this->streamLogoUrl));
 }
 
 void DialogLaunch::loadPositions()
@@ -84,7 +91,6 @@ void DialogLaunch::loadPositions()
 
 void DialogLaunch::on_pushButtonStart_clicked()
 {
-
     QString geo;
     geo = genericHelper::getPosition(this->ui->comboBoxPosSelect->currentText());
 
@@ -108,4 +114,17 @@ void DialogLaunch::on_pushButtonStart_clicked()
     this->hide();
     genericHelper::saveGeometry("launch",saveGeometry());
 
+}
+
+void DialogLaunch::loadStreamLogoImage()
+{
+    streamLogoImage.loadFromData(imgl->downloadedData());
+
+    genericHelper::log("downloaded stream logo image, dimension:" + QString::number(streamLogoImage.size().height()) + "x" +QString::number(streamLogoImage.size().width()));
+
+    if (streamLogoImage.size().height() > 0) {
+      this->ui->labelStreamLogo->setPixmap(streamLogoImage.scaled(128,128));
+    } else {
+        genericHelper::log("height is 0, stream logo image not set.");
+    }
 }

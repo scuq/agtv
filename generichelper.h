@@ -76,6 +76,7 @@ public:
     static void setOBSBin(QString obsbinpath);
     static QString getOBSBin();
     static bool isOnline(QString status);
+    static bool isPlaylist(QString status);
     static void executeOBS();
     static void writeTwitcherOBSConfig(QString streamkey);
     static void writeTwitcherOBSScenesConfig();
