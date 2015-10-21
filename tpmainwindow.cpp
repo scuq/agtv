@@ -109,6 +109,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(tw, SIGNAL(twitchReadyHost(const QJsonDocument)), this, SLOT(updateFromJsonResponseHost(const QJsonDocument)));
     QObject::connect(this, SIGNAL(setStreamTitle(QString,QString)), diaLaunch, SLOT(setStreamTitle(QString,QString)));
     QObject::connect(this, SIGNAL(setStreamUrl(QString)), diaLaunch, SLOT(setStreamUrl(QString)));
+    QObject::connect(this, SIGNAL(setStreamLogoUrl(QString)), diaLaunch, SLOT(setStreamLogoUrl(QString)));
     QObject::connect(diaLaunch, SIGNAL(startStreamPlay(QString, QString, QString, int, int, int , int, bool, QString)), this, SLOT(executePlayer(QString, QString, QString, int, int, int , int, bool, QString)));
 
     QObject::connect(diaOauthSetup, SIGNAL(twitchAuthSetupChanged(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
@@ -618,60 +619,36 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
 
     genericHelper::log("player or qres binary not found, not starting: "+qresBin+" "+qresargs.join(" "));
     this->playerThreads.append(processLaunchThread);
-
 }
-
-
-
-
-
-
 
 void tpMainWindow::onChannelAccessTokenReady(const QJsonDocument &jsonResponseBuffer)
 {
-
-
-
-
     QString _pl = "";
 
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
-
-    if (
-            (!jsonObject["token"].isNull())
-            &&
-            (!jsonObject["sig"].isNull())
-
-    )
-    {
-
+    if ( (!jsonObject["token"].isNull()) &&
+          (!jsonObject["sig"].isNull()) ) {
         QString channel = "";
-
 
         QListIterator<QString> itr (jsonObject["token"].toString().split(","));
 
-         while (itr.hasNext()) {
-               QString current = itr.next();
+        while (itr.hasNext()) {
+            QString current = itr.next();
 
-               if ( current.contains("channel") ) {
-                        if ( current.count(":") > 0) {
-                            channel = QString(current.split(":")[1]).replace("\"","");
-                        }
-
+            if ( current.contains("channel") ) {
+                if ( current.count(":") > 0) {
+                    channel = QString(current.split(":")[1]).replace("\"","");
                 }
+            }
         }
 
 
         if (channel != "") {
-
             _pl = tw->getPlayListUrl(channel,QUrl::toPercentEncoding(jsonObject["token"].toString()).replace("%7B","{").replace("%7D","}").replace("%3A",":").replace("%2C",",").replace("%5B","[").replace("%5D","]"),jsonObject["sig"].toString());
-
             emit setStreamUrl( _pl );
         }
-
     }
-
 }
 
 void tpMainWindow::startM3u8Player(QString m3u8playlist)
@@ -681,67 +658,47 @@ void tpMainWindow::startM3u8Player(QString m3u8playlist)
 
 void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer)
 {
+    QJsonObject jsonObject = jsonResponseBuffer.object();
 
-
-
-       QJsonObject jsonObject = jsonResponseBuffer.object();
-
-
-       for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
-            if (iter.key() == "follows")
+    for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
+        if (iter.key() == "follows")
+        {
+            for (int i = 0; i <= iter.value().toArray().size(); i++)
             {
+                QJsonValue _val = iter.value().toArray().at(i);
 
-               for (int i = 0; i <= iter.value().toArray().size(); i++)
-               {
+                tw->getStream(_val.toObject()["channel"].toObject()["name"].toString());
+                tw->getChannel(_val.toObject()["channel"].toObject()["name"].toString());
 
+                QString channelname = _val.toObject()["channel"].toObject()["name"].toString();
 
+                if (this->stmodel->findItems(channelname, Qt::MatchExactly,0).length() <= 0) {
 
-                   QJsonValue _val = iter.value().toArray().at(i);
+                    if (channelname.length() > 0) {
 
+                        QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(channelname));
+                        stmodel->setItem(i, 0, qsitem0);
+                        QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
+                        stmodel->setItem(i, 1, qsitem1);
+                        QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
+                        stmodel->setItem(i, 2, qsitem2);
+                        QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
+                        stmodel->setItem(i, 3, qsitem3);
+                        QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(_val.toObject()["channel"].toObject()["status"].toString()));
+                        stmodel->setItem(i, 4, qsitem4);
 
+                        channelLogoUrl[channelname] = _val.toObject()["channel"].toObject()["logo"].toString();
 
-
-
-                   tw->getStream(_val.toObject()["channel"].toObject()["name"].toString());
-                   tw->getChannel(_val.toObject()["channel"].toObject()["name"].toString());
-
-
-                   if (this->stmodel->findItems(_val.toObject()["channel"].toObject()["name"].toString(),Qt::MatchExactly,0).length() <= 0) {
-
-                        if (_val.toObject()["channel"].toObject()["name"].toString().length() > 0) {
-
-
-
-
-                           QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(_val.toObject()["channel"].toObject()["name"].toString()));
-                           stmodel->setItem(i, 0, qsitem0);
-                           QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
-                           stmodel->setItem(i, 1, qsitem1);
-                           QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
-                           stmodel->setItem(i, 2, qsitem2);
-                           QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
-                           stmodel->setItem(i, 3, qsitem3);
-                           QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(_val.toObject()["channel"].toObject()["status"].toString()));
-                           stmodel->setItem(i, 4, qsitem4);
-
-
-                           genericHelper::addFollow(_val.toObject()["channel"].toObject()["name"].toString());
-                        }
-
-
-                   }
-
+                        genericHelper::addFollow(channelname);
+                    }
+                }
             }
+        }
 
-       }
+    }
 
-       }
-
-       this->ui->tableView->resizeColumnsToContents();
-       //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
-
-
-
+    this->ui->tableView->resizeColumnsToContents();
+    //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
 }
 
 void tpMainWindow::updateFromJsonResponseBookmark(const QJsonDocument &jsonResponseBuffer)
@@ -758,42 +715,29 @@ void tpMainWindow::updateFromJsonResponseBookmark(const QJsonDocument &jsonRespo
        status = "";
        if (iter.key() == "stream")
        {
+           if (iter.value() != QJsonValue::Null)
+           {
+               onlinename = iter.value().toObject()["channel"].toObject()["name"].toString();
+               status = iter.value().toObject()["channel"].toObject()["status"].toString();
+               viewers = QString::number(iter.value().toObject()["viewers"].toInt(),'f',0);
 
+               channelLogoUrl[onlinename] = iter.value().toObject()["channel"].toObject()["logo"].toString();
 
-          if (iter.value() != QJsonValue::Null)
-          {
-              onlinename = iter.value().toObject()["channel"].toObject()["name"].toString();
-              status = iter.value().toObject()["channel"].toObject()["status"].toString();
-              viewers = QString::number(iter.value().toObject()["viewers"].toInt(),'f',0);
+               for(int i = 0; i<this->stmodelbookmarks->rowCount(); ++i)
+               {
+                   QModelIndex streamer_index = this->stmodelbookmarks->index(i,0);
+                   QModelIndex online_index = this->stmodelbookmarks->index(i,1);
+                   QModelIndex viewers_index = this->stmodelbookmarks->index(i,2);
+                   QModelIndex status_index = this->stmodelbookmarks->index(i,4);
 
-              for(int i = 0; i<this->stmodelbookmarks->rowCount(); ++i)
-              {
-
-                  QModelIndex streamer_index = this->stmodelbookmarks->index(i,0);
-                  QModelIndex online_index = this->stmodelbookmarks->index(i,1);
-                  QModelIndex viewers_index = this->stmodelbookmarks->index(i,2);
-                  QModelIndex status_index = this->stmodelbookmarks->index(i,4);
-
-                  if ( this->stmodelbookmarks->itemData(streamer_index)[0].toString() == onlinename )  {
-                      this->stmodelbookmarks->setData(online_index,"online");
-                      this->stmodelbookmarks->setData(status_index,status);
-                      this->stmodelbookmarks->setData(viewers_index,viewers);
-
-
-
-                  }
-
-
-
-
-            }
-
-
-          }
-
-
+                   if ( this->stmodelbookmarks->itemData(streamer_index)[0].toString() == onlinename )  {
+                       this->stmodelbookmarks->setData(online_index,"online");
+                       this->stmodelbookmarks->setData(status_index,status);
+                       this->stmodelbookmarks->setData(viewers_index,viewers);
+                   }
+               }
+           }
        }
-
    }
 
     this->ui->tableViewBookmarks->resizeColumnsToContents();
@@ -1134,36 +1078,25 @@ void tpMainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
 
 void tpMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
-
     QString _streamer;
     QString _status;
-
-
 
    _status = this->stproxymodel->data(index.sibling(index.row(),1),0).toString();
    _streamer = this->stproxymodel->data(index.sibling(index.row(),0),0).toString();
 
-
-
     if (genericHelper::isOnline(_status)) {
-
         if (launchBookmarkEnabled == true) {
-
             tw->getChannelAccessToken(_streamer);
 
-            if (diaLaunch->getDialogShown() == true)
-            {
+            if (diaLaunch->getDialogShown() == true) {
                 diaLaunch->close();
-
                 diaLaunch->show();
-
             } else {
-
-
                 diaLaunch->show();
                 diaLaunch->setDialogShown();
             }
             emit setStreamTitle( _streamer, "" );
+            emit setStreamLogoUrl(channelLogoUrl[_streamer]);
         }
     }
 }
@@ -1173,36 +1106,24 @@ void tpMainWindow::on_tableViewBookmarks_doubleClicked(const QModelIndex &index)
     QString _streamer;
     QString _status;
 
-
-
    _status = this->stproxymodelbookmarks->data(index.sibling(index.row(),1),0).toString();
    _streamer = this->stproxymodelbookmarks->data(index.sibling(index.row(),0),0).toString();
 
-
-
-
     if (genericHelper::isOnline(_status) == true) {
-
         if (launchBookmarkEnabled == true) {
-
             tw->getChannelAccessToken(_streamer);
 
-            if (diaLaunch->getDialogShown() == true)
-            {
+            if (diaLaunch->getDialogShown() == true) {
                 diaLaunch->close();
-
                 diaLaunch->show();
-
             } else {
-
-
                 diaLaunch->show();
                 diaLaunch->setDialogShown();
             }
             emit setStreamTitle( _streamer, "" );
+            emit setStreamLogoUrl(channelLogoUrl[_streamer]);
         }
     }
-
 }
 
 void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint &pos)

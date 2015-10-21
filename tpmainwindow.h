@@ -200,6 +200,8 @@ private:
 
     TwitchApi *tw;
 
+    QMap<QString, QString> channelLogoUrl;
+
 public slots:
     void executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
 
@@ -207,6 +209,7 @@ signals:
 
     void setStreamTitle(QString, QString);
     void setStreamUrl(QString);
+    void setStreamLogoUrl(QString);
 
 
 };
