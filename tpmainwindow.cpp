@@ -521,7 +521,7 @@ void tpMainWindow::addBookmark()
 {
     QString text = QInputDialog::getText(this, tr("Add Bookmark"), tr("Channel/Streamer name"), QLineEdit::Normal,"");
     if (!text.isEmpty()) {
-        genericHelper::addBookmark(text);
+        genericHelper::addBookmark(text.toLower());
         this->loadBookmarks();
     }
 }
