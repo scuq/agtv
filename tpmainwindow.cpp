@@ -449,12 +449,21 @@ void tpMainWindow::openStreamBrowserBookmark()
 
 void tpMainWindow::openChatHexChat()
 {
-     genericHelper::executeAddonHexchat(this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toStringList());
+     int ret = genericHelper::executeAddonHexchat(this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toStringList());
+     if (ret != 0) {
+         QMessageBox::critical(this, genericHelper::getAppName(),
+                                        tr("Can't find HexChat, please check options."),
+                                        QMessageBox::Ok);
+     }
 }
 void tpMainWindow::openChatHexChatBookmark()
 {
-    genericHelper::executeAddonHexchat(this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toStringList());
-
+    int ret = genericHelper::executeAddonHexchat(this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toStringList());
+    if (ret != 0) {
+        QMessageBox::critical(this, genericHelper::getAppName(),
+                                       tr("Can't find HexChat, please check options."),
+                                       QMessageBox::Ok);
+    }
 }
 
 void tpMainWindow::addBookmarkHosted()
@@ -568,15 +577,20 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
     qresBin = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","qres.exe");
 
     if (player == "vlc2") {
-        playerBin = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","") + QDir::separator() +
-                "3rdparty-addons" + QDir::separator() +
-                "vlc" + QDir::separator() + "VLCPortable.exe";
+        playerBin = genericHelper::getVlcPath();
     }
 
     qresargs << "-e" << "\""+playerBin+"\"";
     qresargs << "-u" << args.join(" ");
     QFile playerBinFile( playerBin );
     QFile qresBinFile( qresBin );
+
+    if(! playerBinFile.exists()) {
+            QMessageBox::critical(this, genericHelper::getAppName(),
+                                           tr("Can't find VLC, please check options."),
+                                           QMessageBox::Ok);
+        return ;
+    }
 
     if (genericHelper::getStreamPositioning() == true) {
         if( (qresBinFile.exists()) && (playerBinFile.exists()) )
@@ -930,7 +944,12 @@ void tpMainWindow::on_actionTwitch_Browser_triggered()
 
 void tpMainWindow::on_actionHexChat_triggered()
 {
-    genericHelper::executeAddonHexchat(genericHelper::getFollows());
+    int ret = genericHelper::executeAddonHexchat(genericHelper::getFollows());
+    if (ret != 0) {
+        QMessageBox::critical(this, genericHelper::getAppName(),
+                                       tr("Can't find HexChat, please check options."),
+                                       QMessageBox::Ok);
+    }
 }
 
 void tpMainWindow::trayIconClicked(QSystemTrayIcon::ActivationReason reason)

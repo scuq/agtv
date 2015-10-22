@@ -80,7 +80,7 @@ public:
     static void executeOBS();
     static void writeTwitcherOBSConfig(QString streamkey);
     static void writeTwitcherOBSScenesConfig();
-    static void executeAddonHexchat(QStringList channelsToJoin);
+    static int executeAddonHexchat(QStringList channelsToJoin);
     static void executeAddonLivestreamer(QString player, QString url, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
 
     static bool openLogWithNotepad();
@@ -108,6 +108,10 @@ public:
     static void setShowOfflineStreamers(bool showoffline);
     static QString getUpdateCheckUrl();
 
+    static void setVlcPath(QString path);
+    static QString getVlcPath();
+    static void setHexChatPath(QString path);
+    static QString getHexChatPath();
 
 signals:
 

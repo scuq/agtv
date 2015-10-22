@@ -24,6 +24,10 @@ private slots:
 
     void on_pushButtonCancel_clicked();
 
+    void on_vlcPathSelectButton_clicked();
+
+    void on_hexchatPathSelectButton_clicked();
+
 private:
     Ui::DialogOptions *ui;
         bool dialogShown;

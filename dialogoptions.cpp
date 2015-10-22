@@ -1,6 +1,8 @@
 #include "dialogoptions.h"
 #include "ui_dialogoptions.h"
 
+#include <QFileDialog>
+
 DialogOptions::DialogOptions(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::DialogOptions)
@@ -40,6 +42,10 @@ void DialogOptions::refreshUiData()
     this->ui->plainTextEdit->appendPlainText(genericHelper::getVlcArgs().join(" "));
     this->ui->checkBoxStreamPositioning->setChecked(genericHelper::getStreamPositioning());
     this->ui->checkBoxUpdateCheck->setChecked(genericHelper::getCheckUpdate());
+
+    this->ui->vlcPathEdit->setText(genericHelper::getVlcPath());
+    this->ui->hexchatPathEdit->setText(genericHelper::getHexChatPath());
+
     restoreGeometry(genericHelper::getGeometry("options").toByteArray());
 
 }
@@ -91,6 +97,8 @@ void DialogOptions::on_pushButtonOk_clicked()
     if (this->ui->plainTextEdit->toPlainText().length() > 0) {
         genericHelper::setVlcArgs(this->ui->plainTextEdit->toPlainText().split(" "));
     }
+    genericHelper::setVlcPath(this->ui->vlcPathEdit->text());
+    genericHelper::setHexChatPath(this->ui->hexchatPathEdit->text());
 
     genericHelper::setUpdateInterval( this->ui->spinBoxPollInterval->value());
 
@@ -103,4 +111,22 @@ void DialogOptions::on_pushButtonCancel_clicked()
     this->hide();
     genericHelper::saveGeometry("options",saveGeometry());
 
+}
+
+void DialogOptions::on_vlcPathSelectButton_clicked()
+{
+    QString fileName;
+    fileName = QFileDialog::getOpenFileName(this,
+        tr("Select VLC Executable"), QCoreApplication::applicationDirPath(), tr("VLC Execitable (*)"));
+    if(! fileName.isEmpty())
+        this->ui->vlcPathEdit->setText(fileName);
+}
+
+void DialogOptions::on_hexchatPathSelectButton_clicked()
+{
+    QString fileName;
+    fileName = QFileDialog::getOpenFileName(this,
+        tr("Select HexChat Executable"), QCoreApplication::applicationDirPath(), tr("HexChat Executable (*)"));
+    if(! fileName.isEmpty())
+        this->ui->hexchatPathEdit->setText(fileName);
 }

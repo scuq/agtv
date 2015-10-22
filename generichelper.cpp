@@ -1,5 +1,6 @@
 #include "generichelper.h"
 #include <QDebug>
+#include <QMessageBox>
 
 void genericHelper::setOAuthAccessToken(QString oauthtoken){
 
@@ -735,20 +736,16 @@ void genericHelper::writeTwitcherOBSScenesConfig(){
 
 
 
-void genericHelper::executeAddonHexchat(QStringList channelsToJoin){
+int genericHelper::executeAddonHexchat(QStringList channelsToJoin){
 
     QString addonHexchatBin = "";
 
 
-    addonHexchatBin = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","") + QDir::separator() +
-            "3rdparty-addons" + QDir::separator() +
-            "hexchat" + QDir::separator() + "hexchat.exe";
+    addonHexchatBin = genericHelper::getHexChatPath();
 
     QFile addonHexchatBinFile( addonHexchatBin );
 
-    if( addonHexchatBinFile.exists() )
-
-    {
+    if( addonHexchatBinFile.exists() ) {
 
         QDir addonHexchatDir(genericHelper::getAppDir() + QDir::separator() + "addon_hexchat_config");
         if (!addonHexchatDir.exists()) {
@@ -757,7 +754,7 @@ void genericHelper::executeAddonHexchat(QStringList channelsToJoin){
 
         QFile file(genericHelper::getAppDir() + QDir::separator() + "addon_hexchat_config" + QDir::separator() + "servlist.conf");
         if (!file.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text))
-        return;
+        return 1;
 
         QString joins="";
 
@@ -801,17 +798,11 @@ void genericHelper::executeAddonHexchat(QStringList channelsToJoin){
         genericHelper::log("launched: "+program);
 
         //qDebug() << process->pid();
+
+        return 0;
+    } else {
+        return 1;
     }
-
-
-
-    //
-
-
-
-
-    //qDebug() << args;
-    //qDebug() << program;
 
 }
 
@@ -1213,3 +1204,57 @@ void genericHelper::deleteLog() {
 }
 
 
+void genericHelper::setVlcPath(QString path)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("vlc_path", path);
+    settings.sync();
+}
+
+QString genericHelper::getVlcPath()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QString _vlcpath;
+
+    if (settings.value("vlc_path", "").toString().length() > 1) {
+        _vlcpath = settings.value("vlc_path", "").toString();
+    } else {
+
+        #if defined(Q_OS_WIN)
+             _vlcpath = QCoreApplication::applicationDirPath() + "/3rdparty-addons/vlc/VLCPortable.exe";
+        #else
+             _vlcpath = "vlc";
+        #endif
+            qDebug() << _vlcpath;
+        _vlcpath = QCoreApplication::applicationDirPath();
+    }
+
+    return _vlcpath;
+}
+
+void genericHelper::setHexChatPath(QString path)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("hexchat_path", path);
+    settings.sync();
+}
+
+QString genericHelper::getHexChatPath()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QString _hexchatpath;
+
+    if (settings.value("hexchat_path", "").toString().length() > 1) {
+        _hexchatpath = settings.value("hexchat_path", "").toString();
+    } else {
+    #if defined(Q_OS_WIN)
+         _hexchatpath = QCoreApplication::applicationDirPath() + "/3rdparty-addons/hexchat/hexchat.exe";
+    #else
+         _hexchatpath = "hexchat";
+    #endif
+    }
+
+    return _hexchatpath;
+}
