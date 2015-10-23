@@ -423,7 +423,18 @@ void tpMainWindow::openStreamBrowserBookmark()
 
 void tpMainWindow::openChatHexChat()
 {
-     int ret = genericHelper::executeAddonHexchat(this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toStringList());
+     const QString _streamer = this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toString();
+     const QString _status = this->ui->tableView->selectionModel()->selectedRows(1).at(0).data().toString();
+     const QString _text = this->ui->tableView->selectionModel()->selectedRows(4).at(0).data().toString();
+
+     int ret = 0;
+
+     if ( genericHelper::isHosting(_status) ) {
+         ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _text} );
+     } else {
+         ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
+     }
+
      if (ret != 0) {
          QMessageBox::critical(this, genericHelper::getAppName(),
                                         tr("Can't find HexChat, please check options."),
@@ -432,7 +443,18 @@ void tpMainWindow::openChatHexChat()
 }
 void tpMainWindow::openChatHexChatBookmark()
 {
-    int ret = genericHelper::executeAddonHexchat(this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toStringList());
+    const QString _streamer = this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toString();
+    const QString _status = this->ui->tableViewBookmarks->selectionModel()->selectedRows(1).at(0).data().toString();
+    const QString _text = this->ui->tableViewBookmarks->selectionModel()->selectedRows(4).at(0).data().toString();
+
+    int ret = 0;
+
+    if ( genericHelper::isHosting(_status) ) {
+        ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _status} );
+    } else {
+        ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
+    }
+
     if (ret != 0) {
         QMessageBox::critical(this, genericHelper::getAppName(),
                                        tr("Can't find HexChat, please check options."),

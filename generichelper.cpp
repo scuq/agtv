@@ -750,7 +750,6 @@ int genericHelper::executeAddonHexchat(QStringList channelsToJoin){
 
     QString addonHexchatBin = "";
 
-
     addonHexchatBin = genericHelper::getHexChatPath();
 
     QFile addonHexchatBinFile( addonHexchatBin );
@@ -770,7 +769,6 @@ int genericHelper::executeAddonHexchat(QStringList channelsToJoin){
 
         for (int i = 0; i < channelsToJoin.size(); ++i)
         {
-
             joins += "J=#" + channelsToJoin.at(i) + "\n";
         }
 
@@ -791,6 +789,18 @@ int genericHelper::executeAddonHexchat(QStringList channelsToJoin){
 
         file.close();
 
+        // Check for config file, if not exists create it and skip network list by default
+        QFile conffile(genericHelper::getAppDir() + QDir::separator() + "addon_hexchat_config" + QDir::separator() + "hexchat.conf");
+        if( ! conffile.exists() ) {
+            if ( ! conffile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text) )
+                return 1;
+
+            QTextStream out(&conffile);
+            out << "gui_slist_skip = 1";
+
+            conffile.close();
+        }
+
         qDebug() << addonHexchatBin;
 
         QStringList args;
@@ -807,13 +817,10 @@ int genericHelper::executeAddonHexchat(QStringList channelsToJoin){
 
         genericHelper::log("launched: "+program);
 
-        //qDebug() << process->pid();
-
         return 0;
     } else {
         return 1;
     }
-
 }
 
 bool genericHelper::openLogWithNotepad() {

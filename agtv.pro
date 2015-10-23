@@ -7,7 +7,7 @@
 # if you want push a new version, execute new_version.bat
 # in the projekt home directory to push revision numbers
 
-
+CONFIG += c++11
 
 DEVELOPER = $$(USERNAME)
 WINDEPLOYMENT = yes
