@@ -1197,18 +1197,25 @@ void tpMainWindow::on_tableViewBookmarks_doubleClicked(const QModelIndex &index)
    _status = this->stproxymodelbookmarks->data(index.sibling(index.row(),1),0).toString();
    _streamer = this->stproxymodelbookmarks->data(index.sibling(index.row(),0),0).toString();
 
-    if (genericHelper::isOnline(_status) == true) {
+    if (genericHelper::isOnline(_status)) {
         if (launchBookmarkEnabled == true) {
             tw->getChannelAccessToken(_streamer);
 
-            if (diaLaunch->getDialogShown() == true) {
-                diaLaunch->close();
-                diaLaunch->show();
-            } else {
-                diaLaunch->show();
-                diaLaunch->setDialogShown();
-            }
+            prepareDiaLauncher();
+
             emit setStreamTitle( _streamer, "" );
+            emit setStreamLogoUrl(channelLogoUrl[_streamer]);
+        }
+    }
+
+    if (genericHelper::isHosting(_status)) {
+        if (launchBookmarkEnabled == true) {
+            QString _hostedStreamer = this->stproxymodelbookmarks->data(index.sibling(index.row(),4),0).toString();
+            tw->getChannelAccessToken(_hostedStreamer);
+
+            prepareDiaLauncher();
+
+            emit setStreamTitle( _streamer + "\n\nhosting\n\n" + _hostedStreamer, "" );
             emit setStreamLogoUrl(channelLogoUrl[_streamer]);
         }
     }
