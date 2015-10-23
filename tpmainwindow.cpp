@@ -22,15 +22,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     this->ui->tabWidget->setCurrentIndex(genericHelper::getSelectedTab());
 
-
-
-
-
-
     uc = new updateCheck(this);
-
-
-
 
     xOffset = 0;
     yOffset = 0;
@@ -243,58 +235,40 @@ void tpMainWindow::enableInput()
 void tpMainWindow::loadBookmarks()
 {
     QStringList loadedbookmarks;
-
     loadedbookmarks = genericHelper::getBookmarks();
-
 
     QStringList currentbookmarks;
 
-
-
-
-      for( int row = 0; row < this->stmodelbookmarks->rowCount(); ++row )
-      {
+    for( int row = 0; row < this->stmodelbookmarks->rowCount(); ++row )
+    {
         currentbookmarks << this->stmodelbookmarks->item( row, 0 )->text();
+    }
 
-      }
-
-
-
-
-     QListIterator<QString> itr (loadedbookmarks);
+    QListIterator<QString> itr (loadedbookmarks);
     int i = 0;
-     while (itr.hasNext()) {
-           QString current = itr.next();
+    while (itr.hasNext()) {
+        QString current = itr.next();
+        if (currentbookmarks.count(current) <= 0) {
+            tw->getStream(current);
+            tw->getChannel(current);
 
-           if (currentbookmarks.count(current) <= 0) {
+            if (this->stmodelbookmarks->findItems(current,Qt::MatchExactly,0).length() <= 0) {
+                QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(current));
+                stmodelbookmarks->setItem(i, 0, qsitem0);
+                QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
+                stmodelbookmarks->setItem(i, 1, qsitem1);
+                QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
+                stmodelbookmarks->setItem(i, 2, qsitem2);
+                QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
+                stmodelbookmarks->setItem(i, 3, qsitem3);
+                QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(""));
+                stmodelbookmarks->setItem(i, 4, qsitem4);
+            }
+        }
 
-
-
-               tw->getStream(current);
-               tw->getChannel(current);
-
-                if (this->stmodelbookmarks->findItems(current,Qt::MatchExactly,0).length() <= 0) {
-
-
-                   QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(current));
-                   stmodelbookmarks->setItem(i, 0, qsitem0);
-                   QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
-                   stmodelbookmarks->setItem(i, 1, qsitem1);
-                   QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
-                   stmodelbookmarks->setItem(i, 2, qsitem2);
-                   QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
-                   stmodelbookmarks->setItem(i, 3, qsitem3);
-                   QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(""));
-                   stmodelbookmarks->setItem(i, 4, qsitem4);
-
-
-
-                }
-           }
-
-           tw->getBookmarkStatus(current);
-           ++i;
-     }
+        tw->getBookmarkStatus(current);
+        ++i;
+    }
 }
 
 void tpMainWindow::saveBookmarks()
@@ -819,6 +793,13 @@ void tpMainWindow::updateFromJsonResponseChannel(const QJsonDocument &jsonRespon
     bool updateok = stproxymodel->updateCol(0,jsonObject["display_name"].toString().toLower(),3,jsonObject["game"].toString());
     updateok = stproxymodelbookmarks->updateCol(0,jsonObject["display_name"].toString().toLower(),3,jsonObject["game"].toString());
 
+    if(stproxymodel->getColData(0,jsonObject["display_name"].toString().toLower(),1).toString() != "hosting") {
+        updateok = stproxymodel->updateCol(0,jsonObject["display_name"].toString().toLower(),4,jsonObject["status"].toString());
+    }
+    if(stproxymodelbookmarks->getColData(0,jsonObject["display_name"].toString().toLower(),1) != "hosting") {
+        updateok = stproxymodelbookmarks->updateCol(0,jsonObject["display_name"].toString().toLower(),4,jsonObject["status"].toString());
+    }
+
     this->ui->tableView->resizeColumnsToContents();
     this->ui->tableViewBookmarks->resizeColumnsToContents();
 
@@ -840,34 +821,27 @@ void tpMainWindow::updateFromJsonResponseHost(const QJsonDocument &jsonResponseB
     for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
         hostlogin = "";
         targetlogin = "";
-        if (iter.key() == "hosts")
+        if ( iter.key() == "hosts" &&
+             iter.value() != QJsonValue::Null &&
+             iter.value().toArray().at(0).toObject().keys().count("target_login") > 0 )
         {
+            hostlogin = iter.value().toArray().at(0).toObject()["host_login"].toString();
+            targetlogin = iter.value().toArray().at(0).toObject()["target_login"].toString();
 
-           if (iter.value() != QJsonValue::Null)
-           {
-
-                if (iter.value().toArray().at(0).toObject().keys().count("target_login") > 0) {
-
-                    hostlogin = iter.value().toArray().at(0).toObject()["host_login"].toString();
-                    targetlogin = iter.value().toArray().at(0).toObject()["target_login"].toString();
-
-
-
-                    if (genericHelper::isOnline(this->stproxymodel->getColData(0,hostlogin.toLower(),1).toString()) == false) {
-
-
-                    bool updateok = stproxymodel->updateCol(0,hostlogin.toLower(),1,"hosting");
-                    updateok = stproxymodel->updateCol(0,hostlogin.toLower(),4,targetlogin);
-
-
-
-                    }
-                }
-
+            if (genericHelper::isOnline(this->stproxymodel->getColData(0,hostlogin.toLower(),1).toString()) == false) {
+                if(! stproxymodel->updateCol(0,hostlogin.toLower(),1,"hosting") )
+                    genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodel");
+                if(! stproxymodel->updateCol(0,hostlogin.toLower(),4,"Hosting: " + targetlogin) )
+                    genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodel");
             }
 
+            if (genericHelper::isOnline(this->stproxymodelbookmarks->getColData(0,hostlogin.toLower(),1).toString()) == false) {
+                if(! stproxymodelbookmarks->updateCol(0,hostlogin.toLower(),1,"hosting") )
+                        genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodelbookmarks");
+                if(! stproxymodelbookmarks->updateCol(0,hostlogin.toLower(),4,"Hosting: " + targetlogin) )
+                    genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodelbookmarks");
+            }
         }
-
     }
 }
 
