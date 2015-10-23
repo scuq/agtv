@@ -69,6 +69,7 @@ private slots:
 
     void on_notifyByTray(QString title, QString message);
 
+    void restoreTableViewsManual();
 
     void on_actionAbout_triggered();
 
@@ -123,6 +124,8 @@ private slots:
 
     void on_tabWidget_currentChanged(int index);
 
+    void on_actionFit_Columns_to_Content_triggered();
+
 private:
     Ui::tpMainWindow *ui;
 
@@ -174,7 +177,7 @@ private:
 
     QList<QThread*> playerThreads;
 
-
+    void saveTableViewStates();
 
     // tray icon
     void closeEvent(QCloseEvent *); // Overriding the window's close event

@@ -42,6 +42,7 @@ void DialogOptions::refreshUiData()
     this->ui->plainTextEdit->appendPlainText(genericHelper::getVlcArgs().join(" "));
     this->ui->checkBoxStreamPositioning->setChecked(genericHelper::getStreamPositioning());
     this->ui->checkBoxUpdateCheck->setChecked(genericHelper::getCheckUpdate());
+    this->ui->checkBoxFitAllContentToWindow->setChecked(genericHelper::getFitAllContentToWindow());
 
     this->ui->vlcPathEdit->setText(genericHelper::getVlcPath());
     this->ui->hexchatPathEdit->setText(genericHelper::getHexChatPath());
@@ -89,10 +90,14 @@ void DialogOptions::on_pushButtonOk_clicked()
         genericHelper::setJoinBookmarks(false);
     }
     if (this->ui->checkBoxJoinFollowed->checkState() == Qt::Checked) {
-
         genericHelper::setJoinFollow(true);
     } else {
         genericHelper::setJoinFollow(false);
+    }
+    if (this->ui->checkBoxFitAllContentToWindow->checkState() == Qt::Checked) {
+        genericHelper::setFitAllContentToWindow(true);
+    } else {
+        genericHelper::setFitAllContentToWindow(false);
     }
     if (this->ui->plainTextEdit->toPlainText().length() > 0) {
         genericHelper::setVlcArgs(this->ui->plainTextEdit->toPlainText().split(" "));

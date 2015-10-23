@@ -57,7 +57,7 @@
       <item>
        <widget class="QTabWidget" name="tabWidget">
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -106,10 +106,7 @@
              <bool>false</bool>
             </attribute>
             <attribute name="horizontalHeaderMinimumSectionSize">
-             <number>120</number>
-            </attribute>
-            <attribute name="horizontalHeaderStretchLastSection">
-             <bool>true</bool>
+             <number>60</number>
             </attribute>
             <attribute name="verticalHeaderVisible">
              <bool>false</bool>
@@ -185,12 +182,9 @@
              <bool>true</bool>
             </attribute>
             <attribute name="horizontalHeaderMinimumSectionSize">
-             <number>120</number>
+             <number>60</number>
             </attribute>
             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-             <bool>true</bool>
-            </attribute>
-            <attribute name="horizontalHeaderStretchLastSection">
              <bool>true</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
@@ -273,6 +267,7 @@
     </property>
     <addaction name="actionRefresh"/>
     <addaction name="actionShow_Offline_Streamers"/>
+    <addaction name="actionFit_Columns_to_Content"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -369,6 +364,11 @@
   <action name="actionLogfile">
    <property name="text">
     <string>Logfile</string>
+   </property>
+  </action>
+  <action name="actionFit_Columns_to_Content">
+   <property name="text">
+    <string>Fit Columns to Content</string>
    </property>
   </action>
  </widget>

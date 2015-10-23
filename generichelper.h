@@ -16,6 +16,7 @@
 #include "processlauncher.h"
 #include <QThread>
 #include <QHash>
+#include <QByteArray>
 
 
 
@@ -113,6 +114,20 @@ public:
     static QString getVlcPath();
     static void setHexChatPath(QString path);
     static QString getHexChatPath();
+
+    static void setFitAllContentToWindow(const bool fit);
+    static bool getFitAllContentToWindow();
+
+    static QByteArray getFollowerTableViewColumnWidth();
+    static void setFollowerTableViewColumnWidth(const QByteArray _columnwidth);
+    static QByteArray getBookmarksTableViewColumnWidth();
+    static void setBookmarksTableViewColumnWidth(const QByteArray _columnwidth);
+
+    static QMap<int, int> getFollowerTableViewColumnWidthManual();
+    static void setFollowerTableViewColumnWidthManual(const QMap<int, int> columnwidth);
+
+    static QMap<int, int> getBookmarksTableViewColumnWidthManual();
+    static void setBookmarksTableViewColumnWidthManual(const QMap<int, int> columnwidth);
 
 signals:
 

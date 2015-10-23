@@ -163,6 +163,30 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     }
 
+    ui->tableView->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
+    ui->tableViewBookmarks->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
+
+    if(! genericHelper::getFitAllContentToWindow()) {
+        QTimer::singleShot(0, this, SLOT(restoreTableViewsManual()));
+    }
+}
+
+void tpMainWindow::restoreTableViewsManual()
+{
+    QMap<int, int> tableViewColumnWidth = genericHelper::getFollowerTableViewColumnWidthManual();
+    QMap<int, int> tableViewBookmarksColumnWidth = genericHelper::getBookmarksTableViewColumnWidthManual();
+
+    QMapIterator<int, int> i(tableViewColumnWidth);
+    while (i.hasNext()) {
+        i.next();
+        this->ui->tableView->setColumnWidth(i.key(), i.value());
+    }
+
+    i = tableViewBookmarksColumnWidth;
+    while (i.hasNext()) {
+        i.next();
+        this->ui->tableViewBookmarks->setColumnWidth(i.key(), i.value());
+    }
 }
 
 tpMainWindow::~tpMainWindow()
@@ -172,10 +196,13 @@ tpMainWindow::~tpMainWindow()
 
 void tpMainWindow::fitTableViewToContent(QTableView *tableView)
 {
-    for (int c=0; c < tableView->horizontalHeader()->count()-1 ; ++c) {
-        tableView->resizeColumnToContents(c);
+    if(genericHelper::getFitAllContentToWindow()) {
+        tableView->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
+        for (int c=0; c < tableView->horizontalHeader()->count()-1 ; ++c) {
+            tableView->resizeColumnToContents(c);
+        }
+        tableView->resizeRowsToContents();
     }
-    tableView->resizeRowsToContents();
 }
 
 void tpMainWindow::on_tabChanged(const int tabid)
@@ -391,27 +418,39 @@ void tpMainWindow::createActions()
 
 }
 
+void tpMainWindow::saveTableViewStates()
+{
+    QMap<int, int> tableViewColumnWidth;
+    QMap<int, int> tableViewBookmarksColumnWidth;
+
+    for(int c=0; c < ui->tableView->horizontalHeader()->count(); ++c)
+    {
+        tableViewColumnWidth[c] = ui->tableView->columnWidth(c);
+    }
+
+    for(int c=0; c < ui->tableViewBookmarks->horizontalHeader()->count(); ++c)
+    {
+        tableViewBookmarksColumnWidth[c] = ui->tableViewBookmarks->columnWidth(c);
+    }
+
+    genericHelper::setFollowerTableViewColumnWidthManual(tableViewColumnWidth);
+    genericHelper::setBookmarksTableViewColumnWidthManual(tableViewBookmarksColumnWidth);
+}
+
 
 void tpMainWindow::myQuit()
 {
-
     genericHelper::saveGeometry("main",saveGeometry());
     genericHelper::saveWindowstate("main",saveState());
+
+    saveTableViewStates();
 
     for( int i=0; i<this->playerThreads.count(); ++i )
     {
        this->playerThreads.at(i)->terminate();
     }
-    //while (i.hasNext()) {
-      //  i.next()->terminate();
-   // }
-
-
-
-
 
     qApp->quit();
-
 }
 
 void tpMainWindow::on_loadData()
@@ -1201,4 +1240,12 @@ void tpMainWindow::on_actionLogfile_triggered()
 void tpMainWindow::on_tabWidget_currentChanged(int index)
 {
     genericHelper::setSelectedTab(index);
+}
+
+void tpMainWindow::on_actionFit_Columns_to_Content_triggered()
+{
+    if(! genericHelper::getFitAllContentToWindow() ) {
+        this->ui->tableView->resizeColumnsToContents();
+        this->ui->tableViewBookmarks->resizeColumnsToContents();
+    }
 }

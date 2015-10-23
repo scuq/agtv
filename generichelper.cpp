@@ -1,6 +1,7 @@
 #include "generichelper.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <QByteArray>
 
 void genericHelper::setOAuthAccessToken(QString oauthtoken){
 
@@ -1274,4 +1275,114 @@ QString genericHelper::getHexChatPath()
     }
 
     return _hexchatpath;
+}
+
+void genericHelper::setFitAllContentToWindow(const bool fit)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("fit_all_content_to_window", fit);
+    settings.sync();
+}
+
+bool genericHelper::getFitAllContentToWindow()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    bool _fit;
+
+    _fit = settings.value("fit_all_content_to_window", false).toBool();
+
+    return _fit;
+}
+
+QByteArray genericHelper::getFollowerTableViewColumnWidth()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QByteArray _columnwidth;
+
+    _columnwidth = settings.value("follower_tableview_column_width").toByteArray();
+
+    return _columnwidth;
+}
+
+void genericHelper::setFollowerTableViewColumnWidth(const QByteArray _columnwidth)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("follower_tableview_column_width", _columnwidth);
+    settings.sync();
+}
+
+QByteArray genericHelper::getBookmarksTableViewColumnWidth()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QByteArray _columnwidth;
+
+    _columnwidth = settings.value("bookmarks_tableview_column_width").toByteArray();
+
+    return _columnwidth;
+}
+
+void genericHelper::setBookmarksTableViewColumnWidth(const QByteArray _columnwidth)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("bookmarks_tableview_column_width", _columnwidth);
+    settings.sync();
+}
+
+QMap<int, int> genericHelper::getFollowerTableViewColumnWidthManual()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QMap<int, int> _columnwidth;
+    QStringList _columnwidthstringlist;
+
+    _columnwidthstringlist = settings.value("follower_tableview_column_width").toStringList();
+    int i=0;
+    for(const QString& string : _columnwidthstringlist) {
+        _columnwidth[i] = string.toInt();
+        ++i;
+    }
+
+    return _columnwidth;
+}
+
+void genericHelper::setFollowerTableViewColumnWidthManual(const QMap<int, int> columnwidth)
+{
+    QStringList _columnwidthstringlist;
+    for (const int& width : columnwidth) {
+        _columnwidthstringlist.append(QString::number(width,'f',0));
+    }
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("follower_tableview_column_width", _columnwidthstringlist);
+    settings.sync();
+}
+
+QMap<int, int> genericHelper::getBookmarksTableViewColumnWidthManual()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QMap<int, int> _columnwidth;
+    QStringList _columnwidthstringlist;
+
+    _columnwidthstringlist = settings.value("bookmarks_tableview_column_width").toStringList();
+    int i=0;
+    for(const QString& string : _columnwidthstringlist) {
+        _columnwidth[i] = string.toInt();
+        ++i;
+    }
+
+    return _columnwidth;
+}
+
+void genericHelper::setBookmarksTableViewColumnWidthManual(const QMap<int, int> columnwidth)
+{
+    QStringList _columnwidthstringlist;
+    for (const int& width : columnwidth) {
+        _columnwidthstringlist.append(QString::number(width,'f',0));
+    }
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("bookmarks_tableview_column_width", _columnwidthstringlist);
+    settings.sync();
 }
