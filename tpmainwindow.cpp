@@ -503,7 +503,7 @@ void tpMainWindow::openChatHexChatBookmark()
     int ret = 0;
 
     if ( genericHelper::isHosting(_status) ) {
-        ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _status} );
+        ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _text} );
     } else {
         ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
     }
