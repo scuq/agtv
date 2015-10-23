@@ -112,6 +112,8 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     QObject::connect(uc, SIGNAL(updateReady(const QString)), this, SLOT(on_updateNotify(const QString)));
 
+    QObject::connect(this->ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(on_tabChanged(const int)));
+
     if (genericHelper::getCheckUpdate() == true) {
         uc->getCheck();
     }
@@ -161,7 +163,6 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     }
 
-
 }
 
 tpMainWindow::~tpMainWindow()
@@ -169,8 +170,19 @@ tpMainWindow::~tpMainWindow()
     delete ui;
 }
 
+void tpMainWindow::fitTableViewToContent(QTableView *tableView)
+{
+    for (int c=0; c < tableView->horizontalHeader()->count()-1 ; ++c) {
+        tableView->resizeColumnToContents(c);
+    }
+    tableView->resizeRowsToContents();
+}
 
-
+void tpMainWindow::on_tabChanged(const int tabid)
+{
+    fitTableViewToContent(this->ui->tableView);
+    fitTableViewToContent(this->ui->tableViewBookmarks);
+}
 
 void tpMainWindow::disableInput()
 {
@@ -269,6 +281,8 @@ void tpMainWindow::loadBookmarks()
         tw->getBookmarkStatus(current);
         ++i;
     }
+
+    fitTableViewToContent(this->ui->tableViewBookmarks);
 }
 
 void tpMainWindow::saveBookmarks()
@@ -707,7 +721,8 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
 
     }
 
-    this->ui->tableView->resizeColumnsToContents();
+    fitTableViewToContent(this->ui->tableView);
+
     //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
 }
 
@@ -750,7 +765,8 @@ void tpMainWindow::updateFromJsonResponseBookmark(const QJsonDocument &jsonRespo
        }
    }
 
-    this->ui->tableViewBookmarks->resizeColumnsToContents();
+    fitTableViewToContent(this->ui->tableViewBookmarks);
+
    //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
 }
 
@@ -822,15 +838,12 @@ void tpMainWindow::updateFromJsonResponseChannel(const QJsonDocument &jsonRespon
         updateok = stproxymodelbookmarks->updateCol(0,jsonObject["display_name"].toString().toLower(),4,jsonObject["status"].toString());
     }
 
-    this->ui->tableView->resizeColumnsToContents();
-    this->ui->tableViewBookmarks->resizeColumnsToContents();
+    fitTableViewToContent(this->ui->tableView);
+    fitTableViewToContent(this->ui->tableViewBookmarks);
 
     channelid = QString::number(jsonObject["_id"].toDouble(),'f',0);
 
-    this->ui->tableView->resizeColumnsToContents();
-
     tw->getHost(channelid);
-
 }
 
 void tpMainWindow::updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer)
@@ -865,6 +878,9 @@ void tpMainWindow::updateFromJsonResponseHost(const QJsonDocument &jsonResponseB
             }
         }
     }
+
+    fitTableViewToContent(this->ui->tableView);
+    fitTableViewToContent(this->ui->tableViewBookmarks);
 }
 
 

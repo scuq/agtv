@@ -11,6 +11,7 @@
 #include <QtCore/QJsonValue>
 #include <QComboBox>
 #include <QTreeWidgetItem>
+#include <QTableView>
 #include "dialogoauthsetup.h"
 #include "dialogpositioner.h"
 #include "dialoglaunch.h"
@@ -98,7 +99,7 @@ private slots:
 
     void on_actionQuit_triggered();
 
-
+    void on_tabChanged(const int tabid);
 
     void on_actionCredits_triggered();
 
@@ -169,6 +170,7 @@ private:
 
     void prepareDiaLauncher();
 
+    static void fitTableViewToContent(QTableView *tableView);
 
     QList<QThread*> playerThreads;
 
