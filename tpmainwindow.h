@@ -167,6 +167,8 @@ private:
     void disableDelete();
     void loadData();
 
+    void prepareDiaLauncher();
+
 
     QList<QThread*> playerThreads;
 

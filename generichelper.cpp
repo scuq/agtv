@@ -496,7 +496,7 @@ QString genericHelper::getOBSBin(){
     return _obsbin;
 }
 
-bool genericHelper::isOnline(QString status)
+bool genericHelper::isOnline(const QString status)
 {
         QRegExp regexEmail("^online" );
 
@@ -505,10 +505,20 @@ bool genericHelper::isOnline(QString status)
         } else {
             return false;
         }
-
 }
 
-bool genericHelper::isPlaylist(QString status)
+bool genericHelper::isHosting(const QString status)
+{
+        QRegExp regexEmail("^hosting" );
+
+        if( regexEmail.indexIn( status ) != -1 ) {
+            return true;
+        } else {
+            return false;
+        }
+}
+
+bool genericHelper::isPlaylist(const QString status)
 {
         QRegExp regexEmail("^playlist" );
 

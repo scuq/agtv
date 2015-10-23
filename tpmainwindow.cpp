@@ -831,14 +831,14 @@ void tpMainWindow::updateFromJsonResponseHost(const QJsonDocument &jsonResponseB
             if (genericHelper::isOnline(this->stproxymodel->getColData(0,hostlogin.toLower(),1).toString()) == false) {
                 if(! stproxymodel->updateCol(0,hostlogin.toLower(),1,"hosting") )
                     genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodel");
-                if(! stproxymodel->updateCol(0,hostlogin.toLower(),4,"Hosting: " + targetlogin) )
+                if(! stproxymodel->updateCol(0,hostlogin.toLower(),4, targetlogin) )
                     genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodel");
             }
 
             if (genericHelper::isOnline(this->stproxymodelbookmarks->getColData(0,hostlogin.toLower(),1).toString()) == false) {
                 if(! stproxymodelbookmarks->updateCol(0,hostlogin.toLower(),1,"hosting") )
                         genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodelbookmarks");
-                if(! stproxymodelbookmarks->updateCol(0,hostlogin.toLower(),4,"Hosting: " + targetlogin) )
+                if(! stproxymodelbookmarks->updateCol(0,hostlogin.toLower(),4, targetlogin) )
                     genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodelbookmarks");
             }
         }
@@ -1069,6 +1069,17 @@ void tpMainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
 
 }
 
+void tpMainWindow::prepareDiaLauncher()
+{
+    if (this->diaLaunch->getDialogShown() == true) {
+        this->diaLaunch->close();
+        this->diaLaunch->show();
+    } else {
+        this->diaLaunch->show();
+        this->diaLaunch->setDialogShown();
+    }
+}
+
 void tpMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
 {
     QString _streamer;
@@ -1081,14 +1092,21 @@ void tpMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
         if (launchBookmarkEnabled == true) {
             tw->getChannelAccessToken(_streamer);
 
-            if (diaLaunch->getDialogShown() == true) {
-                diaLaunch->close();
-                diaLaunch->show();
-            } else {
-                diaLaunch->show();
-                diaLaunch->setDialogShown();
-            }
+            prepareDiaLauncher();
+
             emit setStreamTitle( _streamer, "" );
+            emit setStreamLogoUrl(channelLogoUrl[_streamer]);
+        }
+    }
+
+    if (genericHelper::isHosting(_status)) {
+        if (launchBookmarkEnabled == true) {
+            QString _hostedStreamer = this->stproxymodel->data(index.sibling(index.row(),4),0).toString();
+            tw->getChannelAccessToken(_hostedStreamer);
+
+            prepareDiaLauncher();
+
+            emit setStreamTitle( _streamer + "\n\nhosting\n\n" + _hostedStreamer, "" );
             emit setStreamLogoUrl(channelLogoUrl[_streamer]);
         }
     }
