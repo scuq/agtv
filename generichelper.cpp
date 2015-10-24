@@ -798,6 +798,7 @@ int genericHelper::executeAddonHexchat(QStringList channelsToJoin){
             << "F=24\n"
             << "D=0\n"
             << "S=irc.twitch.tv/6667\n"
+            << "C=CAP REQ :twitch.tv/membership\n"
             << "\n";
         out.flush();
 
