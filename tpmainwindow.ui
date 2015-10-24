@@ -243,12 +243,12 @@
     </property>
     <addaction name="actionTwitch_Browser"/>
     <addaction name="actionHexChat"/>
-    <addaction name="actionLogfile"/>
     <addaction name="separator"/>
     <addaction name="actionPositioner"/>
     <addaction name="separator"/>
     <addaction name="actionOptions"/>
     <addaction name="separator"/>
+    <addaction name="actionLogfile"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">

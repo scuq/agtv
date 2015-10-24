@@ -26,6 +26,7 @@
 #include "advqsortfilterproxymodel.h"
 #include "imageloader.h"
 #include "updatecheck.h"
+#include "dialogshowlogfile.h"
 
 namespace Ui {
 class tpMainWindow;
@@ -163,6 +164,7 @@ private:
     DialogPositioner *diaPositioner;
     DialogLaunch *diaLaunch;
     DialogOptions *diaOptions;
+    DialogShowLogFile *diaShowLogFile;
 
     QDesktopWidget *desktop;
     void updateCurrentScreenData();

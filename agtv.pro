@@ -29,27 +29,23 @@ SETTINGS_COMPANY = "Abyle"
 DEFINES += SETTINGS_COMPANY=\\\"$$SETTINGS_COMPANY\\\"
 DEFINES += SETTINGS_PRODUCT=\\\"$$QMAKE_TARGET_PRODUCT\\\"
 
-#if defined(Q_OS_WINDOW)
-
-
-SSL_DIR = "C:/OpenSSL-Win32/"
-BUILDBASE = ../
-
-equals(DEVELOPER, "scuq") {
-    message("setting paths and settings for $${DEVELOPER}}")
+win32 {
     SSL_DIR = "C:/OpenSSL-Win32/"
-    BUILDBASE = z:/build/agtv/
+    BUILDBASE = ../
 
+    equals(DEVELOPER, "scuq") {
+        message("setting paths and settings for $${DEVELOPER}}")
+        SSL_DIR = "C:/OpenSSL-Win32/"
+        BUILDBASE = z:/build/agtv/
+
+    }
+    equals(DEVELOPER, "DAS") {
+        message("setting paths and settings for $${DEVELOPER}}")
+        SSL_DIR = "c:/coding/openssl-win32/"
+        BUILDBASE = c:/coding/build/agtv/
+
+    }
 }
-equals(DEVELOPER, "DAS") {
-    message("setting paths and settings for $${DEVELOPER}}")
-    SSL_DIR = "c:/coding/openssl-win32/"
-    BUILDBASE = c:/coding/build/agtv/
-
-}
-
-
-#endif
 
 
 
@@ -108,9 +104,8 @@ VERSION = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}.$${VERSION_BUILD
 DEFINES += VERSION=\\\"$$VERSION\\\"
 DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
 
-#if defined(Q_OS_WINDOW)
 
-
+win32 {
     LIBS += -L"$${SSL_DIR}lib" -llibeay32
     INCLUDEPATH += "$${SSL_DIR}include"
 
@@ -175,7 +170,7 @@ DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
             }
         }
     }
-#endif
+}
 
 
 
@@ -190,7 +185,8 @@ SOURCES += main.cpp\
     dialogoptions.cpp \
     advqsortfilterproxymodel.cpp \
     imageloader.cpp \
-    updatecheck.cpp
+    updatecheck.cpp \
+    dialogshowlogfile.cpp
 
 HEADERS  += tpmainwindow.h \
     generichelper.h \
@@ -204,13 +200,15 @@ HEADERS  += tpmainwindow.h \
     advqsortfilterproxymodel.h \
     imageloader.h \
     updatecheck.h \
-    twitchclientid.h
+    twitchclientid.h \
+    dialogshowlogfile.h
 
 FORMS    += tpmainwindow.ui \
     dialogoauthsetup.ui \
     dialogpositioner.ui \
     dialoglaunch.ui \
-    dialogoptions.ui
+    dialogoptions.ui \
+    dialogshowlogfile.ui
 
 RESOURCES += \
     agtv.qrc

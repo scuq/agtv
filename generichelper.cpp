@@ -842,9 +842,12 @@ bool genericHelper::openLogWithNotepad() {
   QProcess *notepad = new QProcess(qApp);
   notepad->start("notepad.exe", QStringList() << genericHelper::getAppDir() + QDir::separator() + genericHelper::getAppName()+".log");
 
-
-
   return true;
+}
+
+QString genericHelper::getLogFile()
+{
+    return genericHelper::getAppDir() + QDir::separator() + genericHelper::getAppName()+".log";
 }
 
 void genericHelper::setErrorTimestamp() {

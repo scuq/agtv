@@ -111,6 +111,8 @@ public:
     static bool getShowApproximateViewerCount();
     static void setShowApproximateViewerCount(bool approxviewercount);
 
+    static QString getLogFile();
+
     static QString getUpdateCheckUrl();
 
     static void setVlcPath(QString path);

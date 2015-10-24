@@ -86,9 +86,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     diaPositioner = new DialogPositioner(this);
     diaLaunch = new DialogLaunch(this);
     diaOptions = new DialogOptions(this);
-
-
-
+    diaShowLogFile = new DialogShowLogFile(this);
 
     // init twitch api object
     tw = new TwitchApi(this, genericHelper::getOAuthAccessToken());
@@ -1282,7 +1280,9 @@ void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint
 
 void tpMainWindow::on_actionLogfile_triggered()
 {
-     genericHelper::openLogWithNotepad();
+     //genericHelper::openLogWithNotepad();
+    diaShowLogFile->loadFile(genericHelper::getLogFile());
+    diaShowLogFile->show();
 }
 
 void tpMainWindow::on_tabWidget_currentChanged(int index)
