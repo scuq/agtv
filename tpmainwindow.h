@@ -173,6 +173,9 @@ private:
 
     void prepareDiaLauncher();
 
+    bool bunchUpdateStreamDataName(const QString &name, const QString &status,
+                                   const QString &viewers);
+
     static void fitTableViewToContent(QTableView *tableView);
 
     QList<QThread*> playerThreads;

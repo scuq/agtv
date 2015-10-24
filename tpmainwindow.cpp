@@ -114,6 +114,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     QObject::connect(this->ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(on_tabChanged(const int)));
 
+
     if (genericHelper::getCheckUpdate() == true) {
         uc->getCheck();
     }
@@ -809,6 +810,19 @@ void tpMainWindow::updateFromJsonResponseBookmark(const QJsonDocument &jsonRespo
    //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
 }
 
+bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString &status,
+                                             const QString &viewers)
+{
+    bool ret=true;
+    if(! stproxymodel->updateCol(0, name.toLower(), 1, status) &&
+         stproxymodelbookmarks->updateCol(0, name.toLower(), 1, status) )
+        ret=false;
+    if(! stproxymodel->updateCol(0, name.toLower(), 2, viewers) &&
+         stproxymodelbookmarks->updateCol(0, name.toLower(), 2, viewers) )
+        ret=false;
+    return ret;
+}
+
 void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer)
 {
 
@@ -816,7 +830,7 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
 
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
-    bool isPlaylist;
+    bool isPlaylist, wasPlaylist=false;
 
     int stateTrans = false;
 
@@ -824,7 +838,6 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
        onlinename = "";
        if (iter.key() == "stream")
        {
-
           if (iter.value() != QJsonValue::Null)
           {
               onlinename = iter.value().toObject()["channel"].toObject()["name"].toString();
@@ -835,22 +848,26 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
                 stateTrans = true;
               }
 
+              wasPlaylist = genericHelper::isPlaylist(this->stproxymodel->getColData(0,onlinename.toLower(),1).toString());
               isPlaylist = iter.value().toObject()["is_playlist"].toBool();
 
-              bool updateok;
+              bool updateok = true;
               if (! isPlaylist) {
-                // Should hopefully be only online mode
-                updateok = stproxymodel->updateCol(0,onlinename.toLower(),1,"online");
+                if(! bunchUpdateStreamDataName(onlinename, "online", viewers) ) {
+                    genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating model");
+                    updateok = false;
+                }
               } else {
-                updateok = stproxymodel->updateCol(0,onlinename.toLower(),1,"playlist");
+                  if(! bunchUpdateStreamDataName(onlinename, "playlist", viewers) ) {
+                      genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating model");
+                      updateok = false;
+                  }
               }
-              updateok = stproxymodel->updateCol(0,onlinename.toLower(),2,viewers);
-
 
               if ((stateTrans == true) && (updateok == true) && (genericHelper::getStreamOnlineNotify() == true)) {
                   if (! isPlaylist) {
                     emit (on_notifyByTray(onlinename+" is now online.",iter.value().toObject()["channel"].toObject()["status"].toString()));
-                  } else {
+                  } else if ((wasPlaylist != isPlaylist )) {
                     emit (on_notifyByTray(onlinename+" is now in playlist mode.",iter.value().toObject()["channel"].toObject()["status"].toString()));
                   }
               }
@@ -1020,11 +1037,6 @@ void tpMainWindow::on_notifyByTray(QString title, QString message)
 
     }
 }
-
-
-
-
-
 
 void tpMainWindow::on_actionAbout_triggered()
 {
