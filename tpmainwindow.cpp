@@ -1022,12 +1022,13 @@ void tpMainWindow::on_actionHexChat_triggered()
 
 void tpMainWindow::trayIconClicked(QSystemTrayIcon::ActivationReason reason)
 {
-
-        if(reason == QSystemTrayIcon::DoubleClick) {
-            this->show();
-            this->raise();
-        }
-
+    if(reason == QSystemTrayIcon::DoubleClick) {
+        this->show();
+        this->raise();
+        this->activateWindow();
+        if( this->isMinimized() )
+            this->showNormal();
+    }
 }
 
 void tpMainWindow::on_notifyByTray(QString title, QString message)
