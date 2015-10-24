@@ -111,6 +111,9 @@ public:
     static bool getShowApproximateViewerCount();
     static void setShowApproximateViewerCount(bool approxviewercount);
 
+    static bool getStreamQuality();
+    static void setStreamQuality(bool quality);
+
     static QString getLogFile();
 
     static QString getUpdateCheckUrl();

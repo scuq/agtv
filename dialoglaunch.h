@@ -23,8 +23,9 @@ public:
 
 public slots:
     void setStreamTitle(QString streamtitle, QString position);
-    void setStreamUrl(QString streamurl);
+    void setStreamUrl(const QString _streamurl);
     void setStreamLogoUrl(QString streamlogourl);
+    void setStreamUrlWithQuality(const QMap<QString, QString> streamurlqualitymap);
 
 private slots:
     void on_pushButtonStart_clicked();
@@ -45,6 +46,8 @@ private:
      imageLoader *imgl;
      QPixmap streamLogoImage;
      QString streamLogoUrl;
+
+     QMap<QString, QString> streamurlqualitymap;
 
 signals:
      void startStreamPlay(QString, QString, QString, int, int, int , int, bool, QString);

@@ -186,7 +186,8 @@ SOURCES += main.cpp\
     advqsortfilterproxymodel.cpp \
     imageloader.cpp \
     updatecheck.cpp \
-    dialogshowlogfile.cpp
+    dialogshowlogfile.cpp \
+    filedownloader.cpp
 
 HEADERS  += tpmainwindow.h \
     generichelper.h \
@@ -201,7 +202,8 @@ HEADERS  += tpmainwindow.h \
     imageloader.h \
     updatecheck.h \
     twitchclientid.h \
-    dialogshowlogfile.h
+    dialogshowlogfile.h \
+    filedownloader.h
 
 FORMS    += tpmainwindow.ui \
     dialogoauthsetup.ui \

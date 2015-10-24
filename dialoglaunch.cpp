@@ -49,6 +49,13 @@ void DialogLaunch::refreshUiData()
         this->ui->labelPos->setHidden(false);
     }
     this->ui->labelStreamLogo->setPixmap(QPixmap());
+
+    if (genericHelper::getStreamQuality()) {
+        this->ui->comboBox->clear();
+        this->ui->comboBox->show();
+    } else {
+        this->ui->comboBox->hide();
+    }
 }
 
 void DialogLaunch::setStreamTitle(QString streamtitle, QString position)
@@ -60,12 +67,33 @@ void DialogLaunch::setStreamTitle(QString streamtitle, QString position)
     this->ui->labelStream->setText(streamtitle);
 }
 
-void DialogLaunch::setStreamUrl(QString streamurl)
+void DialogLaunch::setStreamUrl(const QString _streamurl)
 {
-    this->streamurl = streamurl;
+    this->streamurl = _streamurl;
 
     this->ui->pushButtonStart->setEnabled(true);
     this->ui->pushButtonStart->setText("Start");
+}
+
+void DialogLaunch::setStreamUrlWithQuality(const QMap<QString, QString> _streamurlqualitymap)
+{
+    this->streamurlqualitymap = _streamurlqualitymap;
+
+    this->ui->pushButtonStart->setEnabled(true);
+    this->ui->pushButtonStart->setText("Start");
+
+    for(const auto& key : _streamurlqualitymap.keys() )
+    {
+        this->ui->comboBox->addItem(key);
+    }
+
+    // Manually try to select the highest quality for now
+    if ( _streamurlqualitymap.find("medium") != _streamurlqualitymap.end() )
+        this->ui->comboBox->setCurrentText("medium");
+    if ( _streamurlqualitymap.find("high") != _streamurlqualitymap.end() )
+        this->ui->comboBox->setCurrentText("high");
+    if ( _streamurlqualitymap.find("source") != _streamurlqualitymap.end() )
+        this->ui->comboBox->setCurrentText("source");
 }
 
 void DialogLaunch::setStreamLogoUrl(QString streamlogourl)
@@ -107,14 +135,16 @@ void DialogLaunch::on_pushButtonStart_clicked()
         h = QString(_geo[3]).toInt();
     }
 
+    if(genericHelper::getStreamQuality() ) {
+        this->streamurl = streamurlqualitymap[ui->comboBox->currentText()];
+    }
 
-    emit startStreamPlay ( "vlc2", streamurl, this->ui->labelStream->text(), w, h, x, y, false, "" );
+    emit startStreamPlay ( "vlc2", this->streamurl, this->ui->labelStream->text(), w, h, x, y, false, "" );
 
     this->streamurl = "";
     this->ui->pushButtonStart->setEnabled(false);
     this->hide();
     genericHelper::saveGeometry("launch",saveGeometry());
-
 }
 
 void DialogLaunch::loadStreamLogoImage()

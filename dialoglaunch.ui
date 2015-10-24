@@ -68,8 +68,20 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QComboBox" name="comboBox">
+     <property name="currentText">
+      <string/>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBoxPosSelect</tabstop>
+  <tabstop>comboBox</tabstop>
+  <tabstop>pushButtonStart</tabstop>
+ </tabstops>
  <resources>
   <include location="agtv.qrc"/>
  </resources>

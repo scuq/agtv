@@ -102,6 +102,8 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(this, SIGNAL(setStreamLogoUrl(QString)), diaLaunch, SLOT(setStreamLogoUrl(QString)));
     QObject::connect(diaLaunch, SIGNAL(startStreamPlay(QString, QString, QString, int, int, int , int, bool, QString)), this, SLOT(executePlayer(QString, QString, QString, int, int, int , int, bool, QString)));
 
+    QObject::connect(this, SIGNAL(setStreamUrlWithQuality(QMap<QString, QString>)), diaLaunch, SLOT(setStreamUrlWithQuality(QMap<QString, QString>)));
+
     QObject::connect(diaOauthSetup, SIGNAL(twitchAuthSetupChanged(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
 
 
@@ -728,9 +730,58 @@ void tpMainWindow::onChannelAccessTokenReady(const QJsonDocument &jsonResponseBu
 
         if (channel != "") {
             _pl = tw->getPlayListUrl(channel,QUrl::toPercentEncoding(jsonObject["token"].toString()).replace("%7B","{").replace("%7D","}").replace("%3A",":").replace("%2C",",").replace("%5B","[").replace("%5D","]"),jsonObject["sig"].toString());
-            emit setStreamUrl( _pl );
+            if (! genericHelper::getStreamQuality()) {
+                emit setStreamUrl( _pl );
+                qDebug() << _pl;
+            } else {
+                QUrl streamUrl( _pl );
+                m_m3u8playlist = new FileDownloader(streamUrl, this);
+
+                connect(m_m3u8playlist, SIGNAL (downloaded()), this, SLOT (loadQuality()));
+            }
         }
     }
+}
+
+void tpMainWindow::loadQuality()
+{
+    QPixmap buttonImage;
+    QString downloadedtext = m_m3u8playlist->downloadedData();
+    QStringList streams = downloadedtext.split("\n");
+
+    QMap<QString, QString> videofiles = this->parseM3U8Playlist(downloadedtext);
+
+    emit setStreamUrlWithQuality(videofiles);
+}
+
+QMap<QString, QString> tpMainWindow::parseM3U8Playlist(QString m3u8playlist)
+{
+    QStringList m3u8playlistlines = m3u8playlist.split("\n");
+    QMap<QString, QString> map;
+    QRegularExpression requality("VIDEO=([^s]+)");
+
+    QString quality;
+
+    QStringListIterator it(m3u8playlistlines);
+
+    QString string;
+
+    for(int l=0; l<m3u8playlistlines.size(); ++l) {
+        string = m3u8playlistlines.at(l);
+        if ( string.startsWith("#EXT-X-STREAM-INF:PROGRAM-ID") ) {
+            QRegularExpressionMatch match = requality.match(string);
+            if (match.hasMatch()) {
+                quality = match.captured(1).replace("\"","");
+                if(QString::compare(quality, "chunked") == 0)
+                    quality = "source";
+                map[quality] = m3u8playlistlines.at(l+1);
+            } else {
+                qDebug() << "Could not extract quality from string:\n" << string;
+            }
+        }
+    }
+
+    return map;
 }
 
 void tpMainWindow::startM3u8Player(QString m3u8playlist)

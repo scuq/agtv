@@ -27,6 +27,7 @@
 #include "imageloader.h"
 #include "updatecheck.h"
 #include "dialogshowlogfile.h"
+#include "filedownloader.h"
 
 namespace Ui {
 class tpMainWindow;
@@ -130,6 +131,8 @@ private slots:
 
     void on_actionShow_Approximate_Viewer_Count_toggled(bool arg1);
 
+    void loadQuality();
+
 private:
     Ui::tpMainWindow *ui;
 
@@ -149,7 +152,7 @@ private:
     QStandardItemModel *stmodelbookmarks;
     AdvQSortFilterProxyModel *stproxymodelbookmarks;
 
-
+    FileDownloader *m_m3u8playlist;
 
     QPixmap offline;
     QPixmap online;
@@ -159,6 +162,7 @@ private:
     QTimer *refreshTimer;
     int updateInterval;
 
+    QMap<QString, QString> parseM3U8Playlist(QString m3u8playlist);
 
     dialogOauthSetup *diaOauthSetup;
     DialogPositioner *diaPositioner;
@@ -227,6 +231,7 @@ signals:
     void setStreamTitle(QString, QString);
     void setStreamUrl(QString);
     void setStreamLogoUrl(QString);
+    void setStreamUrlWithQuality(QMap<QString, QString>);
 
 
 };

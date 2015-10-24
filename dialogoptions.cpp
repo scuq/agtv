@@ -44,6 +44,8 @@ void DialogOptions::refreshUiData()
     this->ui->checkBoxUpdateCheck->setChecked(genericHelper::getCheckUpdate());
     this->ui->checkBoxFitAllContentToWindow->setChecked(genericHelper::getFitAllContentToWindow());
 
+    this->ui->checkBoxStreamQuality->setChecked(genericHelper::getStreamQuality());
+
     this->ui->vlcPathEdit->setText(genericHelper::getVlcPath());
     this->ui->hexchatPathEdit->setText(genericHelper::getHexChatPath());
 
@@ -106,6 +108,8 @@ void DialogOptions::on_pushButtonOk_clicked()
     genericHelper::setHexChatPath(this->ui->hexchatPathEdit->text());
 
     genericHelper::setUpdateInterval( this->ui->spinBoxPollInterval->value());
+
+    genericHelper::setStreamQuality(this->ui->checkBoxStreamQuality->isChecked());
 
     this->hide();
     genericHelper::saveGeometry("options",saveGeometry());

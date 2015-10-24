@@ -324,6 +324,19 @@ void genericHelper::setStreamPositioning(bool positioning)
     settings.sync();
 }
 
+bool genericHelper::getStreamQuality()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    return settings.value("stream_quality_selection", false).toBool();
+}
+
+void genericHelper::setStreamQuality(bool quality)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("stream_quality_selection", quality);
+    settings.sync();
+}
+
 bool genericHelper::getShowOfflineStreamers()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
