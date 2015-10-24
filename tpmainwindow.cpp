@@ -155,13 +155,10 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
         this->stproxymodel->setShowOffline(true);
         this->stproxymodelbookmarks->setShowOffline(true);
         this->ui->actionShow_Offline_Streamers->setChecked(true);
-
-
     } else {
         this->stproxymodel->setShowOffline(false);
         this->stproxymodelbookmarks->setShowOffline(false);
         this->ui->actionShow_Offline_Streamers->setChecked(false);
-
     }
 
     ui->tableView->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
@@ -170,6 +167,22 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     if(! genericHelper::getFitAllContentToWindow()) {
         QTimer::singleShot(0, this, SLOT(restoreTableViewsManual()));
     }
+
+    QTimer::singleShot(0, this, SLOT(restoreSortModes()));
+}
+
+void tpMainWindow::saveSortModes()
+{
+    genericHelper::setFollowerSortCol(this->stproxymodel->sortColumn());
+    genericHelper::setFollowerSortOrder(this->stproxymodel->sortOrder());
+    genericHelper::setBookmarksSortCol(this->stproxymodelbookmarks->sortColumn());
+    genericHelper::setBookmarksSortOrder(this->stproxymodelbookmarks->sortOrder());
+}
+
+void tpMainWindow::restoreSortModes()
+{
+    this->ui->tableView->sortByColumn(genericHelper::getFollowerSortCol(), genericHelper::getFollowerSortOrder());
+    this->ui->tableViewBookmarks->sortByColumn(genericHelper::getBookmarksSortCol(), genericHelper::getBookmarksSortOrder());
 }
 
 void tpMainWindow::restoreTableViewsManual()
@@ -445,6 +458,7 @@ void tpMainWindow::myQuit()
     genericHelper::saveWindowstate("main",saveState());
 
     saveTableViewStates();
+    saveSortModes();
 
     for( int i=0; i<this->playerThreads.count(); ++i )
     {

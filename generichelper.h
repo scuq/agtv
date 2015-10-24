@@ -129,6 +129,16 @@ public:
     static QMap<int, int> getBookmarksTableViewColumnWidthManual();
     static void setBookmarksTableViewColumnWidthManual(const QMap<int, int> columnwidth);
 
+    static int getFollowerSortCol();
+    static Qt::SortOrder getFollowerSortOrder();
+    static int getBookmarksSortCol();
+    static Qt::SortOrder getBookmarksSortOrder();
+
+    static void setFollowerSortCol(const int col);
+    static void setFollowerSortOrder(const Qt::SortOrder order);
+    static void setBookmarksSortCol(const int col);
+    static void setBookmarksSortOrder(const Qt::SortOrder order);
+
 signals:
 
 public slots:

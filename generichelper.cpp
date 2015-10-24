@@ -1386,3 +1386,69 @@ void genericHelper::setBookmarksTableViewColumnWidthManual(const QMap<int, int> 
     settings.setValue("bookmarks_tableview_column_width", _columnwidthstringlist);
     settings.sync();
 }
+
+int genericHelper::getFollowerSortCol()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    int _col;
+    _col = settings.value("follower_sort_column", "0").toInt();
+    return _col;
+}
+
+Qt::SortOrder genericHelper::getFollowerSortOrder()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    Qt::SortOrder _order;
+    _order = Qt::SortOrder(settings.value("follower_sort_order").toInt());
+    return _order;
+}
+
+
+int genericHelper::getBookmarksSortCol()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    int _col;
+    _col = settings.value("bookmarks_sort_column", "0").toInt();
+    return _col;
+}
+
+Qt::SortOrder genericHelper::getBookmarksSortOrder()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    Qt::SortOrder _order;
+    _order = Qt::SortOrder(settings.value("bookmarks_sort_order").toInt());
+    return _order;
+}
+
+
+void genericHelper::setFollowerSortCol(const int col)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("follower_sort_column",  col);
+    settings.sync();
+}
+
+void genericHelper::setFollowerSortOrder(const Qt::SortOrder order)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("follower_sort_order",  order);
+    settings.sync();
+}
+
+void genericHelper::setBookmarksSortCol(const int col)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("bookmarks_sort_column",  col);
+    settings.sync();
+}
+
+void genericHelper::setBookmarksSortOrder(const Qt::SortOrder order)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("bookmarks_sort_order",  order);
+    settings.sync();
+}

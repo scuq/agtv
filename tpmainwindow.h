@@ -70,6 +70,7 @@ private slots:
     void on_notifyByTray(QString title, QString message);
 
     void restoreTableViewsManual();
+    void restoreSortModes();
 
     void on_actionAbout_triggered();
 
@@ -177,6 +178,8 @@ private:
                                    const QString &viewers);
 
     static void fitTableViewToContent(QTableView *tableView);
+
+    void saveSortModes();
 
     QList<QThread*> playerThreads;
 
