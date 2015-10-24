@@ -54,10 +54,10 @@ void DialogLaunch::refreshUiData()
 void DialogLaunch::setStreamTitle(QString streamtitle, QString position)
 {
     this->ui->pushButtonStart->setEnabled(false);
+    this->ui->pushButtonStart->setText("Preparing...");
     this->streamurl = "";
     this->loadPositions();
     this->ui->labelStream->setText(streamtitle);
-
 }
 
 void DialogLaunch::setStreamUrl(QString streamurl)
@@ -65,6 +65,7 @@ void DialogLaunch::setStreamUrl(QString streamurl)
     this->streamurl = streamurl;
 
     this->ui->pushButtonStart->setEnabled(true);
+    this->ui->pushButtonStart->setText("Start");
 }
 
 void DialogLaunch::setStreamLogoUrl(QString streamlogourl)
