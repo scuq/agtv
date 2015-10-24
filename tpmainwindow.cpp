@@ -656,9 +656,15 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
         return ;
     }
 
+    if(! qresBinFile.exists() && genericHelper::getStreamPositioning() ) {
+            QMessageBox::critical(this, genericHelper::getAppName(),
+                                           tr("Can't find qres, please check options."),
+                                           QMessageBox::Ok);
+        return ;
+    }
+
     if (genericHelper::getStreamPositioning() == true) {
         if( (qresBinFile.exists()) && (playerBinFile.exists()) )
-
         {
             processLauncher *processL = new processLauncher();
             processL->setProgramStr("\""+qresBin+"\"");
@@ -673,7 +679,6 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
         if( playerBinFile.exists() )
 
         {
-
             processLauncher *processL = new processLauncher();
 
             processL->setProgramStr("\""+playerBin+"\"");
@@ -689,9 +694,6 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
             QObject::connect(processLaunchThread, SIGNAL(started()), processL, SLOT(launch()));
 
             processLaunchThread->start();
-
-
-
         }
     }
 
@@ -942,9 +944,9 @@ void tpMainWindow::updateFromJsonResponseHost(const QJsonDocument &jsonResponseB
 
             if (genericHelper::isOnline(this->stproxymodelbookmarks->getColData(0,hostlogin.toLower(),1).toString()) == false) {
                 if(! stproxymodelbookmarks->updateCol(0,hostlogin.toLower(),1,"hosting") )
-                        genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodelbookmarks");
+                        genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodelbookmarks for streamer " + hostlogin.toLower());
                 if(! stproxymodelbookmarks->updateCol(0,hostlogin.toLower(),4, targetlogin) )
-                    genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodelbookmarks");
+                    genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodelbookmarks for streamer " + hostlogin.toLower());
             }
         }
     }
