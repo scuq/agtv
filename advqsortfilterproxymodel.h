@@ -19,12 +19,14 @@ public:
    bool updateCol(int keycol, QVariant key,  int updatecol, QVariant updatedata);
    QVariant getColData(int keycol, QVariant key, int updatecol);
    void setShowOffline(bool showoffline);
+   void setShowApproximateViewerCount(const bool approxviewercount);
 
 protected:
     bool filterAcceptsRow ( int source_row, const QModelIndex & source_parent ) const;
 
 private:
     bool showOffline;
+    bool showApproximateViewerCount;
 
 
 };

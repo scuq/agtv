@@ -108,6 +108,9 @@ public:
     static void setStreamPositioning(bool positioning);
     static bool getShowOfflineStreamers();
     static void setShowOfflineStreamers(bool showoffline);
+    static bool getShowApproximateViewerCount();
+    static void setShowApproximateViewerCount(bool approxviewercount);
+
     static QString getUpdateCheckUrl();
 
     static void setVlcPath(QString path);

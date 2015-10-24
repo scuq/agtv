@@ -127,6 +127,8 @@ private slots:
 
     void on_actionFit_Columns_to_Content_triggered();
 
+    void on_actionShow_Approximate_Viewer_Count_toggled(bool arg1);
+
 private:
     Ui::tpMainWindow *ui;
 

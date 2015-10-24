@@ -1,12 +1,10 @@
 #include "advqsortfilterproxymodel.h"
 
 
-
-
-
 AdvQSortFilterProxyModel::AdvQSortFilterProxyModel(QObject *parent)
 {
     showOffline = true;
+    showApproximateViewerCount = true;
 }
 
 QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) const
@@ -32,10 +30,16 @@ QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) cons
         }
     }
 
-
-
-
-
+    if(role == Qt::DisplayRole && index.column() == 2 && showApproximateViewerCount) {
+        const int viewers = QSortFilterProxyModel::data(index, role).toInt();
+        if (viewers > 1e6) {
+            return QString::number(viewers / 1e6, 'f', 0) + "m";
+        } else if (viewers > 1e3) {
+            return QString::number(viewers / 1e3, 'f', 0) + "k";
+        } else {
+            return QSortFilterProxyModel::data( index, role );
+        }
+    }
 
     if ( role == Qt::TextAlignmentRole )
     {
@@ -96,6 +100,11 @@ QVariant AdvQSortFilterProxyModel::getColData(int keycol, QVariant key, int upda
 void AdvQSortFilterProxyModel::setShowOffline(bool showoffline)
 {
     this->showOffline = showoffline;
+}
+
+void AdvQSortFilterProxyModel::setShowApproximateViewerCount(const bool approxviewercount)
+{
+    this->showApproximateViewerCount = approxviewercount;
 }
 
 bool AdvQSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const

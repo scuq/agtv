@@ -347,6 +347,19 @@ void genericHelper::setShowOfflineStreamers(bool showoffline)
     settings.sync();
 }
 
+bool genericHelper::getShowApproximateViewerCount()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    return settings.value("show_approximate_viewer_count", false).toBool();
+}
+
+void genericHelper::setShowApproximateViewerCount(const bool approxviewercount)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("show_approximate_viewer_count", approxviewercount);
+    settings.sync();
+}
+
 QString genericHelper::getUpdateCheckUrl()
 {
     return "http://agtv.abyle.org/version/latest_"+genericHelper::getAppName();

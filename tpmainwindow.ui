@@ -266,7 +266,10 @@
      <string>View</string>
     </property>
     <addaction name="actionRefresh"/>
+    <addaction name="separator"/>
+    <addaction name="actionShow_Approximate_Viewer_Count"/>
     <addaction name="actionShow_Offline_Streamers"/>
+    <addaction name="separator"/>
     <addaction name="actionFit_Columns_to_Content"/>
    </widget>
    <addaction name="menuFile"/>
@@ -369,6 +372,14 @@
   <action name="actionFit_Columns_to_Content">
    <property name="text">
     <string>Fit Columns to Content</string>
+   </property>
+  </action>
+  <action name="actionShow_Approximate_Viewer_Count">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Approximate Viewer Count</string>
    </property>
   </action>
  </widget>

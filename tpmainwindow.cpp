@@ -161,6 +161,10 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
         this->ui->actionShow_Offline_Streamers->setChecked(false);
     }
 
+    this->stproxymodel->setShowApproximateViewerCount(genericHelper::getShowApproximateViewerCount());
+    this->stproxymodelbookmarks->setShowApproximateViewerCount(genericHelper::getShowApproximateViewerCount());
+    this->ui->actionShow_Approximate_Viewer_Count->setChecked(genericHelper::getShowApproximateViewerCount());
+
     ui->tableView->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
     ui->tableViewBookmarks->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
 
@@ -1113,7 +1117,6 @@ void tpMainWindow::on_actionCredits_triggered()
 
 void tpMainWindow::on_actionShow_Offline_Streamers_toggled(bool arg1)
 {
-
     genericHelper::setShowOfflineStreamers(arg1);
 
     this->stproxymodel->setShowOffline(arg1);
@@ -1121,8 +1124,17 @@ void tpMainWindow::on_actionShow_Offline_Streamers_toggled(bool arg1)
 
     this->stproxymodelbookmarks->setShowOffline(arg1);
     stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
+}
 
+void tpMainWindow::on_actionShow_Approximate_Viewer_Count_toggled(bool arg1)
+{
+    genericHelper::setShowApproximateViewerCount(arg1);
 
+    this->stproxymodel->setShowApproximateViewerCount(arg1);
+    stproxymodel->setSourceModel(stmodel);
+
+    this->stproxymodelbookmarks->setShowApproximateViewerCount(arg1);
+    stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
 }
 
 void tpMainWindow::on_Ready()
