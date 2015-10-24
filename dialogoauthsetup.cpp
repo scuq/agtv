@@ -117,7 +117,7 @@ void dialogOauthSetup::refreshUiData()
 void dialogOauthSetup::on_pushButtonAuthorizeOnTwitch_clicked()
 {
 
-    QString link = "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id="+twitchclientid+"&redirect_uri=http://oauth.abyle.org/&scope=channel_editor+user_read+chat_login+channel_read";
+    QString link = "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id="+twitchclientid+"&redirect_uri=http://oauth.abyle.org/&scope=channel_editor+user_read+user_subscriptions+chat_login+channel_read";
     QDesktopServices::openUrl(QUrl(link));
     this->ui->pushButtonAuthorizeOnTwitch->setEnabled(false);
     this->setupModeStarted = true;

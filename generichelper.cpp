@@ -1401,7 +1401,7 @@ Qt::SortOrder genericHelper::getFollowerSortOrder()
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     Qt::SortOrder _order;
-    _order = Qt::SortOrder(settings.value("follower_sort_order").toInt());
+    _order = Qt::SortOrder(settings.value("follower_sort_order", "0").toInt());
     return _order;
 }
 
@@ -1420,7 +1420,7 @@ Qt::SortOrder genericHelper::getBookmarksSortOrder()
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     Qt::SortOrder _order;
-    _order = Qt::SortOrder(settings.value("bookmarks_sort_order").toInt());
+    _order = Qt::SortOrder(settings.value("bookmarks_sort_order", "0").toInt());
     return _order;
 }
 
