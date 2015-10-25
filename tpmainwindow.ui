@@ -56,8 +56,16 @@
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
        <widget class="QTabWidget" name="tabWidget">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">selection-background-color: rgba(128, 128, 128, 40);
+selection-color: black;
+</string>
+        </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -66,6 +74,9 @@
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
            <widget class="QTableView" name="tableView">
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
             <property name="contextMenuPolicy">
              <enum>Qt::CustomContextMenu</enum>
             </property>
@@ -74,7 +85,8 @@
             </property>
             <property name="styleSheet">
              <string notr="true">selection-background-color: rgba(128, 128, 128, 40);
-selection-color: black;</string>
+selection-color: black;
+</string>
             </property>
             <property name="autoScroll">
              <bool>false</bool>
@@ -146,6 +158,9 @@ selection-color: black;</string>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
            <widget class="QTableView" name="tableViewBookmarks">
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
             <property name="contextMenuPolicy">
              <enum>Qt::CustomContextMenu</enum>
             </property>
