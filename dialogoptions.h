@@ -20,7 +20,7 @@ public:
     void refreshUiData();
 
 signals:
-    settingsSaved();
+    void settingsSaved();
 
 private slots:
     void on_pushButtonOk_clicked();
