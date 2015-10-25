@@ -118,9 +118,9 @@ private slots:
 
     void on_tableView_customContextMenuRequested(const QPoint &pos);
 
-    void on_tableView_doubleClicked(const QModelIndex &index);
+    void on_tableView_activated(const QModelIndex &index);
 
-    void on_tableViewBookmarks_doubleClicked(const QModelIndex &index);
+    void on_tableViewBookmarks_activated(const QModelIndex &index);
 
     void on_tableViewBookmarks_customContextMenuRequested(const QPoint &pos);
 

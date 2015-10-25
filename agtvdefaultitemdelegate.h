@@ -27,6 +27,12 @@ public:
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
+    void setShowSelectedBorder(const bool _showSelectedBorder);
+    bool isShowSelectedBorder();
+
+private:
+    bool showSelectedBorder;
+
 };
 
 #endif // AGTVDEFAULTITEMDELEGATE_H

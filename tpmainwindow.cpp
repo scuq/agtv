@@ -1273,7 +1273,7 @@ void tpMainWindow::prepareDiaLauncher()
     }
 }
 
-void tpMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
+void tpMainWindow::on_tableView_activated(const QModelIndex &index)
 {
     QString _streamer;
     QString _status;
@@ -1305,7 +1305,7 @@ void tpMainWindow::on_tableView_doubleClicked(const QModelIndex &index)
     }
 }
 
-void tpMainWindow::on_tableViewBookmarks_doubleClicked(const QModelIndex &index)
+void tpMainWindow::on_tableViewBookmarks_activated(const QModelIndex &index)
 {
     QString _streamer;
     QString _status;

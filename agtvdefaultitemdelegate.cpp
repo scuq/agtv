@@ -2,7 +2,7 @@
 
 AgtvDefaultItemDelegate::AgtvDefaultItemDelegate()
 {
-
+    showSelectedBorder = false;
 }
 
 QWidget *AgtvDefaultItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
@@ -55,8 +55,20 @@ void AgtvDefaultItemDelegate::paint(QPainter *painter, const QStyleOptionViewIte
         }
    }
 
+   // Border around selected item
+   if(! showSelectedBorder && myOption.state & QStyle::State_HasFocus)
+       myOption.state = myOption.state & ~QStyle::State_HasFocus;
 
 
     QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &myOption, painter);
 }
 
+void AgtvDefaultItemDelegate::setShowSelectedBorder(const bool _showSelectedBorder)
+{
+    this->showSelectedBorder = _showSelectedBorder;
+}
+
+bool AgtvDefaultItemDelegate::isShowSelectedBorder()
+{
+    return this->showSelectedBorder;
+}
