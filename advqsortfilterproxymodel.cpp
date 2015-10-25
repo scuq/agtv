@@ -9,7 +9,7 @@ AdvQSortFilterProxyModel::AdvQSortFilterProxyModel(QObject *parent)
 
 QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) const
 {
-    if (role == Qt::BackgroundRole ) {
+ /**   if (role == Qt::BackgroundRole ) {
         QBrush demonicBackground(QColor(255, 60, 43));
         QBrush evilBackground(QColor(255,123,71));
         QBrush unkownBackground(QColor(102, 191, 255));
@@ -29,6 +29,8 @@ QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) cons
             }
         }
     }
+
+    **/
 
     if(role == Qt::DisplayRole && index.column() == 2 && showApproximateViewerCount) {
         const int viewers = QSortFilterProxyModel::data(index, role).toInt();

@@ -187,7 +187,8 @@ SOURCES += main.cpp\
     imageloader.cpp \
     updatecheck.cpp \
     dialogshowlogfile.cpp \
-    filedownloader.cpp
+    filedownloader.cpp \
+    agtvdefaultitemdelegate.cpp
 
 HEADERS  += tpmainwindow.h \
     generichelper.h \
@@ -203,7 +204,8 @@ HEADERS  += tpmainwindow.h \
     updatecheck.h \
     twitchclientid.h \
     dialogshowlogfile.h \
-    filedownloader.h
+    filedownloader.h \
+    agtvdefaultitemdelegate.h
 
 FORMS    += tpmainwindow.ui \
     dialogoauthsetup.ui \

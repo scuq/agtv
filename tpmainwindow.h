@@ -28,6 +28,7 @@
 #include "updatecheck.h"
 #include "dialogshowlogfile.h"
 #include "filedownloader.h"
+#include "agtvdefaultitemdelegate.h"
 
 namespace Ui {
 class tpMainWindow;
@@ -145,6 +146,8 @@ private:
     int xOffset;
     int yOffset;
     bool launchBookmarkEnabled;
+
+    AgtvDefaultItemDelegate *AgtvDefItemDelegate;
 
     QStandardItemModel *stmodel;
     AdvQSortFilterProxyModel *stproxymodel;

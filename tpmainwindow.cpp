@@ -34,7 +34,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     updateInterval = 12000;
 
-
+    AgtvDefItemDelegate =  new AgtvDefaultItemDelegate();
 
     // ignore update intervals <9 seconds
     if (genericHelper::getUpdateInterval() >= 9) {
@@ -76,7 +76,10 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     this->ui->tableView->horizontalHeader()->show();
     this->ui->tableViewBookmarks->horizontalHeader()->show();
 
-
+    //this->ui->tableView->setItemDelegateForColumn(1,AgtvDefItemDelegate);
+    //this->ui->tableViewBookmarks->setItemDelegateForColumn(1,AgtvDefItemDelegate);
+    this->ui->tableView->setItemDelegate(AgtvDefItemDelegate);
+    this->ui->tableViewBookmarks->setItemDelegate(AgtvDefItemDelegate);
 
     this->ui->tableView->setModel(stproxymodel);
     this->ui->tableViewBookmarks->setModel(stproxymodelbookmarks);

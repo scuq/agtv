@@ -72,6 +72,10 @@
             <property name="autoFillBackground">
              <bool>false</bool>
             </property>
+            <property name="styleSheet">
+             <string notr="true">selection-background-color: rgba(128, 128, 128, 40);
+selection-color: black;</string>
+            </property>
             <property name="autoScroll">
              <bool>false</bool>
             </property>
@@ -144,6 +148,10 @@
            <widget class="QTableView" name="tableViewBookmarks">
             <property name="contextMenuPolicy">
              <enum>Qt::CustomContextMenu</enum>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">selection-background-color: rgba(128, 128, 128, 40);
+selection-color: black;</string>
             </property>
             <property name="autoScroll">
              <bool>false</bool>
@@ -226,7 +234,7 @@
      <x>0</x>
      <y>0</y>
      <width>708</width>
-     <height>21</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
