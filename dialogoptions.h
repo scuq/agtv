@@ -19,6 +19,9 @@ public:
     bool getDialogShown();
     void refreshUiData();
 
+signals:
+    settingsSaved();
+
 private slots:
     void on_pushButtonOk_clicked();
 

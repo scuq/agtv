@@ -132,6 +132,8 @@ private slots:
 
     void on_actionShow_Approximate_Viewer_Count_toggled(bool arg1);
 
+    void on_settingsSaved();
+
     void loadQuality();
 
 private:

@@ -105,6 +105,8 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(this, SIGNAL(setStreamLogoUrl(QString)), diaLaunch, SLOT(setStreamLogoUrl(QString)));
     QObject::connect(diaLaunch, SIGNAL(startStreamPlay(QString, QString, QString, int, int, int , int, bool, QString)), this, SLOT(executePlayer(QString, QString, QString, int, int, int , int, bool, QString)));
 
+    QObject::connect(this->diaOptions, SIGNAL(settingsSaved()), this, SLOT(on_settingsSaved()));
+
     QObject::connect(this, SIGNAL(setStreamUrlWithQuality(QMap<QString, QString>)), diaLaunch, SLOT(setStreamUrlWithQuality(QMap<QString, QString>)));
 
     QObject::connect(diaOauthSetup, SIGNAL(twitchAuthSetupChanged(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
@@ -171,6 +173,9 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     ui->tableView->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
     ui->tableViewBookmarks->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
 
+    m_m3u8playlist = new FileDownloader(this);
+    connect(this->m_m3u8playlist, SIGNAL (downloaded()), this, SLOT (loadQuality()));
+
     if(! genericHelper::getFitAllContentToWindow()) {
         QTimer::singleShot(0, this, SLOT(restoreTableViewsManual()));
     }
@@ -215,9 +220,27 @@ tpMainWindow::~tpMainWindow()
     delete ui;
 }
 
+void tpMainWindow::on_settingsSaved()
+{
+    if ( genericHelper::getFitAllContentToWindow() ) {
+        saveTableViewStates();
+
+        ui->tableView->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
+        ui->tableViewBookmarks->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
+
+        fitTableViewToContent(this->ui->tableView);
+        fitTableViewToContent(this->ui->tableViewBookmarks);
+    } else if (! genericHelper::getFitAllContentToWindow()) {
+        ui->tableView->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
+        ui->tableViewBookmarks->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
+
+        restoreTableViewsManual();
+    }
+}
+
 void tpMainWindow::fitTableViewToContent(QTableView *tableView)
 {
-    if(genericHelper::getFitAllContentToWindow()) {
+    if ( genericHelper::getFitAllContentToWindow() ) {
         tableView->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
         for (int c=0; c < tableView->horizontalHeader()->count()-1 ; ++c) {
             tableView->resizeColumnToContents(c);
@@ -228,8 +251,10 @@ void tpMainWindow::fitTableViewToContent(QTableView *tableView)
 
 void tpMainWindow::on_tabChanged(const int tabid)
 {
-    fitTableViewToContent(this->ui->tableView);
-    fitTableViewToContent(this->ui->tableViewBookmarks);
+    if ( genericHelper::getFitAllContentToWindow() ) {
+        fitTableViewToContent(this->ui->tableView);
+        fitTableViewToContent(this->ui->tableViewBookmarks);
+    }
 }
 
 void tpMainWindow::disableInput()
@@ -458,13 +483,14 @@ void tpMainWindow::saveTableViewStates()
     genericHelper::setBookmarksTableViewColumnWidthManual(tableViewBookmarksColumnWidth);
 }
 
-
 void tpMainWindow::myQuit()
 {
     genericHelper::saveGeometry("main",saveGeometry());
     genericHelper::saveWindowstate("main",saveState());
 
-    saveTableViewStates();
+    if (! genericHelper::getFitAllContentToWindow() ) {
+        saveTableViewStates();
+    }
     saveSortModes();
 
     for( int i=0; i<this->playerThreads.count(); ++i )
@@ -737,9 +763,7 @@ void tpMainWindow::onChannelAccessTokenReady(const QJsonDocument &jsonResponseBu
                 emit setStreamUrl( _pl );
             } else {
                 QUrl streamUrl( _pl );
-                m_m3u8playlist = new FileDownloader(streamUrl, this);
-
-                connect(m_m3u8playlist, SIGNAL (downloaded()), this, SLOT (loadQuality()));
+                m_m3u8playlist->downloadUrl(streamUrl);
             }
         }
     }

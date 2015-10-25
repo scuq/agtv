@@ -113,6 +113,8 @@ void DialogOptions::on_pushButtonOk_clicked()
 
     this->hide();
     genericHelper::saveGeometry("options",saveGeometry());
+
+    emit settingsSaved();
 }
 
 void DialogOptions::on_pushButtonCancel_clicked()
