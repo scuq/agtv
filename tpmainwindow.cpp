@@ -732,7 +732,6 @@ void tpMainWindow::onChannelAccessTokenReady(const QJsonDocument &jsonResponseBu
             _pl = tw->getPlayListUrl(channel,QUrl::toPercentEncoding(jsonObject["token"].toString()).replace("%7B","{").replace("%7D","}").replace("%3A",":").replace("%2C",",").replace("%5B","[").replace("%5D","]"),jsonObject["sig"].toString());
             if (! genericHelper::getStreamQuality()) {
                 emit setStreamUrl( _pl );
-                qDebug() << _pl;
             } else {
                 QUrl streamUrl( _pl );
                 m_m3u8playlist = new FileDownloader(streamUrl, this);

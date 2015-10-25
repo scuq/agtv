@@ -8,33 +8,23 @@ processLauncher::processLauncher(QObject *parent) :
 
 }
 
-
-
-
 void processLauncher::launch() {
-
-
     process = new QProcess();
-
-
 
     QString program = this->programStr;
 
-
-
     connect(process,SIGNAL(readyRead()),this,SLOT(onProgramReadReady()));
 
-    process->start(program, this->args,QIODevice::ReadOnly);
-
-
-
-
-
-
-
-
-
+    process->start(program, this->args, QIODevice::ReadOnly);
 }
+
+void processLauncher::onProgramReadReady()
+{
+    qDebug() << "Error: " << process->error();
+    qDebug() << "Output: " << process->readAll();
+    qDebug() << "Standart Error :"<< process->readAllStandardError();
+}
+
 
 void processLauncher::setProgramStr(QString programstr) {
     this->programStr = programstr;

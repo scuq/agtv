@@ -833,8 +833,11 @@ int genericHelper::executeAddonHexchat(QStringList channelsToJoin){
 
         QStringList args;
 
+        #ifdef Q_OS_WIN
         args << "-d" << genericHelper::getAppDir().replace("/", "\\") + QDir::separator() + "addon_hexchat_config";
-
+        #else
+        args << "-d" << genericHelper::getAppDir() + QDir::separator() + "addon_hexchat_config";
+        #endif
         qDebug() << args;
 
         QProcess *process = new QProcess(qApp);

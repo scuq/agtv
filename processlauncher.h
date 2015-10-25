@@ -26,7 +26,7 @@ public slots:
     void launch();
 
 private slots:
-
+    void onProgramReadReady();
 
 
 private:
