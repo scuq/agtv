@@ -2,6 +2,7 @@
 #define DIALOGOPTIONS_H
 
 #include <QDialog>
+#include <QCloseEvent>
 #include "generichelper.h"
 
 namespace Ui {
@@ -34,6 +35,7 @@ private slots:
 private:
     Ui::DialogOptions *ui;
         bool dialogShown;
+
 };
 
 #endif // DIALOGOPTIONS_H

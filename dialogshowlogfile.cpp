@@ -7,6 +7,9 @@ DialogShowLogFile::DialogShowLogFile(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    restoreGeometry(genericHelper::getGeometry("showlog").toByteArray());
+
+
     QObject::connect(this->ui->pushButtonReload, SIGNAL(clicked()), this, SLOT(reloadFile()));
     QObject::connect(this->ui->pushButtonClose, SIGNAL(clicked()), this, SLOT(close()));
 }
@@ -43,4 +46,34 @@ void DialogShowLogFile::reloadFile()
     QTextCursor cursor = this->ui->textEditLog->textCursor();
     cursor.movePosition(QTextCursor::End);
     this->ui->textEditLog->setTextCursor(cursor);
+}
+
+void DialogShowLogFile::closeEvent(QCloseEvent *)
+{
+    genericHelper::saveGeometry("showlog",saveGeometry());
+    this->close();
+}
+
+
+
+void DialogShowLogFile::on_lineEditFilter_textChanged(const QString &arg1)
+{
+    QList<QTextEdit::ExtraSelection> extraSelections;
+
+    if(!ui->textEditLog->isReadOnly())
+    {
+        ui->textEditLog->moveCursor(QTextCursor::Start);
+        QColor color = QColor(Qt::gray).lighter(130);
+
+        while(ui->textEditLog->find(arg1))
+        {
+            QTextEdit::ExtraSelection extra;
+            extra.format.setBackground(color);
+
+            extra.cursor = ui->textEditLog->textCursor();
+            extraSelections.append(extra);
+        }
+    }
+
+    ui->textEditLog->setExtraSelections(extraSelections);
 }

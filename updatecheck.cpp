@@ -49,7 +49,7 @@ void updateCheck::parseNetworkResponse( QNetworkReply *finished )
     QString latestVersion = QString(data).trimmed();
     QString currentVersion = version;
 
-    genericHelper::log("update-check latest version:"+latestVersion);
+    genericHelper::log("update-check latest version:"+latestVersion.replace(".",""));
     genericHelper::log("update-check current version:"+currentVersion.replace(".",""));
 
 

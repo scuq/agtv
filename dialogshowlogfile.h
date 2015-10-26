@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QFile>
+#include "generichelper.h"
 
 namespace Ui {
 class DialogShowLogFile;
@@ -21,11 +22,18 @@ public:
 public slots:
     void reloadFile();
 
+private slots:
+    void on_lineEditFilter_textChanged(const QString &arg1);
+
+
+
 private:
     Ui::DialogShowLogFile *ui;
 
     QFile file;
     QString fileName;
+
+    void closeEvent(QCloseEvent *); // Overriding the window's close event
 };
 
 #endif // DIALOGSHOWLOGFILE_H
