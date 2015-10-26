@@ -187,6 +187,11 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     }
 
     QTimer::singleShot(0, this, SLOT(restoreSortModes()));
+
+#ifdef WINTERNALVLC
+    diaVideoPlayer = new DialogVideoPlayer;
+    diaVideoPlayer->initVLC();
+#endif
 }
 
 void tpMainWindow::saveSortModes()
@@ -536,6 +541,10 @@ void tpMainWindow::myQuit()
        this->playerThreads.at(i)->terminate();
     }
 
+#ifdef WINTERNALVLC
+    diaVideoPlayer->deleteLater();
+#endif
+
     qApp->quit();
 }
 
@@ -686,8 +695,24 @@ void tpMainWindow::setIcon(QString iconname)
         trayIcon->setIcon(QIcon(":/images/"+iconname+".png"));
 }
 
+#ifdef WINTERNALVLC
+void tpMainWindow::executeInternalPlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute, QString quality)
+{
+    diaVideoPlayer->setTitle(channel);
+    diaVideoPlayer->openUrl(url);
+    diaVideoPlayer->show();
+}
+#endif
+
 void tpMainWindow::executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute, QString quality)
 {
+#ifdef WINTERNALVLC
+    if( genericHelper::getInternalVLC() ) {
+        this->executeInternalPlayer(player, url, channel, streamWidth, streamHeight, xOffset, yOffset, mute, quality);
+        return;
+    }
+#endif
+
     QString qresBin = "";
     QString playerBin = "";
     QString playerarg = "";
@@ -1249,7 +1274,9 @@ void tpMainWindow::on_actionCredits_triggered()
 {
     QMessageBox::about(this, tr("Credits"), tr(""
                             "Icons made by <a href=http://www.freepik.com title=Freepik>Freepik</a> from <a href=http://www.flaticon.com title=Flaticon>www.flaticon.com</a></br>"
-
+#ifdef WINTERNALVLC
+                            "VLC-Qt made by <a href=http://vlc-qt.tano.si title=Tadej Novak>Tadej Novak</a></br>"
+#endif
                                                ""));
 }
 
@@ -1320,9 +1347,6 @@ void tpMainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
         tableviewContextMenu->addAction(delete_follower);
 
     }
-
-
-
 }
 
 void tpMainWindow::prepareDiaLauncher()

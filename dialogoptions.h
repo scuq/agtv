@@ -32,6 +32,8 @@ private slots:
 
     void on_hexchatPathSelectButton_clicked();
 
+    void on_checkBoxInternalVLC_toggled(bool checked);
+
 private:
     Ui::DialogOptions *ui;
         bool dialogShown;

@@ -30,6 +30,10 @@
 #include "filedownloader.h"
 #include "agtvdefaultitemdelegate.h"
 
+#ifdef WINTERNALVLC
+#include "dialogvideoplayer.h"
+#endif
+
 namespace Ui {
 class tpMainWindow;
 }
@@ -179,6 +183,10 @@ private:
     DialogOptions *diaOptions;
     DialogShowLogFile *diaShowLogFile;
 
+#ifdef WINTERNALVLC
+    DialogVideoPlayer *diaVideoPlayer;
+#endif
+
     QVector<QString> followerToRemove;
 
     QDesktopWidget *desktop;
@@ -240,6 +248,10 @@ private:
 
 public slots:
     void executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
+
+#ifdef WINTERNALVLC
+    void executeInternalPlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
+#endif
 
 signals:
 

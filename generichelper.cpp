@@ -1485,3 +1485,18 @@ void genericHelper::setBookmarksSortOrder(const Qt::SortOrder order)
     settings.setValue("bookmarks_sort_order",  order);
     settings.sync();
 }
+
+bool genericHelper::getInternalVLC()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    return settings.value("internal_vlc", "0").toBool();
+}
+
+void genericHelper::setInternalVLC(const bool internalvlc)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    settings.setValue("internal_vlc",  internalvlc);
+    settings.sync();
+}

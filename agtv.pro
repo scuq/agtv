@@ -5,12 +5,34 @@
 #-------------------------------------------------
 
 # if you want push a new version, execute new_version.bat
-# in the projekt home directory to push revision numbers
+# in the project home directory to push revision numbers
 
 CONFIG += c++11
 
 DEVELOPER = $$(USERNAME)
 WINDEPLOYMENT = yes
+
+# If you want to enable the internal VLC player, uncomment
+# the next config statement and check that VLC_QT_PATH is
+# correctly pointing to VLC-QT appropriate for the compiler
+# and QT version used. You can download it from
+# http://vlc-qt.tano.si/ (use Pre-release).
+# Note: To run it needs the dlls (list has to be updated)
+# libVLCQtQml.dll
+# libVLCQtWidgetsd.dll
+# libVLCQtCore.dll
+# libVLCQtQmld.dll
+# libvlc.dll
+# libxslt.dll
+# libVLCQtCored.dll
+# libVLCQtWidgets.dll
+# libiconv.dll
+# libvlccore.dll
+# and the plugins dir from VLC_QT_PATH/bin/plugins
+# in the path where agtv.exe is placed.
+#
+# CONFIG += winternalvlc
+VLC_QT_PATH = "E:\Dropbox\Qt\VLC-Qt_0.90.0_win32_mingw"
 
 QMAKE_TARGET_COMPANY = "AbyleDotOrg"
 QMAKE_TARGET_PRODUCT = "agtv"
@@ -172,8 +194,6 @@ win32 {
     }
 }
 
-
-
 SOURCES += main.cpp\
         tpmainwindow.cpp \
     generichelper.cpp \
@@ -220,3 +240,19 @@ RESOURCES += \
 DISTFILES += \
     README.md \
     agtv.nsi
+
+winternalvlc {
+    DEFINES += WINTERNALVLC
+    # Internal VLC using VLC-Qt
+    LIBS       += -lVLCQtCore -lVLCQtWidgets
+
+    # Edit below for custom library location
+    LIBS       += -L$${VLC_QT_PATH}/lib -lVLCQtCore -lVLCQtWidgets
+    INCLUDEPATH += $${VLC_QT_PATH}/include
+
+    SOURCES += dialogvideoplayer.cpp
+
+    HEADERS  += dialogvideoplayer.h
+
+    FORMS    += dialogvideoplayer.ui
+}

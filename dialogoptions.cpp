@@ -46,10 +46,23 @@ void DialogOptions::refreshUiData()
 
     this->ui->checkBoxStreamQuality->setChecked(genericHelper::getStreamQuality());
 
+
     this->ui->vlcPathEdit->setText(genericHelper::getVlcPath());
     this->ui->hexchatPathEdit->setText(genericHelper::getHexChatPath());
 
+    this->ui->label_14->setHidden(true);
+    this->ui->checkBoxInternalVLC->setHidden(true);
+
+#ifdef WINTERNALVLC
+    this->ui->checkBoxInternalVLC->setHidden(false);
+    this->ui->label_14->setHidden(false);
+    this->ui->checkBoxInternalVLC->setChecked(genericHelper::getInternalVLC());
+    this->on_checkBoxInternalVLC_toggled(genericHelper::getInternalVLC());
+#endif
+
     restoreGeometry(genericHelper::getGeometry("options").toByteArray());
+
+    qDebug() << genericHelper::getInternalVLC();
 
 }
 
@@ -111,6 +124,10 @@ void DialogOptions::on_pushButtonOk_clicked()
 
     genericHelper::setStreamQuality(this->ui->checkBoxStreamQuality->isChecked());
 
+#ifdef WINTERNALVLC
+    genericHelper::setInternalVLC(this->ui->checkBoxInternalVLC->isChecked());
+#endif
+
     this->hide();
     genericHelper::saveGeometry("options",saveGeometry());
 
@@ -140,4 +157,11 @@ void DialogOptions::on_hexchatPathSelectButton_clicked()
         tr("Select HexChat Executable"), QCoreApplication::applicationDirPath(), tr("HexChat Executable (*)"));
     if(! fileName.isEmpty())
         this->ui->hexchatPathEdit->setText(fileName);
+}
+
+void DialogOptions::on_checkBoxInternalVLC_toggled(bool checked)
+{
+    this->ui->vlcPathEdit->setEnabled(!checked);
+    this->ui->vlcPathSelectButton->setEnabled(!checked);
+    this->ui->plainTextEdit->setEnabled(!checked);
 }

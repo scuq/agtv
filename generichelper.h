@@ -114,6 +114,9 @@ public:
     static bool getStreamQuality();
     static void setStreamQuality(bool quality);
 
+    static bool getInternalVLC();
+    static void setInternalVLC(const bool internalvlc);
+
     static QString getLogFile();
 
     static QString getUpdateCheckUrl();
