@@ -491,9 +491,15 @@ void tpMainWindow::deleteFollower()
     const QString _status = this->ui->tableView->selectionModel()->selectedRows(1).at(0).data().toString();
     const QString _text = this->ui->tableView->selectionModel()->selectedRows(4).at(0).data().toString();
 
-    tw->unfollowChannel(_streamer);
+    QMessageBox::StandardButton ret;
+    ret = QMessageBox::warning(this, genericHelper::getAppName(),
+                 tr("Do you really want to unfollow ") + _streamer + "?",
+                 QMessageBox::Ok | QMessageBox::Cancel);
+    if (ret == QMessageBox::Ok) {
+        tw->unfollowChannel(_streamer);
 
-    followerToRemove.append(_streamer);
+        followerToRemove.append(_streamer);
+    }
 }
 
 void tpMainWindow::saveTableViewStates()
