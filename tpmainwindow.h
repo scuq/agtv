@@ -179,6 +179,8 @@ private:
     DialogOptions *diaOptions;
     DialogShowLogFile *diaShowLogFile;
 
+    QVector<QString> followerToRemove;
+
     QDesktopWidget *desktop;
     void updateCurrentScreenData();
     void disableInput();
@@ -197,6 +199,8 @@ private:
     static void fitTableViewToContent(QTableView *tableView);
 
     void saveSortModes();
+
+    void deleteFollowerFromList(QString _name);
 
     QList<QThread*> playerThreads;
 

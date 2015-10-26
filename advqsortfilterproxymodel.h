@@ -18,6 +18,9 @@ public:
    QVariant data ( const QModelIndex & index, int role ) const;
    bool updateCol(int keycol, QVariant key,  int updatecol, QVariant updatedata);
    QVariant getColData(int keycol, QVariant key, int updatecol);
+
+   bool deleteCol(int keycol, QVariant key);
+
    void setShowOffline(bool showoffline);
    void setShowApproximateViewerCount(const bool approxviewercount);
 

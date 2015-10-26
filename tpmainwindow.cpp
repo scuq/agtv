@@ -492,6 +492,8 @@ void tpMainWindow::deleteFollower()
     const QString _text = this->ui->tableView->selectionModel()->selectedRows(4).at(0).data().toString();
 
     tw->unfollowChannel(_streamer);
+
+    followerToRemove.append(_streamer);
 }
 
 void tpMainWindow::saveTableViewStates()
@@ -1075,6 +1077,20 @@ void tpMainWindow::updateFromJsonResponseFollow(const QJsonDocument &jsonRespons
 
 void tpMainWindow::updateFromJsonResponseUnfollow(const QJsonDocument &jsonResponseBuffer)
 {
+    QJsonObject jsonObject = jsonResponseBuffer.object();
+
+    refreshTimer->stop();
+
+    // TODO: Test the response
+    QString _name;
+
+    while(! followerToRemove.isEmpty() ) {
+        _name = followerToRemove.takeLast();
+
+        deleteFollowerFromList(_name);
+    }
+
+    refreshTimer->start(updateInterval);
 }
 
 void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
@@ -1421,4 +1437,11 @@ void tpMainWindow::on_actionFit_Columns_to_Content_triggered()
 void tpMainWindow::twitchApiNetworkError(QString error)
 {
     genericHelper::log("twitch-api " + error);
+}
+
+
+void tpMainWindow::deleteFollowerFromList(QString _name)
+{
+    this->stproxymodel->deleteCol(0, _name );
+    this->loadData();
 }

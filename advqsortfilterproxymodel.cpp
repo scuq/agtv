@@ -130,3 +130,19 @@ bool AdvQSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelInde
                 sourceModel()->data(index1).toString() != "offline");
     }
 }
+
+bool AdvQSortFilterProxyModel::deleteCol(int keycol, QVariant key)
+{
+    bool updateok = false;
+
+    for(int i = 0; i<this->sourceModel()->rowCount(); ++i)
+    {
+        QModelIndex key_index = this->sourceModel()->index(i, keycol);
+
+        if ( this->sourceModel()->itemData(key_index)[0].toString() == key.toString() )  {
+            updateok = this->sourceModel()->removeRow(i);
+        }
+    }
+
+    return updateok;
+}
