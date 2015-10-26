@@ -49,16 +49,17 @@ private slots:
     void startM3u8Player(QString m3u8playlist);
 
     void updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer);
-
     void updateFromJsonResponseBookmark(const QJsonDocument &jsonResponseBuffer);
-
     void updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer);
-
     void updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer);
-
     void updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer);
 
+    void updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer);
+    void updateFromJsonResponseUnfollow(const QJsonDocument &jsonResponseBuffer);
+
     void on_actionSetup_Twitch_Auth_triggered();
+
+    void twitchApiNetworkError(QString error);
 
     void on_updateNotify(const QString &latestVersion);
 
@@ -93,6 +94,9 @@ private slots:
 
     void openChatHexChat();
     void openChatHexChatBookmark();
+
+    void addFollowerBookmark();
+    void deleteFollower();
 
     void addBookmarkHosted();
 
@@ -217,6 +221,8 @@ private:
     QAction *delete_bookmark;
     QAction *add_bookmark;
     QAction *add_hosted_bookmark;
+    QAction *add_follower_bookmark;
+    QAction *delete_follower;
 
 
     updateCheck *uc;

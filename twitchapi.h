@@ -37,6 +37,9 @@ public:
     void getFollows(QString user);
     void get(QString user);
 
+    void followChannel(QString channel);
+    void unfollowChannel(QString channel);
+
 private:
     void getRequest( const QString &url );
     void getRequestM3u8( const QString &url );
@@ -48,7 +51,13 @@ private:
     void getRequestChannelAccessToken( const QString &url );
     void getRequestAuthenticated( const QString &url );
     void putRequest( const QString &url, QHash<QString, QString> urlParams);
+
+    void putRequestFollow( const QString &url );
+    void deleteRequestUnfollow( const QString &url );
+
     QNetworkAccessManager m_nam;
+    QNetworkAccessManager m_follow;
+    QNetworkAccessManager m_unfollow;
     QNetworkAccessManager m_namM3u8;
     QNetworkAccessManager m_follows;
     QNetworkAccessManager m_channelaccesstoken;
@@ -76,6 +85,9 @@ signals:
     void twitchStreamKeyReady(const QJsonObject &twitchAsJSONObj);
     void networkError( QString errmessage );
 
+    void twitchReadyFollow( const QJsonDocument &twitchAsJSON );
+    void twitchReadyUnfollow( const QJsonDocument &twitchAsJSON );
+
 public slots:
     void parseNetworkResponse( QNetworkReply *finished );
     void parseNetworkResponseStream( QNetworkReply *finished );
@@ -86,6 +98,8 @@ public slots:
     void parseNetworkResponseBookmark( QNetworkReply *finished );
     void parseNetworkResponseChannelAccessToken( QNetworkReply *finished );
 
+    void parseNetworkResponseFollow( QNetworkReply *finished );
+    void parseNetworkResponseUnfollow( QNetworkReply *finished );
 
 };
 

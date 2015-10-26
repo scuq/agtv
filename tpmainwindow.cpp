@@ -100,6 +100,12 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(tw, SIGNAL(twitchReadyStream(const QJsonDocument)), this, SLOT(updateFromJsonResponseStream(const QJsonDocument)));
     QObject::connect(tw, SIGNAL(twitchReadyChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseChannel(const QJsonDocument)));
     QObject::connect(tw, SIGNAL(twitchReadyHost(const QJsonDocument)), this, SLOT(updateFromJsonResponseHost(const QJsonDocument)));
+
+    QObject::connect(tw, SIGNAL(twitchReadyFollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollow(const QJsonDocument)));
+    QObject::connect(tw, SIGNAL(twitchReadyUnfollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseUnfollow(const QJsonDocument)));
+
+    QObject::connect(tw, SIGNAL(networkError(QString)), this, SLOT(twitchApiNetworkError(QString)));
+
     QObject::connect(this, SIGNAL(setStreamTitle(QString,QString)), diaLaunch, SLOT(setStreamTitle(QString,QString)));
     QObject::connect(this, SIGNAL(setStreamUrl(QString)), diaLaunch, SLOT(setStreamUrl(QString)));
     QObject::connect(this, SIGNAL(setStreamLogoUrl(QString)), diaLaunch, SLOT(setStreamLogoUrl(QString)));
@@ -461,7 +467,31 @@ void tpMainWindow::createActions()
     add_bookmark = new QAction(tr("&Add"), this);
     connect(add_bookmark, SIGNAL(triggered()), this, SLOT(addBookmark()));
 
+    add_follower_bookmark = new QAction(tr("Follow Channel"), this);
+    connect(add_follower_bookmark, SIGNAL(triggered()), this, SLOT(addFollowerBookmark()));
 
+    delete_follower = new QAction(tr("Unfollow Channel"), this);
+    connect(delete_follower, SIGNAL(triggered()), this, SLOT(deleteFollower()));
+
+
+}
+
+void tpMainWindow::addFollowerBookmark()
+{
+    const QString _streamer = this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toString();
+    const QString _status = this->ui->tableViewBookmarks->selectionModel()->selectedRows(1).at(0).data().toString();
+    const QString _text = this->ui->tableViewBookmarks->selectionModel()->selectedRows(4).at(0).data().toString();
+
+    tw->followChannel(_streamer);
+}
+
+void tpMainWindow::deleteFollower()
+{
+    const QString _streamer = this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toString();
+    const QString _status = this->ui->tableView->selectionModel()->selectedRows(1).at(0).data().toString();
+    const QString _text = this->ui->tableView->selectionModel()->selectedRows(4).at(0).data().toString();
+
+    tw->unfollowChannel(_streamer);
 }
 
 void tpMainWindow::saveTableViewStates()
@@ -1034,7 +1064,18 @@ void tpMainWindow::updateFromJsonResponseHost(const QJsonDocument &jsonResponseB
     fitTableViewToContent(this->ui->tableViewBookmarks);
 }
 
+void tpMainWindow::updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer)
+{
+    QJsonObject jsonObject = jsonResponseBuffer.object();
 
+    // TODO: Test the response
+
+    this->loadData();
+}
+
+void tpMainWindow::updateFromJsonResponseUnfollow(const QJsonDocument &jsonResponseBuffer)
+{
+}
 
 void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
 {
@@ -1253,8 +1294,8 @@ void tpMainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
 
         //add_hosted_bookmark
 
-
-
+        tableviewContextMenu->addSeparator();
+        tableviewContextMenu->addAction(delete_follower);
 
     }
 
@@ -1349,6 +1390,8 @@ void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint
 
         }
 
+        tableviewbookmarksContextMenu->addSeparator();
+        tableviewbookmarksContextMenu->addAction(add_follower_bookmark);
 
 
     }
@@ -1373,4 +1416,9 @@ void tpMainWindow::on_actionFit_Columns_to_Content_triggered()
         this->ui->tableView->resizeColumnsToContents();
         this->ui->tableViewBookmarks->resizeColumnsToContents();
     }
+}
+
+void tpMainWindow::twitchApiNetworkError(QString error)
+{
+    genericHelper::log("twitch-api " + error);
 }

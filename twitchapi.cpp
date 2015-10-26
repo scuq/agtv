@@ -13,6 +13,8 @@ TwitchApi::TwitchApi(QObject *parent, QString oauthtoken) :
     QObject::connect(&m_channel, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseChannel(QNetworkReply*)));
     QObject::connect(&m_host, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseHost(QNetworkReply*)));
 
+    QObject::connect(&m_follow, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseFollow(QNetworkReply*)));
+    QObject::connect(&m_unfollow, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseUnfollow(QNetworkReply*)));
 
     this->oAuthAccessToken = oauthtoken;
 
@@ -28,6 +30,20 @@ void TwitchApi::setStatusAndGameTitle(QString user, QHash<QString, QString> urlP
 
     genericHelper::log("twitch-api setStatusAndGameTitle - https://api.twitch.tv/kraken/channels/.");
     this->putRequest("https://api.twitch.tv/kraken/channels/"+user, urlParams);
+}
+
+void TwitchApi::followChannel(QString channel)
+{
+    QString user = genericHelper::getUsername();
+    genericHelper::log("twitch-api followChannel - https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channel);
+    this->putRequestFollow("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channel);
+}
+
+void TwitchApi::unfollowChannel(QString channel)
+{
+    QString user = genericHelper::getUsername();
+    genericHelper::log("twitch-api followChannel - https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channel);
+    this->deleteRequestUnfollow("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channel);
 }
 
 void TwitchApi::getUser()
@@ -173,6 +189,35 @@ void TwitchApi::putRequest( const QString &urlString, QHash<QString, QString> ur
     m_nam.put( req, url.toEncoded() );
 
 
+}
+
+void TwitchApi::putRequestFollow( const QString &urlString )
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setRawHeader( "User-Agent" , "iOS / Safari 7: Mozilla/5.0 (iPad; CPU OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11B554a Safari/9537.53" );
+    req.setRawHeader("Authorization", "OAuth "+this->oAuthAccessToken.toLatin1());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    m_follow.put( req, url.toEncoded()  );
+
+
+}
+
+void TwitchApi::deleteRequestUnfollow( const QString &urlString )
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setRawHeader( "User-Agent" , "iOS / Safari 7: Mozilla/5.0 (iPad; CPU OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11B554a Safari/9537.53" );
+    req.setRawHeader("Authorization", "OAuth "+this->oAuthAccessToken.toLatin1());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+    req.setUrl(url);
+
+    m_unfollow.deleteResource( req );
 }
 
 void TwitchApi::getRequestAuthenticated( const QString &urlString )
@@ -474,4 +519,39 @@ void TwitchApi::parseNetworkResponseChannelAccessToken(QNetworkReply *finished)
 
 
 
+}
+
+
+void TwitchApi::parseNetworkResponseFollow(QNetworkReply *finished)
+{
+    if ( finished->error() != QNetworkReply::NoError )
+    {
+        // A communication error has occurred
+        emit networkError( finished->errorString() );
+
+        return;
+    }
+
+    // QNetworkReply is a QIODevice. So we read from it just like it was a file
+    QByteArray data = finished->readAll();
+    json_buffer = QJsonDocument::fromJson(data);
+
+    emit twitchReadyFollow( json_buffer );
+}
+
+void TwitchApi::parseNetworkResponseUnfollow(QNetworkReply *finished)
+{
+    if ( finished->error() != QNetworkReply::NoError )
+    {
+        // A communication error has occurred
+        emit networkError( finished->errorString() );
+
+        return;
+    }
+
+    // QNetworkReply is a QIODevice. So we read from it just like it was a file
+    QByteArray data = finished->readAll();
+    json_buffer = QJsonDocument::fromJson(data);
+
+    emit twitchReadyUnfollow( json_buffer );
 }
