@@ -29,7 +29,12 @@ DialogVideoPlayer::~DialogVideoPlayer()
 
 void DialogVideoPlayer::initVLC()
 {
-   _instance = new VlcInstance(VlcCommon::args(), this);
+    QStringList args = VlcCommon::args();
+    args.append("--network-caching=5000");
+
+    genericHelper::log("DialogVideoPlayer: Using VLC args = " + args.join(" "));
+
+   _instance = new VlcInstance(args, this);
     _player = new VlcMediaPlayer(_instance);
     _player->setVideoWidget(this->ui->video);
 }
