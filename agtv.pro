@@ -10,7 +10,7 @@
 CONFIG += c++11
 
 DEVELOPER = $$(USERNAME)
-WINDEPLOYMENT = yes
+WINDEPLOYMENT = no
 
 # If you want to enable the internal VLC player, uncomment
 # the next config statement and check that VLC_QT_PATH is
@@ -32,7 +32,9 @@ WINDEPLOYMENT = yes
 # in the path where agtv.exe is placed.
 #
 CONFIG += winternalvlc
-VLC_QT_PATH = "E:\Dropbox\Qt\VLC-Qt_0.90.0_win32_mingw"
+
+
+
 # VLC_QT_PATH = "E:\Dropbox\Qt\vlc-qt\build"
 
 QMAKE_TARGET_COMPANY = "AbyleDotOrg"
@@ -60,12 +62,20 @@ win32 {
         message("setting paths and settings for $${DEVELOPER}}")
         SSL_DIR = "C:/OpenSSL-Win32/"
         BUILDBASE = z:/build/agtv/
-
+        VLC_QT_PATH = "Z:\VLC-Qt"
+        WINDEPLOYMENT = yes
     }
     equals(DEVELOPER, "DAS") {
         message("setting paths and settings for $${DEVELOPER}}")
         SSL_DIR = "c:/coding/openssl-win32/"
         BUILDBASE = c:/coding/build/agtv/
+
+
+    }
+    equals(DEVELOPER, "HPS") {
+        message("setting paths and settings for $${DEVELOPER}}")
+        VLC_QT_PATH = "E:\Dropbox\Qt\VLC-Qt_0.90.0_win32_mingw"
+
 
     }
 }
@@ -143,8 +153,10 @@ win32 {
     release: DESTDIR_RELEASE ~= s,/,\\,g
     release: QT_INSTALL_BINS_WIN = $$[QT_INSTALL_BINS]
     release: QT_INSTALL_PLUGINS_WIN = $$[QT_INSTALL_PLUGINS]
+    release: VLC_QT_PATH_WIN = $${VLC_QT_PATH}
     release: QT_INSTALL_PLUGINS_WIN ~= s,/,\\,g
     release: QT_INSTALL_BINS_WIN ~= s,/,\\,g
+    release: VLC_QT_PATH_WIN ~= s,/,\\,g
     release: PWD_WIN = $${PWD}
     release: PWD_WIN ~= s,/,\\,g
     release: SSL_DIR ~= s,/,\\,g
@@ -160,6 +172,8 @@ win32 {
     release{
         equals(DEVELOPER, "scuq") {
             equals(WINDEPLOYMENT, "yes") {
+
+                message("DEPLOYMENT")
 
                 write_file($${DESTDIR_RELEASE}\\version.txt, VERSION)
                 write_file($${DESTDIR_RELEASE}\\arch.txt, QMAKE_TARGET.arch)
@@ -177,6 +191,8 @@ win32 {
                 QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\libEGL.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
                 QMAKE_POST_LINK += $$quote(cmd /c copy $${QT_INSTALL_BINS_WIN}\\libGLESv2.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
 
+                QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y /E $${VLC_QT_PATH_WIN}\\bin\\plugins $${DESTDIR_RELEASE}\\plugins$$escape_expand(\\n\\t))
+                QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${VLC_QT_PATH_WIN}\\bin\\*.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
 
                 QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\imageformats $${DESTDIR_RELEASE}\\imageformats$$escape_expand(\\n\\t))
                 QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\imageformats\\*d.dll$$escape_expand(\\n\\t))
