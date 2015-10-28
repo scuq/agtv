@@ -88,6 +88,7 @@ void DialogVideoPlayer::on_pushButtonClose_clicked()
 }
 
 void DialogVideoPlayer::closeEvent(QCloseEvent *event) {
+    this->hide();
     _player->stop();
     genericHelper::saveGeometry("videodialog",saveGeometry());
     event->accept(); // close window
