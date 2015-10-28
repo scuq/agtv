@@ -6,46 +6,53 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>423</width>
-    <height>300</height>
+    <width>686</width>
+    <height>440</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="QPushButton" name="pushButtonStart">
-     <property name="text">
-      <string>Start</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="5">
-    <widget class="QPushButton" name="pushButtonClose">
-     <property name="text">
-      <string>Close</string>
-     </property>
-    </widget>
+   <item row="0" column="0" colspan="7">
+    <widget class="VlcWidgetVideo" name="video" native="true"/>
    </item>
    <item row="1" column="3">
-    <widget class="QPushButton" name="pushButtonReload">
-     <property name="text">
-      <string>Reload</string>
+    <widget class="QSlider" name="horizontalSliderVolume">
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>100</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>Volume</string>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
-    <widget class="QPushButton" name="pushButton">
-     <property name="text">
-      <string>Stop</string>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="pushButtonStartResume">
+     <property name="toolTip">
+      <string>Start</string>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="pushButtonPause">
      <property name="text">
-      <string>Pause</string>
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="agtv.qrc">
+       <normaloff>:/16x16/icons/16x16/media-playback-start.png</normaloff>:/16x16/icons/16x16/media-playback-start.png</iconset>
      </property>
     </widget>
    </item>
@@ -62,8 +69,40 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="0" colspan="6">
-    <widget class="VlcWidgetVideo" name="video" native="true"/>
+   <item row="1" column="6">
+    <widget class="QPushButton" name="pushButtonClose">
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="pushButtonStop">
+     <property name="toolTip">
+      <string>Stop</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="agtv.qrc">
+       <normaloff>:/16x16/icons/16x16/media-playback-stop.png</normaloff>:/16x16/icons/16x16/media-playback-stop.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="pushButtonReload">
+     <property name="toolTip">
+      <string>Reload</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="agtv.qrc">
+       <normaloff>:/16x16/icons/16x16/view-refresh.png</normaloff>:/16x16/icons/16x16/view-refresh.png</iconset>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -79,6 +118,8 @@
    </slots>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="agtv.qrc"/>
+ </resources>
  <connections/>
 </ui>

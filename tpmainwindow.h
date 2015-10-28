@@ -184,7 +184,8 @@ private:
     DialogShowLogFile *diaShowLogFile;
 
 #ifdef WINTERNALVLC
-    DialogVideoPlayer *diaVideoPlayer;
+    // DialogVideoPlayer *diaVideoPlayer;
+    QVector<DialogVideoPlayer *> diaVideoPlayers;
 #endif
 
     QVector<QString> followerToRemove;

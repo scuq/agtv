@@ -4,6 +4,7 @@
 #include <QDialog>
 
 #ifdef WINTERNALVLC
+#include <VLCQtCore/Audio.h>
 #include <VLCQtCore/Common.h>
 #include <VLCQtCore/Instance.h>
 #include <VLCQtCore/Media.h>
@@ -22,10 +23,6 @@ public:
     explicit DialogVideoPlayer(QWidget *parent = 0);
     ~DialogVideoPlayer();
 
-    VlcInstance *_instance;
-    VlcMedia *_media;
-    VlcMediaPlayer *_player;
-
     void initVLC();
 
     void openLocal(QString pathtovideo);
@@ -36,9 +33,17 @@ public:
 private slots:
     void on_pushButtonClose_clicked();
 
-    void on_pushButtonStart_clicked();
+    void on_horizontalSliderVolume_sliderMoved(int position);
 
-    void on_pushButtonPause_clicked();
+    void on_pushButtonReload_clicked();
+
+    void onStopped();
+    void onStarted();
+    void onPaused();
+
+    void on_pushButtonStartResume_clicked();
+
+    void on_pushButtonStop_clicked();
 
 private:
     enum MediaType{
@@ -47,6 +52,18 @@ private:
         MediaNone
     };
 
+    enum RunStatus{
+        Running,
+        Paused,
+        Stopped
+    };
+
+
+    VlcInstance *_instance;
+    VlcMedia *_media;
+    VlcMediaPlayer *_player;
+    VlcAudio *_vlcAudio;
+
     Ui::DialogVideoPlayer *ui;
 
     void closeEvent(QCloseEvent *event);
@@ -54,7 +71,10 @@ private:
     QString fileurl;
     MediaType mediaType;
 
-    bool isPaused;
+    bool isPaused, isStarted;
+
+    void setEnabledAllButtons(bool enabled);
+    void changeUi(RunStatus status);
 
 };
 

@@ -31,8 +31,9 @@ WINDEPLOYMENT = yes
 # and the plugins dir from VLC_QT_PATH/bin/plugins
 # in the path where agtv.exe is placed.
 #
-# CONFIG += winternalvlc
+CONFIG += winternalvlc
 VLC_QT_PATH = "E:\Dropbox\Qt\VLC-Qt_0.90.0_win32_mingw"
+# VLC_QT_PATH = "E:\Dropbox\Qt\vlc-qt\build"
 
 QMAKE_TARGET_COMPANY = "AbyleDotOrg"
 QMAKE_TARGET_PRODUCT = "agtv"

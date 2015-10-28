@@ -11,4 +11,11 @@
         <file>bg3.png</file>
     </qresource>
     <qresource prefix="/"/>
+    <qresource prefix="/16x16">
+        <file>icons/16x16/media-playback-pause.png</file>
+        <file>icons/16x16/media-playback-start.png</file>
+        <file>icons/16x16/media-playback-stop.png</file>
+        <file>icons/16x16/view-fullscreen.png</file>
+        <file>icons/16x16/view-refresh.png</file>
+    </qresource>
 </RCC>

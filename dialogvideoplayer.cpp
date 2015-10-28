@@ -35,8 +35,23 @@ void DialogVideoPlayer::initVLC()
     genericHelper::log("DialogVideoPlayer: Using VLC args = " + args.join(" "));
 
    _instance = new VlcInstance(args, this);
+   if(&_instance == 0) {
+       genericHelper::log("DialogVideoPlayer: Error creating VLC instance!");
+       return;
+   }
     _player = new VlcMediaPlayer(_instance);
+    if(&_player == 0) {
+        genericHelper::log("DialogVideoPlayer: Error creating VLC player!");
+        return;
+    }
     _player->setVideoWidget(this->ui->video);
+    _vlcAudio = _player->audio();
+
+    on_horizontalSliderVolume_sliderMoved(_vlcAudio->volume());
+
+    QObject::connect(_player, SIGNAL(playing()), this, SLOT(onStarted()));
+    QObject::connect(_player, SIGNAL(stopped()), this, SLOT(onStopped()));
+    QObject::connect(_player, SIGNAL(paused()), this, SLOT(onPaused()));
 }
 
 void DialogVideoPlayer::openLocal(QString file)
@@ -83,8 +98,18 @@ void DialogVideoPlayer::setTitle(QString title)
     this->setWindowTitle(title);
 }
 
-void DialogVideoPlayer::on_pushButtonStart_clicked()
+void DialogVideoPlayer::on_horizontalSliderVolume_sliderMoved(int position)
 {
+    _vlcAudio->setVolume(position);
+
+    this->ui->horizontalSliderVolume->setValue(position);
+}
+
+void DialogVideoPlayer::on_pushButtonReload_clicked()
+{
+    _player->stop();
+    this->setEnabledAllButtons(false);
+
     switch (mediaType) {
         case MediaUrl:
             this->openUrl(this->fileurl);
@@ -97,15 +122,82 @@ void DialogVideoPlayer::on_pushButtonStart_clicked()
     }
 }
 
-void DialogVideoPlayer::on_pushButtonPause_clicked()
+void DialogVideoPlayer::onStopped()
 {
-    if(! isPaused) {
-        _player->pause();
-        this->ui->pushButtonPause->setText("Resume");
-        isPaused = true;
+    this->changeUi(RunStatus::Stopped);
+}
+
+void DialogVideoPlayer::onStarted()
+{
+    this->changeUi(RunStatus::Running);
+
+    _vlcAudio->setVolume(this->ui->horizontalSliderVolume->value());
+}
+
+void DialogVideoPlayer::onPaused()
+{
+    this->changeUi(RunStatus::Paused);
+}
+
+void DialogVideoPlayer::on_pushButtonStartResume_clicked()
+{
+    if(this->isStarted) {
+        if(! isPaused) {
+            _player->pause();
+            isPaused = true;
+        } else {
+            _player->resume();
+            isPaused = false;
+        }
     } else {
-        _player->resume();
-        this->ui->pushButtonPause->setText("Pause");
-        isPaused = false;
+        switch (mediaType) {
+            case MediaUrl:
+                this->openUrl(this->fileurl);
+                break;
+            case MediaFile:
+                this->openLocal(this->fileurl);
+                break;
+            case MediaNone:
+                break;
+        }
+    }
+}
+
+void DialogVideoPlayer::on_pushButtonStop_clicked()
+{
+    _player->stop();
+}
+
+void DialogVideoPlayer::setEnabledAllButtons(bool enabled)
+{
+    this->ui->pushButtonClose->setEnabled(enabled);
+    this->ui->pushButtonStartResume->setEnabled(enabled);
+    this->ui->pushButtonStop->setEnabled(enabled);
+    this->ui->pushButtonReload->setEnabled(enabled);
+}
+
+void DialogVideoPlayer::changeUi(RunStatus status) {
+    switch (status) {
+        case Running:
+            setEnabledAllButtons(true);
+            this->isStarted = true;
+            this->isPaused = false;
+            this->ui->pushButtonStartResume->setIcon(QIcon(":/16x16/icons/16x16/media-playback-pause.png"));
+            break;
+
+        case Paused:
+            setEnabledAllButtons(true);
+            this->isStarted = true;
+            this->isPaused = true;
+            this->ui->pushButtonStartResume->setIcon(QIcon(":/16x16/icons/16x16/media-playback-start.png"));
+            break;
+
+        case Stopped:
+            setEnabledAllButtons(false);
+            this->isStarted = false;
+            this->isPaused = false;
+            this->ui->pushButtonStartResume->setEnabled(true);
+            this->ui->pushButtonStartResume->setIcon(QIcon(":/16x16/icons/16x16/media-playback-start.png"));
+            break;
     }
 }

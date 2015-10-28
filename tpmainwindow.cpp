@@ -189,8 +189,8 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QTimer::singleShot(0, this, SLOT(restoreSortModes()));
 
 #ifdef WINTERNALVLC
-    diaVideoPlayer = new DialogVideoPlayer;
-    diaVideoPlayer->initVLC();
+    //diaVideoPlayer = new DialogVideoPlayer;
+    //diaVideoPlayer->initVLC();
 #endif
 }
 
@@ -542,7 +542,9 @@ void tpMainWindow::myQuit()
     }
 
 #ifdef WINTERNALVLC
-    diaVideoPlayer->deleteLater();
+    for(const auto& player : diaVideoPlayers) {
+        player->deleteLater();
+    }
 #endif
 
     qApp->quit();
@@ -698,9 +700,12 @@ void tpMainWindow::setIcon(QString iconname)
 #ifdef WINTERNALVLC
 void tpMainWindow::executeInternalPlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute, QString quality)
 {
-    diaVideoPlayer->setTitle(channel);
-    diaVideoPlayer->openUrl(url);
-    diaVideoPlayer->show();
+    diaVideoPlayers.push_back(new DialogVideoPlayer);
+    diaVideoPlayers.last()->initVLC();
+
+    diaVideoPlayers.last()->setTitle(channel);
+    diaVideoPlayers.last()->openUrl(url);
+    diaVideoPlayers.last()->show();
 }
 #endif
 
