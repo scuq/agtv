@@ -260,11 +260,9 @@ DISTFILES += \
 
 winternalvlc {
     DEFINES += WINTERNALVLC
-    # Internal VLC using VLC-Qt
-    LIBS       += -lVLCQtCore -lVLCQtWidgets
 
-    # Edit below for custom library location
-    LIBS       += -L$${VLC_QT_PATH}/lib -lVLCQtCore -lVLCQtWidgets
+    release: LIBS += -L$${VLC_QT_PATH}/lib -lVLCQtCore -lVLCQtWidgets
+    debug:   LIBS += -L$${VLC_QT_PATH}/lib -lVLCQtCored -lVLCQtWidgetsd
     INCLUDEPATH += $${VLC_QT_PATH}/include
 
     SOURCES += dialogvideoplayer.cpp
