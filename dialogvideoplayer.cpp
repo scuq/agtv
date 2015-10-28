@@ -47,7 +47,7 @@ void DialogVideoPlayer::initVLC()
     _player->setVideoWidget(this->ui->video);
     _vlcAudio = _player->audio();
 
-    on_horizontalSliderVolume_sliderMoved(_vlcAudio->volume());
+    this->ui->horizontalSliderVolume->setValue(_vlcAudio->volume());
 
     QObject::connect(_player, SIGNAL(playing()), this, SLOT(onStarted()));
     QObject::connect(_player, SIGNAL(stopped()), this, SLOT(onStopped()));
@@ -96,13 +96,6 @@ void DialogVideoPlayer::closeEvent(QCloseEvent *event) {
 void DialogVideoPlayer::setTitle(QString title)
 {
     this->setWindowTitle(title);
-}
-
-void DialogVideoPlayer::on_horizontalSliderVolume_sliderMoved(int position)
-{
-    _vlcAudio->setVolume(position);
-
-    this->ui->horizontalSliderVolume->setValue(position);
 }
 
 void DialogVideoPlayer::on_pushButtonReload_clicked()
@@ -199,5 +192,25 @@ void DialogVideoPlayer::changeUi(RunStatus status) {
             this->ui->pushButtonStartResume->setEnabled(true);
             this->ui->pushButtonStartResume->setIcon(QIcon(":/16x16/icons/16x16/media-playback-start.png"));
             break;
+    }
+}
+
+void DialogVideoPlayer::on_horizontalSliderVolume_valueChanged(int value)
+{
+    _vlcAudio->setVolume(value);
+    if(value == 0) {
+         this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card-off.png"));
+    } else {
+         this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card.png"));
+    }
+}
+
+void DialogVideoPlayer::on_pushButtonMute_clicked()
+{
+    if (ui->horizontalSliderVolume->value() == 0) {
+        this->ui->horizontalSliderVolume->setValue(oldVolume);
+    } else {
+        oldVolume = this->ui->horizontalSliderVolume->value();
+        this->ui->horizontalSliderVolume->setValue(0);
     }
 }

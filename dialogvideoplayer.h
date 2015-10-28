@@ -33,17 +33,19 @@ public:
 private slots:
     void on_pushButtonClose_clicked();
 
-    void on_horizontalSliderVolume_sliderMoved(int position);
-
     void on_pushButtonReload_clicked();
+
+    void on_pushButtonStartResume_clicked();
+
+    void on_pushButtonStop_clicked();
+
+    void on_horizontalSliderVolume_valueChanged(int value);
 
     void onStopped();
     void onStarted();
     void onPaused();
 
-    void on_pushButtonStartResume_clicked();
-
-    void on_pushButtonStop_clicked();
+    void on_pushButtonMute_clicked();
 
 private:
     enum MediaType{
@@ -58,6 +60,7 @@ private:
         Stopped
     };
 
+    int oldVolume;
 
     VlcInstance *_instance;
     VlcMedia *_media;

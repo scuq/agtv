@@ -17,5 +17,7 @@
         <file>icons/16x16/media-playback-stop.png</file>
         <file>icons/16x16/view-fullscreen.png</file>
         <file>icons/16x16/view-refresh.png</file>
+        <file>icons/16x16/audio-card.png</file>
+        <file>icons/16x16/audio-card-off.png</file>
     </qresource>
 </RCC>
