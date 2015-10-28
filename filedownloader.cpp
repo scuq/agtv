@@ -15,6 +15,10 @@ FileDownloader::~FileDownloader()
 void FileDownloader::downloadUrl(QUrl imageUrl)
 {
     QNetworkRequest request(imageUrl);
+
+    request.setRawHeader("Accept", "application/vnd.apple.mpegurl");
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
     m_WebCtrl.get(request);
 }
 
