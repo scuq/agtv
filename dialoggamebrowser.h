@@ -43,8 +43,6 @@ private slots:
 
     void on_pushButtonClose_clicked();
 
-    void on_pushButtonLoadMore_clicked();
-
     void on_tableViewTopGames_activated(const QModelIndex &index);
 
     void onTableViewGamesScrolled(int);

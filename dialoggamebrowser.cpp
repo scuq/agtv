@@ -60,8 +60,10 @@ DialogGameBrowser::DialogGameBrowser(QWidget *parent) :
 
 void DialogGameBrowser::showEvent(QShowEvent *e)
 {
-  this->ui->toolBox->setCurrentIndex(0);
-  QDialog::showEvent(e);
+    this->ui->toolBox->setCurrentIndex(0);
+    this->ui->toolBox->setItemText(1, "");
+    this->ui->toolBox->setItemEnabled(1, false);
+    QDialog::showEvent(e);
 }
 
 void DialogGameBrowser::onTableViewGamesScrolled(int value)
@@ -70,7 +72,6 @@ void DialogGameBrowser::onTableViewGamesScrolled(int value)
         this-> offset += 10;
         this->tw->getTopGames(offset, 10);
     }
-    qDebug() << value;
 }
 
 DialogGameBrowser::~DialogGameBrowser()
@@ -130,12 +131,6 @@ void DialogGameBrowser::on_pushButtonClose_clicked()
     this->close();
 }
 
-void DialogGameBrowser::on_pushButtonLoadMore_clicked()
-{
-    this-> offset += 10;
-    tw->getTopGames(offset, 10);
-}
-
 void DialogGameBrowser::on_tableViewTopGames_activated(const QModelIndex &index)
 {
     QString _game;
@@ -144,6 +139,7 @@ void DialogGameBrowser::on_tableViewTopGames_activated(const QModelIndex &index)
 
     stmodelGame->removeRows(0, stmodelGame->rowCount());
 
+    this->ui->toolBox->setItemEnabled(1, true);
     this->ui->toolBox->setItemText(1,_game);
     this->ui->toolBox->setCurrentIndex(1);
     this->tw->getStreamsForGame(_game.replace(" ","+"));

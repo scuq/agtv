@@ -14,13 +14,6 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0">
-    <widget class="QPushButton" name="pushButtonLoadMore">
-     <property name="text">
-      <string>Load More</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
     <widget class="QPushButton" name="pushButtonClose">
      <property name="text">
@@ -65,6 +58,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_2">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>611</width>
+        <height>330</height>
+       </rect>
+      </property>
       <attribute name="label">
        <string>Game</string>
       </attribute>
