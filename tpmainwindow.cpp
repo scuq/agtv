@@ -712,14 +712,14 @@ void tpMainWindow::executeInternalPlayer(QString player, QString url, QString ch
 void tpMainWindow::executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute, QString quality)
 {
 
-    /** qmediaplayer test
+
     playerq = new VideoPlayer();
     playerq->resize(320, 240);
     playerq->show();
     playerq->setStreamUrl(url);
     return;
 
-    **/
+
 
 #ifdef WINTERNALVLC
     if( genericHelper::getInternalVLC() ) {

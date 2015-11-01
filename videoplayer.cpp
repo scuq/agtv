@@ -14,6 +14,8 @@ VideoPlayer::VideoPlayer(QWidget *parent)
     , errorLabel(0)
 {
     QVideoWidget *videoWidget = new QVideoWidget;
+    playlist = new QMediaPlaylist;
+    playlist->setPlaybackMode(QMediaPlaylist::Loop);
 
     QAbstractButton *openButton = new QPushButton(tr("Open..."));
     connect(openButton, SIGNAL(clicked()), this, SLOT(openFile()));
@@ -53,6 +55,7 @@ VideoPlayer::VideoPlayer(QWidget *parent)
     connect(&mediaPlayer, SIGNAL(positionChanged(qint64)), this, SLOT(positionChanged(qint64)));
     connect(&mediaPlayer, SIGNAL(durationChanged(qint64)), this, SLOT(durationChanged(qint64)));
     connect(&mediaPlayer, SIGNAL(error(QMediaPlayer::Error)), this, SLOT(handleError()));
+    connect(playlist, SIGNAL(loadFailed), this, SLOT(handleError()));
 }
 
 VideoPlayer::~VideoPlayer()
@@ -113,9 +116,11 @@ void VideoPlayer::setPosition(int position)
 void VideoPlayer::setStreamUrl(QString url)
 {
     qDebug() << url;
-    QMediaPlaylist *playlist = new QMediaPlaylist;
+
     playlist->load(QUrl(url));
 
+
+ playButton->setEnabled(true);
       mediaPlayer.setPlaylist(playlist);
       mediaPlayer.play();
 
@@ -126,4 +131,6 @@ void VideoPlayer::handleError()
 {
     playButton->setEnabled(false);
     errorLabel->setText("Error: " + mediaPlayer.errorString());
+    errorLabel->setText("Error: " + playlist->errorString());
+    qDebug() << playlist->errorString();
 }

@@ -37,5 +37,6 @@ private:
     QAbstractButton *playButton;
     QSlider *positionSlider;
     QLabel *errorLabel;
+    QMediaPlaylist *playlist;
 };
 #endif // VIDEOPLAYER_H
