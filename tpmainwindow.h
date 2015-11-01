@@ -111,6 +111,8 @@ private slots:
 
     void addBookmark();
 
+    void addFollow();
+
     void on_actionOptions_triggered();
 
     void on_actionQuit_triggered();
@@ -246,7 +248,7 @@ private:
     QAction *add_follower_bookmark;
     QAction *delete_follower;
     QAction *copy_streamurl;
-
+    QAction *add_follow;
 
     updateCheck *uc;
 

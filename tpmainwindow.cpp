@@ -475,6 +475,9 @@ void tpMainWindow::createActions()
     add_bookmark = new QAction(tr("&Add"), this);
     connect(add_bookmark, SIGNAL(triggered()), this, SLOT(addBookmark()));
 
+    add_follow = new QAction(tr("&Follow Channel..."), this);
+    connect(add_follow, SIGNAL(triggered()), this, SLOT(addFollow()));
+
     add_follower_bookmark = new QAction(tr("Follow Channel"), this);
     connect(add_follower_bookmark, SIGNAL(triggered()), this, SLOT(addFollowerBookmark()));
 
@@ -512,6 +515,7 @@ void tpMainWindow::addFollowerBookmark()
     const QString _text = this->ui->tableViewBookmarks->selectionModel()->selectedRows(4).at(0).data().toString();
 
     tw->followChannel(_streamer);
+    this->ui->statusBar->showMessage(tr("Sent follow request for channel") + " " + _streamer, DEFSTATUSTIMEOUT);
 }
 
 void tpMainWindow::deleteFollower()
@@ -698,11 +702,20 @@ void tpMainWindow::deleteBookmark()
 
 void tpMainWindow::addBookmark()
 {
-    QString text = QInputDialog::getText(this, tr("Add Bookmark"), tr("Channel/Streamer name"), QLineEdit::Normal,"");
+    QString text = QInputDialog::getText(this, tr("Add Bookmark"), tr("Enter Channel URL or name"), QLineEdit::Normal,"");
     if (!text.isEmpty()) {
         genericHelper::addBookmark(genericHelper::streamURLParser(text));
-        // genericHelper::addBookmark(text.toLower());
         this->loadBookmarks();
+    }
+}
+
+void tpMainWindow::addFollow()
+{
+    QString _text = QInputDialog::getText(this, tr("Follow Channel"), tr("Enter Channel URL or name"), QLineEdit::Normal,"");
+    QString _streamer = genericHelper::streamURLParser(_text);
+    if (!_streamer.isEmpty()) {
+        tw->followChannel(_streamer);
+        this->ui->statusBar->showMessage(tr("Sent follow request for channel") + " " + _streamer, DEFSTATUSTIMEOUT);
     }
 }
 
@@ -738,11 +751,11 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
 {
 
 
-    playerq = new VideoPlayer();
-    playerq->resize(320, 240);
-    playerq->show();
-    playerq->setStreamUrl(url);
-    return;
+//    playerq = new VideoPlayer();
+//    playerq->resize(320, 240);
+//    playerq->show();
+//    playerq->setStreamUrl(url);
+//    return;
 
 
 
@@ -1390,6 +1403,7 @@ void tpMainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
         tableviewContextMenu->addSeparator();
         tableviewContextMenu->addAction(copy_streamurl);
         tableviewContextMenu->addSeparator();
+        tableviewContextMenu->addAction(add_follow);
         tableviewContextMenu->addAction(delete_follower);
 
     }

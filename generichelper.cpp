@@ -1165,6 +1165,5 @@ QString genericHelper::streamURLParser(QString _stream)
 
     streamname = streamname.toLower().trimmed();
 
-    qDebug() << streamname;
     return streamname;
 }
