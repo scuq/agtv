@@ -12,13 +12,13 @@ TwitchApi::TwitchApi(QObject *parent, QString oauthtoken) :
     QObject::connect(&m_stream, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseStream(QNetworkReply*)));
     QObject::connect(&m_channel, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseChannel(QNetworkReply*)));
     QObject::connect(&m_host, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseHost(QNetworkReply*)));
+    QObject::connect(&m_topgames, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseTopGames(QNetworkReply*)));
+    QObject::connect(&m_streamsforgame, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseStreamsForGame(QNetworkReply*)));
 
     QObject::connect(&m_follow, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseFollow(QNetworkReply*)));
     QObject::connect(&m_unfollow, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseUnfollow(QNetworkReply*)));
 
     this->oAuthAccessToken = oauthtoken;
-
-
 }
 
 void TwitchApi::setOAuthAccessToken(QString oauthtoken) {
@@ -92,29 +92,11 @@ void TwitchApi::getPlaylist(QString user)
 }
 **/
 
-void TwitchApi::getGame()
-{
-
-
-    genericHelper::log("twitch-api getGame - https://api.twitch.tv/kraken/games/top?limit=100");
-    this->getRequest("https://api.twitch.tv/kraken/games/top?limit=1001");
-
-
-
-}
-
 void TwitchApi::getKrakenChannel()
 {
-
-
     genericHelper::log("twitch-api getKrakenChannel - https://api.twitch.tv/kraken/channel");
     this->getRequestAuthenticated("https://api.twitch.tv/kraken/channel");
-
-
-
 }
-
-
 
 void TwitchApi::getChannel(QString user)
 {
@@ -318,8 +300,6 @@ void TwitchApi::getRequestChannelAccessToken(const QString &urlString)
 
 }
 
-
-
 void TwitchApi::getRequest( const QString &urlString )
 {
     QUrl url ( urlString );
@@ -332,7 +312,6 @@ void TwitchApi::getRequest( const QString &urlString )
 
 
 }
-
 
 void TwitchApi::parseNetworkResponse( QNetworkReply *finished )
 {
@@ -440,7 +419,6 @@ void TwitchApi::parseNetworkResponseM3u8(QNetworkReply *finished)
 {
     // QNetworkReply is a QIODevice. So we read from it just like it was a file
     QByteArray data = finished->readAll();
-qDebug() << "parseNetworkResponseM3u8";
     emit twitchReadyM3u8( data );
 
 
@@ -503,24 +481,13 @@ void TwitchApi::parseNetworkResponseChannelAccessToken(QNetworkReply *finished)
     // QNetworkReply is a QIODevice. So we read from it just like it was a file
     QByteArray data = finished->readAll();
 
-
-
-
-
     json_buffer = QJsonDocument::fromJson(data);
-
-
 
    // qDebug()<< json_buffer;
     emit twitchReadyChannelAccessToken( json_buffer );
 
-
     // new parser
-
-
-
 }
-
 
 void TwitchApi::parseNetworkResponseFollow(QNetworkReply *finished)
 {
@@ -554,4 +521,73 @@ void TwitchApi::parseNetworkResponseUnfollow(QNetworkReply *finished)
     json_buffer = QJsonDocument::fromJson(data);
 
     emit twitchReadyUnfollow( json_buffer );
+}
+
+void TwitchApi::getTopGames(int offset=0, int limit=10)
+{
+    // https://github.com/justintv/Twitch-API/blob/master/v3_resources/games.md
+    genericHelper::log("twitch-api getGames - https://api.twitch.tv/kraken/games/top?limit"+QString(limit)+"&offset="+QString(offset));
+    this->getRequestTopGames("https://api.twitch.tv/kraken/games/top?limit="+QString::number(limit,'f',0)+"&offset="+QString::number(offset,'f',0));
+    qDebug() << "https://api.twitch.tv/kraken/games/top?limit="+QString::number(limit,'f',0)+"&offset="+QString::number(offset,'f',0);
+}
+
+void TwitchApi::getRequestTopGames(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    m_topgames.get( req  );
+}
+
+void TwitchApi::parseNetworkResponseTopGames(QNetworkReply *finished)
+{
+    if ( finished->error() != QNetworkReply::NoError )
+    {
+        // A communication error has occurred
+        emit networkError( finished->errorString() );
+        return;
+    }
+
+    // QNetworkReply is a QIODevice. So we read from it just like it was a file
+    QByteArray data = finished->readAll();
+    json_buffer = QJsonDocument::fromJson(data);
+
+    emit twitchReadyTopGames( json_buffer );
+}
+
+void TwitchApi::getStreamsForGame(const QString game)
+{
+    // https://github.com/justintv/Twitch-API/blob/master/v3_resources/games.md
+    genericHelper::log("twitch-api getStreamsForGame - https://api.twitch.tv/kraken/streams/?game" + game);
+    this->getRequestStreamsForGame("https://api.twitch.tv/kraken/streams/?game=" + game);
+}
+
+void TwitchApi::getRequestStreamsForGame(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    m_streamsforgame.get( req  );
+}
+
+void TwitchApi::parseNetworkResponseStreamsForGame(QNetworkReply *finished)
+{
+    if ( finished->error() != QNetworkReply::NoError )
+    {
+        // A communication error has occurred
+        emit networkError( finished->errorString() );
+        return;
+    }
+
+    // QNetworkReply is a QIODevice. So we read from it just like it was a file
+    QByteArray data = finished->readAll();
+    json_buffer = QJsonDocument::fromJson(data);
+
+    emit twitchStreamsForGameReady( json_buffer );
 }

@@ -62,7 +62,7 @@ selection-color: black;
 </string>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -290,6 +290,8 @@ selection-color: black;</string>
     <addaction name="actionShow_Offline_Streamers"/>
     <addaction name="separator"/>
     <addaction name="actionFit_Columns_to_Content"/>
+    <addaction name="separator"/>
+    <addaction name="actionShow_Game_Browser"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -403,6 +405,11 @@ selection-color: black;</string>
    </property>
    <property name="text">
     <string>Show Approximate Viewer Count</string>
+   </property>
+  </action>
+  <action name="actionShow_Game_Browser">
+   <property name="text">
+    <string>Show Game Browser</string>
    </property>
   </action>
  </widget>

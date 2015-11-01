@@ -226,7 +226,10 @@ SOURCES += main.cpp\
     dialogshowlogfile.cpp \
     filedownloader.cpp \
     agtvdefaultitemdelegate.cpp \
-    videoplayer.cpp
+    videoplayer.cpp \
+    dialoggamebrowser.cpp \
+    htmldelegate.cpp \
+    advqsortfilterproxylistmodel.cpp
 
 HEADERS  += tpmainwindow.h \
     generichelper.h \
@@ -244,7 +247,10 @@ HEADERS  += tpmainwindow.h \
     dialogshowlogfile.h \
     filedownloader.h \
     agtvdefaultitemdelegate.h \
-    videoplayer.h
+    videoplayer.h \
+    dialoggamebrowser.h \
+    htmldelegate.h \
+    advqsortfilterproxylistmodel.h
 
 FORMS    += tpmainwindow.ui \
     dialogoauthsetup.ui \
@@ -253,7 +259,8 @@ FORMS    += tpmainwindow.ui \
     dialogoptions.ui \
     dialogshowlogfile.ui \
     dialogqmediaplayer.ui \
-    videoplayer.ui
+    videoplayer.ui \
+    dialoggamebrowser.ui
 
 RESOURCES += \
     agtv.qrc

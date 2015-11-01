@@ -42,49 +42,28 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
         updateInterval = genericHelper::getUpdateInterval() * 1000;
     }
 
+    QStringList horzHeaders = { "Name", "Status", "#V",
+                                "Game", "Status Message"};
 
     stmodel = new QStandardItemModel(0,5,this);
+    stmodel->setHorizontalHeaderLabels(horzHeaders);
     stproxymodel = new AdvQSortFilterProxyModel(this);
+    stproxymodel->setSourceModel(stmodel);
     stproxymodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
+    this->ui->tableView->horizontalHeader()->show();
+    this->ui->tableView->setItemDelegate(AgtvDefItemDelegate);
+    this->ui->tableView->setModel(stproxymodel);
+
     stmodelbookmarks = new QStandardItemModel(0,5,this);
+    stmodelbookmarks->setHorizontalHeaderLabels(horzHeaders);
     stproxymodelbookmarks = new AdvQSortFilterProxyModel(this);
+    stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
     stproxymodelbookmarks->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-
-
-
-    stproxymodel->setSourceModel(stmodel);
-
-    QStringList horzHeaders;
-
-    horzHeaders << "Name" << "Status" << "#V" << "Game" << "Status Message";
-
-    stmodel->setHorizontalHeaderLabels(horzHeaders);
-
-
-
-
-    stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
-
-
-
-
-
-
-    stmodelbookmarks->setHorizontalHeaderLabels(horzHeaders);
-
-    this->ui->tableView->horizontalHeader()->show();
     this->ui->tableViewBookmarks->horizontalHeader()->show();
-
-    //this->ui->tableView->setItemDelegateForColumn(1,AgtvDefItemDelegate);
-    //this->ui->tableViewBookmarks->setItemDelegateForColumn(1,AgtvDefItemDelegate);
-    this->ui->tableView->setItemDelegate(AgtvDefItemDelegate);
     this->ui->tableViewBookmarks->setItemDelegate(AgtvDefItemDelegate);
-
-    this->ui->tableView->setModel(stproxymodel);
     this->ui->tableViewBookmarks->setModel(stproxymodelbookmarks);
-
 
     diaOauthSetup = new dialogOauthSetup(this);
     diaPositioner = new DialogPositioner(this);
@@ -148,8 +127,6 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(refreshTimer, SIGNAL(timeout()), this, SLOT(on_loadData()));
     refreshTimer->start(updateInterval);
 
-
-
     // some stuff needed for the tray icon
     createActions();
     createTrayIcon();
@@ -195,6 +172,8 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 #endif
 
     clipboard = QApplication::clipboard();
+
+    diaTopGameBrowser = new DialogGameBrowser;
 }
 
 void tpMainWindow::saveSortModes()
@@ -1536,4 +1515,9 @@ void tpMainWindow::deleteFollowerFromList(QString _name)
 {
     this->stproxymodel->deleteCol(0, _name );
     this->loadData();
+}
+
+void tpMainWindow::on_actionShow_Game_Browser_triggered()
+{
+    diaTopGameBrowser->show();
 }

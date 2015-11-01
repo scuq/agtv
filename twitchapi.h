@@ -30,12 +30,13 @@ public:
     void getChannelAccessToken(QString channel);
     void getPlayList(QString channel, QString token, QString sig);
     QString getPlayListUrl(QString channel, QString token, QString sig);
-    void getGame();
+    void getTopGames(int offset, int limit);
     void getKrakenChannel();
     void searchGames(QString searchStr);
     void setOAuthAccessToken(QString oauthtoken);
     void getFollows(QString user);
     void get(QString user);
+    void getStreamsForGame(QString game);
 
     void followChannel(QString channel);
     void unfollowChannel(QString channel);
@@ -50,6 +51,8 @@ private:
     void getRequestHost( const QString &url );
     void getRequestChannelAccessToken( const QString &url );
     void getRequestAuthenticated( const QString &url );
+    void getRequestTopGames( const QString &url );
+    void getRequestStreamsForGame( const QString &url );
     void putRequest( const QString &url, QHash<QString, QString> urlParams);
 
     void putRequestFollow( const QString &url );
@@ -65,8 +68,8 @@ private:
     QNetworkAccessManager m_stream;
     QNetworkAccessManager m_channel;
     QNetworkAccessManager m_host;
-
-
+    QNetworkAccessManager m_topgames;
+    QNetworkAccessManager m_streamsforgame;
 
     QJsonDocument json_buffer;
     QString oAuthAccessToken;
@@ -80,10 +83,13 @@ signals:
     void twitchReadyBookmark( const QJsonDocument &twitchAsJSON );
     void twitchReadyStream( const QJsonDocument &twitchAsJSON );
     void twitchReadyChannel( const QJsonDocument &twitchAsJSON );
+    void twitchReadyTopGames( const QJsonDocument &twitchAsJSON );
     void twitchReadyHost( const QJsonDocument &twitchAsJSON );
     void twitchGameReady( const QJsonObject &twitchAsJSONObj );
     void twitchStreamKeyReady(const QJsonObject &twitchAsJSONObj);
     void networkError( QString errmessage );
+
+    void twitchStreamsForGameReady( const QJsonDocument &twitchAsJSON );
 
     void twitchReadyFollow( const QJsonDocument &twitchAsJSON );
     void twitchReadyUnfollow( const QJsonDocument &twitchAsJSON );
@@ -100,6 +106,9 @@ public slots:
 
     void parseNetworkResponseFollow( QNetworkReply *finished );
     void parseNetworkResponseUnfollow( QNetworkReply *finished );
+
+    void parseNetworkResponseTopGames( QNetworkReply *finished );
+    void parseNetworkResponseStreamsForGame( QNetworkReply *finished );
 
 };
 

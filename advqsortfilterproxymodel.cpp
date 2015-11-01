@@ -1,7 +1,6 @@
 #include "advqsortfilterproxymodel.h"
 
-
-AdvQSortFilterProxyModel::AdvQSortFilterProxyModel(QObject *parent)
+AdvQSortFilterProxyModel::AdvQSortFilterProxyModel(QObject* parent)
 {
     showOffline = true;
     showApproximateViewerCount = true;

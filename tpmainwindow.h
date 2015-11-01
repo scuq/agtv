@@ -11,6 +11,7 @@
 #ifdef WINTERNALVLC
 #include "dialogvideoplayer.h"
 #endif
+#include "dialoggamebrowser.h"
 
 #include "agtvdefaultitemdelegate.h"
 #include "advqsortfilterproxymodel.h"
@@ -151,6 +152,8 @@ private slots:
 
     void copyUrl();
 
+    void on_actionShow_Game_Browser_triggered();
+
 private:
     Ui::tpMainWindow *ui;
 
@@ -191,6 +194,7 @@ private:
     DialogLaunch *diaLaunch;
     DialogOptions *diaOptions;
     DialogShowLogFile *diaShowLogFile;
+    DialogGameBrowser *diaTopGameBrowser;
 
     QClipboard *clipboard;
 
