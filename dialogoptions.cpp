@@ -164,4 +164,13 @@ void DialogOptions::on_checkBoxInternalVLC_toggled(bool checked)
     this->ui->vlcPathEdit->setEnabled(!checked);
     this->ui->vlcPathSelectButton->setEnabled(!checked);
     this->ui->plainTextEdit->setEnabled(!checked);
+    if(checked) {
+        this->ui->checkBoxStreamQuality->setChecked(true);
+        this->ui->checkBoxStreamQuality->setEnabled(false);
+        this->ui->checkBoxStreamPositioning->setChecked(false);
+        this->ui->checkBoxStreamPositioning->setEnabled(false);
+    } else {
+        this->ui->checkBoxStreamQuality->setEnabled(true);
+        this->ui->checkBoxStreamPositioning->setEnabled(true);
+    }
 }
