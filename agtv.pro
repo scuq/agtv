@@ -83,7 +83,7 @@ win32 {
 
 
 
-QT       += core gui network
+QT       += core gui network multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -225,7 +225,8 @@ SOURCES += main.cpp\
     updatecheck.cpp \
     dialogshowlogfile.cpp \
     filedownloader.cpp \
-    agtvdefaultitemdelegate.cpp
+    agtvdefaultitemdelegate.cpp \
+    videoplayer.cpp
 
 HEADERS  += tpmainwindow.h \
     generichelper.h \
@@ -242,14 +243,17 @@ HEADERS  += tpmainwindow.h \
     twitchclientid.h \
     dialogshowlogfile.h \
     filedownloader.h \
-    agtvdefaultitemdelegate.h
+    agtvdefaultitemdelegate.h \
+    videoplayer.h
 
 FORMS    += tpmainwindow.ui \
     dialogoauthsetup.ui \
     dialogpositioner.ui \
     dialoglaunch.ui \
     dialogoptions.ui \
-    dialogshowlogfile.ui
+    dialogshowlogfile.ui \
+    dialogqmediaplayer.ui \
+    videoplayer.ui
 
 RESOURCES += \
     agtv.qrc

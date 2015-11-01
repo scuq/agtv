@@ -30,6 +30,9 @@
 #include "filedownloader.h"
 #include "agtvdefaultitemdelegate.h"
 
+#include "videoplayer.h"
+
+
 #ifdef WINTERNALVLC
 #include "dialogvideoplayer.h"
 #endif
@@ -156,6 +159,8 @@ private:
     int xOffset;
     int yOffset;
     bool launchBookmarkEnabled;
+
+    VideoPlayer *playerq;
 
     AgtvDefaultItemDelegate *AgtvDefItemDelegate;
 

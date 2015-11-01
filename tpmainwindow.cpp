@@ -711,6 +711,16 @@ void tpMainWindow::executeInternalPlayer(QString player, QString url, QString ch
 
 void tpMainWindow::executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute, QString quality)
 {
+
+    /** qmediaplayer test
+    playerq = new VideoPlayer();
+    playerq->resize(320, 240);
+    playerq->show();
+    playerq->setStreamUrl(url);
+    return;
+
+    **/
+
 #ifdef WINTERNALVLC
     if( genericHelper::getInternalVLC() ) {
         this->executeInternalPlayer(player, url, channel, streamWidth, streamHeight, xOffset, yOffset, mute, quality);
@@ -994,6 +1004,7 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
     bool isPlaylist, wasPlaylist=false;
+    bool isHosting;
 
     int stateTrans = false;
 
@@ -1013,6 +1024,8 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
 
               wasPlaylist = genericHelper::isPlaylist(this->stproxymodel->getColData(0,onlinename.toLower(),1).toString());
               isPlaylist = iter.value().toObject()["is_playlist"].toBool();
+              isHosting = genericHelper::isHosting(this->stproxymodel->getColData(0,onlinename.toLower(),1).toString());
+
 
               bool updateok = true;
               if (! isPlaylist) {
@@ -1021,9 +1034,11 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
                     updateok = false;
                 }
               } else {
-                  if(! bunchUpdateStreamDataName(onlinename, "playlist", viewers) ) {
-                      genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating model");
-                      updateok = false;
+                  if (! isHosting) {
+                      if(! bunchUpdateStreamDataName(onlinename, "playlist", viewers) ) {
+                          genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating model");
+                          updateok = false;
+                      }
                   }
               }
 
@@ -1031,7 +1046,9 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
                   if (! isPlaylist) {
                     emit (on_notifyByTray(onlinename+" is now online.",iter.value().toObject()["channel"].toObject()["status"].toString()));
                   } else if ((wasPlaylist != isPlaylist )) {
-                    emit (on_notifyByTray(onlinename+" is now in playlist mode.",iter.value().toObject()["channel"].toObject()["status"].toString()));
+                    if (! isHosting) {
+                        emit (on_notifyByTray(onlinename+" is now in playlist mode.",iter.value().toObject()["channel"].toObject()["status"].toString()));
+                    }
                   }
               }
 
