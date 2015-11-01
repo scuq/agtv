@@ -1,6 +1,7 @@
 #include "tpmainwindow.h"
 #include "ui_tpmainwindow.h"
 
+#define DEFSTATUSTIMEOUT 5000
 
 tpMainWindow::tpMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -192,6 +193,8 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     //diaVideoPlayer = new DialogVideoPlayer;
     //diaVideoPlayer->initVLC();
 #endif
+
+    clipboard = QApplication::clipboard();
 }
 
 void tpMainWindow::saveSortModes()
@@ -478,7 +481,28 @@ void tpMainWindow::createActions()
     delete_follower = new QAction(tr("Unfollow Channel"), this);
     connect(delete_follower, SIGNAL(triggered()), this, SLOT(deleteFollower()));
 
+    copy_streamurl = new QAction(tr("Copy URL"), this);
+    copy_streamurl->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_C));
+    connect(copy_streamurl, SIGNAL(triggered()), this, SLOT(copyUrl()));
 
+}
+
+void tpMainWindow::copyUrl() {
+    QString link;
+    switch(this->ui->tabWidget->currentIndex()) {
+        case 0: // follower
+            link = "http://www.twitch.tv/"+this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toString()+"/";
+            break;
+        case 1: // bookmarks
+            link = "http://www.twitch.tv/"+this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toString()+"/";
+            break;
+        default:
+            return;
+    }
+    if(! link.isEmpty()) {
+        clipboard->setText(link);
+        statusBar()->showMessage(tr("URL copied to clipboard") + ": " + link, DEFSTATUSTIMEOUT);
+    }
 }
 
 void tpMainWindow::addFollowerBookmark()
@@ -1362,9 +1386,8 @@ void tpMainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
 
         tableviewContextMenu->popup(this->ui->tableView->viewport()->mapToGlobal(pos));
 
-
-        //add_hosted_bookmark
-
+        tableviewContextMenu->addSeparator();
+        tableviewContextMenu->addAction(copy_streamurl);
         tableviewContextMenu->addSeparator();
         tableviewContextMenu->addAction(delete_follower);
 
@@ -1458,6 +1481,8 @@ void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint
 
         }
 
+        tableviewbookmarksContextMenu->addSeparator();
+        tableviewbookmarksContextMenu->addAction(copy_streamurl);
         tableviewbookmarksContextMenu->addSeparator();
         tableviewbookmarksContextMenu->addAction(add_follower_bookmark);
 

@@ -72,7 +72,7 @@ win32 {
 
 
     }
-    equals(DEVELOPER, "HPS") {
+    equals(DEVELOPER, "hps") {
         message("setting paths and settings for $${DEVELOPER}}")
         VLC_QT_PATH = "E:\Dropbox\Qt\VLC-Qt_0.90.0_win32_mingw"
 

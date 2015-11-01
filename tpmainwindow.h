@@ -21,6 +21,7 @@
 #include <QInputDialog>
 #include <QCloseEvent>
 #include <QThread>
+#include <QClipboard>
 //#include <streamtablemodel.h>
 #include <QStandardItemModel>
 #include "advqsortfilterproxymodel.h"
@@ -147,6 +148,8 @@ private slots:
 
     void loadQuality();
 
+    void copyUrl();
+
 private:
     Ui::tpMainWindow *ui;
 
@@ -187,6 +190,8 @@ private:
     DialogLaunch *diaLaunch;
     DialogOptions *diaOptions;
     DialogShowLogFile *diaShowLogFile;
+
+    QClipboard *clipboard;
 
 #ifdef WINTERNALVLC
     // DialogVideoPlayer *diaVideoPlayer;
@@ -241,6 +246,7 @@ private:
     QAction *add_hosted_bookmark;
     QAction *add_follower_bookmark;
     QAction *delete_follower;
+    QAction *copy_streamurl;
 
 
     updateCheck *uc;
