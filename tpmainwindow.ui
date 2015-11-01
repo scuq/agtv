@@ -274,12 +274,11 @@ selection-color: black;</string>
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="separator"/>
+    <addaction name="actionReport_Bug"/>
     <addaction name="separator"/>
     <addaction name="actionCredits"/>
-    <addaction name="actionAbout"/>
     <addaction name="actionAbout_Qt"/>
-    <addaction name="actionReport_Bug"/>
+    <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -332,12 +331,16 @@ selection-color: black;</string>
   </action>
   <action name="actionAbout_Qt">
    <property name="text">
-    <string>About Qt</string>
+    <string>About Qt...</string>
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="agtv.qrc">
+     <normaloff>:/images/agtv_16.png</normaloff>:/images/agtv_16.png</iconset>
+   </property>
    <property name="text">
-    <string>About</string>
+    <string>About agtv...</string>
    </property>
   </action>
   <action name="actionReport_Bug">
@@ -386,7 +389,7 @@ selection-color: black;</string>
   </action>
   <action name="actionLogfile">
    <property name="text">
-    <string>Logfile</string>
+    <string>Logfile...</string>
    </property>
   </action>
   <action name="actionFit_Columns_to_Content">

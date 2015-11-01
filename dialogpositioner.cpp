@@ -67,12 +67,10 @@ void DialogPositioner::on_pushButtonSavePos_clicked()
 
 void DialogPositioner::successPopup(QString message)
 {
-    int ret = QMessageBox::information(this, tr("twitcher"),
+    QMessageBox::information(this, tr("twitcher"),
                                     message,
                                     QMessageBox::Ok
                                     );
-    ret = 0;
-
 }
 
 void DialogPositioner::errorPopup(QString message)

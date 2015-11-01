@@ -1,159 +1,103 @@
 #include "generichelper.h"
+
 #include <QDebug>
 #include <QMessageBox>
 #include <QByteArray>
 
-void genericHelper::setOAuthAccessToken(QString oauthtoken){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("oauthAccessToken", oauthtoken);
-         settings.sync();
-
-
+void genericHelper::setOAuthAccessToken(QString oauthtoken)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("oauthAccessToken", oauthtoken);
+    settings.sync();
 }
 
-void genericHelper::setUsername(QString username){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("username", username);
-         settings.sync();
-
-
+void genericHelper::setUsername(QString username)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("username", username);
+    settings.sync();
 }
 
-void genericHelper::setOBSBin(QString obsbinpath){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("obsbin", obsbinpath);
-         settings.sync();
-
-
+void genericHelper::setOBSBin(QString obsbinpath)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("obsbin", obsbinpath);
+    settings.sync();
 }
 
-
-
-void genericHelper::setUpdateInterval(int interval){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("update_interval", QString::number(interval));
-         settings.sync();
-
-
+void genericHelper::setUpdateInterval(int interval)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("update_interval", QString::number(interval));
+    settings.sync();
 }
 
-int genericHelper::getUpdateInterval(){
-
+int genericHelper::getUpdateInterval()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _interval = "5";
 
-
     if (settings.value("update_interval", "12").toString().length() > 1) {
         _interval = settings.value("update_interval", "").toString();
-
-
     }
 
     return _interval.toInt();
 }
 
-
-
-void genericHelper::setViewerStreamsMute(QStringList mutes){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("viewerstreamsmute", mutes.join(","));
-         settings.sync();
-
-
-}
-
-QStringList genericHelper::getViewerStreamsMute(){
-
+void genericHelper::setViewerStreamsMute(QStringList mutes)
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QStringList _viewerstreamsmute;
-
-    if (settings.value("viewerstreamsmute", "").toString().length() > 1) {
-        _viewerstreamsmute = settings.value("viewerstreamsmute", "").toString().split(",");
-
-    }
-
-    return _viewerstreamsmute;
+    settings.setValue("viewerstreamsmute", mutes.join(","));
+    settings.sync();
 }
 
-
-void genericHelper::setViewerStreams(QStringList streams){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("viewerstreams", streams.join(","));
-         settings.sync();
-
-
-}
-
-QStringList genericHelper::getViewerStreams(){
-
+QStringList genericHelper::getViewerStreamsMute()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QStringList _viewerstreams;
-
-    if (settings.value("viewerstreams", "").toString().length() > 1) {
-        _viewerstreams = settings.value("viewerstreams", "").toString().split(",");
-
-    }
-
-    return _viewerstreams;
+    return settings.value("viewerstreamsmute", "").toString().split(",");
 }
 
-void genericHelper::setFollows(QStringList follows){
+void genericHelper::setViewerStreams(QStringList streams)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("viewerstreams", streams.join(","));
+    settings.sync();
+}
 
+QStringList genericHelper::getViewerStreams()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    return settings.value("viewerstreams", "").toString().split(",");
+}
 
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("follows", follows.join(","));
-         settings.sync();
-
-
+void genericHelper::setFollows(QStringList follows)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("follows", follows.join(","));
+    settings.sync();
 }
 
 void genericHelper::addFollow(QString follow)
 {
-
     QStringList currentfollows = genericHelper::getFollows();
     if (currentfollows.count(follow) <= 0) {
         currentfollows << follow;
         genericHelper::setFollows(currentfollows);
     }
-
 }
 
-QStringList genericHelper::getFollows(){
-
+QStringList genericHelper::getFollows()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QStringList _follows;
-
-    if (settings.value("follows", "").toString().length() > 1) {
-        _follows = settings.value("follows", "").toString().split(",");
-    }
-
-    return _follows;
+    return settings.value("follows", "").toString().split(",");
 }
 
-void genericHelper::setBookmarks(QStringList bookmarks){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("bookmarks", bookmarks.join(","));
-         settings.sync();
-
-
+void genericHelper::setBookmarks(QStringList bookmarks)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("bookmarks", bookmarks.join(","));
+    settings.sync();
 }
 
 void genericHelper::addBookmark(QString bookmark)
@@ -163,7 +107,6 @@ void genericHelper::addBookmark(QString bookmark)
         currentbookmarks << bookmark;
         genericHelper::setBookmarks(currentbookmarks);
     }
-
 }
 
 void genericHelper::saveGeometry(QString window, QVariant geo)
@@ -183,44 +126,23 @@ void genericHelper::saveWindowstate(QString window, QVariant state)
 QVariant genericHelper::getGeometry(QString window)
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QVariant _geo;
-
-
-        _geo = settings.value("geo_"+window, "");
-
-
-
-
-    return _geo;
+    return settings.value("geo_"+window, "");
 }
 
 QVariant genericHelper::getWindowstate(QString window)
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QVariant _ws;
-
-
-        _ws = settings.value("windowstate_"+window, "");
-
-
-
-    return _ws;
+    return settings.value("windowstate_"+window, "");
 }
 
-QStringList genericHelper::getBookmarks(){
-
+QStringList genericHelper::getBookmarks()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QStringList _bookmarks;
-
-    if (settings.value("bookmarks", "").toString().length() > 1) {
-        _bookmarks = settings.value("bookmarks", "").toString().split(",");
-
+    QStringList _bookmarksList;
+    if(settings.value("bookmarks", "").toString() > 0) {
+        _bookmarksList = settings.value("bookmarks", "").toString().split(",");
     }
-
-    return _bookmarks;
+    return _bookmarksList;
 }
 
 void genericHelper::setVlcArgs(QStringList args)
@@ -249,28 +171,17 @@ QStringList genericHelper::getVlcArgs()
     return _vlcargs;
 }
 
-
-void genericHelper::setCheckUpdate(bool checkupdate){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("check_update", checkupdate);
-         settings.sync();
-
-
+void genericHelper::setCheckUpdate(bool checkupdate)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("check_update", checkupdate);
+    settings.sync();
 }
 
 bool genericHelper::getJoinFollow()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    bool _join_follow;
-
-    if (settings.value("join_follow", "").toString().length() > 1) {
-        _join_follow = settings.value("join_follow", "").toBool();
-
-    }
-    return _join_follow;
+    return settings.value("join_follow", false).toBool();
 }
 
 void genericHelper::setJoinFollow(bool join)
@@ -278,20 +189,12 @@ void genericHelper::setJoinFollow(bool join)
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("join_follow", join);
     settings.sync();
-
 }
 
 bool genericHelper::getJoinBookmarks()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    bool _join_bookmarks;
-
-    if (settings.value("join_bookmarks", "").toString().length() > 1) {
-        _join_bookmarks = settings.value("join_bookmarks", "").toBool();
-
-    }
-    return _join_bookmarks;
+    return settings.value("join_bookmarks", false).toBool();
 }
 
 void genericHelper::setJoinBookmarks(bool join)
@@ -304,17 +207,7 @@ void genericHelper::setJoinBookmarks(bool join)
 bool genericHelper::getStreamPositioning()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    bool _positioning;
-
-    if (settings.value("stream_positioning", "").toString().length() > 1) {
-        _positioning = settings.value("stream_positioning", "").toBool();
-
-    } else {
-        _positioning = false;
-    }
-
-    return _positioning;
+    return settings.value("stream_positioning", false).toBool();
 }
 
 void genericHelper::setStreamPositioning(bool positioning)
@@ -340,17 +233,7 @@ void genericHelper::setStreamQuality(bool quality)
 bool genericHelper::getShowOfflineStreamers()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    bool _showoffline;
-
-    if (settings.value("show_offline_streamers", "").toString().length() > 1) {
-        _showoffline = settings.value("show_offline_streamers", "").toBool();
-
-    } else {
-        _showoffline = true;
-    }
-
-    return _showoffline;
+    return settings.value("show_offline_streamers", true).toBool();
 }
 
 void genericHelper::setShowOfflineStreamers(bool showoffline)
@@ -378,77 +261,36 @@ QString genericHelper::getUpdateCheckUrl()
     return "http://agtv.abyle.org/version/latest_"+genericHelper::getAppName();
 }
 
-
-
-
-bool genericHelper::getCheckUpdate(){
-
+bool genericHelper::getCheckUpdate()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    bool _checkupdate;
-
-    if (settings.value("check_update", "").toString().length() > 1) {
-        _checkupdate = settings.value("check_update", "").toBool();
-
-    } else {
-        genericHelper::setCheckUpdate(true);
-    }
-
-
-    return _checkupdate;
+    return settings.value("check_update", true).toBool();
 }
 
-void genericHelper::setLoadGameImages(bool gameimages){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("load_game_images", gameimages);
-         settings.sync();
-
-
-}
-
-bool genericHelper::getLoadGameImages(){
-
+void genericHelper::setLoadGameImages(bool gameimages)
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    bool _gameimages;
-
-    if (settings.value("load_game_images", "").toString().length() > 1) {
-        _gameimages = settings.value("load_game_images", "").toBool();
-
-    } else {
-        genericHelper::setLoadGameImages(true);
-    }
-
-
-    return _gameimages;
+    settings.setValue("load_game_images", gameimages);
+    settings.sync();
 }
 
+bool genericHelper::getLoadGameImages()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    return settings.value("load_game_images", true).toBool();
+}
 
-
-void genericHelper::setClearLogOnStartup(bool clearlog){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("clear_log_on_start", clearlog);
-         settings.sync();
-
-
+void genericHelper::setClearLogOnStartup(bool clearlog)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("clear_log_on_start", clearlog);
+    settings.sync();
 }
 
 bool genericHelper::getCloseToTray()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    bool _closetotray;
-
-    if (settings.value("close_to_tray", "").toString().length() > 1) {
-        _closetotray = settings.value("close_to_tray", "").toBool();
-
-    }
-
-    return _closetotray;
+    return settings.value("close_to_tray", false).toBool();
 }
 
 void genericHelper::setCloseToTray(bool closetotray)
@@ -461,15 +303,7 @@ void genericHelper::setCloseToTray(bool closetotray)
 bool genericHelper::getStreamOnlineNotify()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    bool _streamonlinenotify;
-
-    if (settings.value("stream_online_notify", "").toString().length() > 1) {
-        _streamonlinenotify = settings.value("stream_online_notify", "").toBool();
-
-    }
-
-    return _streamonlinenotify;
+    return settings.value("stream_online_notify", false).toBool();
 }
 
 void genericHelper::setStreamOnlineNotify(bool streamonlinenotify)
@@ -479,88 +313,60 @@ void genericHelper::setStreamOnlineNotify(bool streamonlinenotify)
     settings.sync();
 }
 
-bool genericHelper::getClearLogOnStartup(){
-
+bool genericHelper::getClearLogOnStartup()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    bool _clearlog;
-
-    if (settings.value("clear_log_on_start", "").toString().length() > 1) {
-        _clearlog = settings.value("clear_log_on_start", "").toBool();
-
-    }
-
-    return _clearlog;
+    return settings.value("clear_log_on_start", false).toBool();
 }
 
-
-
-QString genericHelper::getUsername(){
-
+QString genericHelper::getUsername()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QString _username = "";
-
-    if (settings.value("username", "").toString().length() > 1) {
-        _username = settings.value("username", "").toString();
-
-    }
-
-    return _username;
+    return settings.value("username", "").toString();
 }
 
-QString genericHelper::getOBSBin(){
-
+QString genericHelper::getOBSBin()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QString _obsbin = "";
-
-    if (settings.value("obsbin", "").toString().length() > 1) {
-        _obsbin = settings.value("obsbin", "").toString();
-
-    }
-
-    return _obsbin;
+    return settings.value("obsbin", "").toString();
 }
 
 bool genericHelper::isOnline(const QString status)
 {
-        QRegExp regexEmail("^online" );
+    QRegExp regexEmail("^online" );
 
-        if( regexEmail.indexIn( status ) != -1 ) {
-            return true;
-        } else {
-            return false;
-        }
+    if( regexEmail.indexIn( status ) != -1 ) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool genericHelper::isHosting(const QString status)
 {
-        QRegExp regexEmail("^hosting" );
+    QRegExp regexEmail("^hosting" );
 
-        if( regexEmail.indexIn( status ) != -1 ) {
-            return true;
-        } else {
-            return false;
-        }
+    if( regexEmail.indexIn( status ) != -1 ) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool genericHelper::isPlaylist(const QString status)
 {
-        QRegExp regexEmail("^playlist" );
+    QRegExp regexEmail("^playlist" );
 
-        if( regexEmail.indexIn( status ) != -1 ) {
-            return true;
-        } else {
-            return false;
-        }
-
+    if( regexEmail.indexIn( status ) != -1 ) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
-void genericHelper::executeOBS(){
-
+void genericHelper::executeOBS()
+{
     genericHelper::getOBSBin();
-
 
     QProcess *process = new QProcess(qApp);
     QString program = genericHelper::getOBSBin();
@@ -569,23 +375,13 @@ void genericHelper::executeOBS(){
 
     args << "";
 
-
-
     process->start(program, args);
 
     genericHelper::log("launched: "+program);
-
-
-    //qDebug() << args;
-    //qDebug() << program;
-
 }
 
-void genericHelper::writeTwitcherOBSConfig(QString streamkey){
-
-
-
-
+void genericHelper::writeTwitcherOBSConfig(QString streamkey)
+{
     QFile profilefile(QString(::getenv("APPDATA")) + QDir::separator() + "OBS" + QDir::separator() + "profiles" + QDir::separator() + genericHelper::getAppName()+".ini");
     if (!profilefile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
     return;
@@ -612,11 +408,10 @@ void genericHelper::writeTwitcherOBSConfig(QString streamkey){
     out.flush();
 
     profilefile.close();
-
-
 }
 
-void genericHelper::writeTwitcherOBSScenesConfig(){
+void genericHelper::writeTwitcherOBSScenesConfig()
+{
 
     qDebug() << "writeTwitcherOBSScenesConfig";
 
@@ -765,16 +560,10 @@ void genericHelper::writeTwitcherOBSScenesConfig(){
 
 
     scenefile.close();
-
-
-
 }
 
-
-
-
-int genericHelper::executeAddonHexchat(QStringList channelsToJoin){
-
+int genericHelper::executeAddonHexchat(QStringList channelsToJoin)
+{
     QString addonHexchatBin = "";
 
     addonHexchatBin = genericHelper::getHexChatPath();
@@ -854,12 +643,12 @@ int genericHelper::executeAddonHexchat(QStringList channelsToJoin){
     }
 }
 
-bool genericHelper::openLogWithNotepad() {
+bool genericHelper::openLogWithNotepad()
+{
+    QProcess *notepad = new QProcess(qApp);
+    notepad->start("notepad.exe", QStringList() << genericHelper::getAppDir() + QDir::separator() + genericHelper::getAppName()+".log");
 
-  QProcess *notepad = new QProcess(qApp);
-  notepad->start("notepad.exe", QStringList() << genericHelper::getAppDir() + QDir::separator() + genericHelper::getAppName()+".log");
-
-  return true;
+    return true;
 }
 
 QString genericHelper::getLogFile()
@@ -867,29 +656,25 @@ QString genericHelper::getLogFile()
     return genericHelper::getAppDir() + QDir::separator() + genericHelper::getAppName()+".log";
 }
 
-void genericHelper::setErrorTimestamp() {
-
-
+void genericHelper::setErrorTimestamp()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("errorTimestamp",  QDateTime::currentMSecsSinceEpoch());
     settings.sync();
 }
 
-bool genericHelper::getEnoughTimeSinceLastErrorElapsed() {
-
-
+bool genericHelper::getEnoughTimeSinceLastErrorElapsed()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _errortime = "";
 
     if (settings.value("errorTimestamp", "").toString().length() > 1) {
         _errortime = settings.value("errorTimestamp", "").toString();
-
     }
 
    if (QDateTime::currentMSecsSinceEpoch() - _errortime.toDouble() >= 30000)
    {
-
        genericHelper::log("enough time (30s) elapsed since last errors, reseted error count.");
        settings.setValue("errorTimestamp",  0);
        settings.sync();
@@ -897,116 +682,50 @@ bool genericHelper::getEnoughTimeSinceLastErrorElapsed() {
    } else {
        return false;
    }
-
-
-
-
 }
 
-
-
-
-int genericHelper::getStreamHeight(){
-
+int genericHelper::getStreamHeight()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QString _viewerstreamheight = "";
-
-    if (settings.value("viewerstreamheight", "").toString().length() > 1) {
-        _viewerstreamheight = settings.value("viewerstreamheight", "").toString();
-
-    }
-
-    return _viewerstreamheight.toInt();
-
-
+    return settings.value("viewerstreamheight", 10).toInt();
 }
 
-int genericHelper::getStreamWidth(){
-
+int genericHelper::getStreamWidth()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QString _viewerstreamwidth = "";
-
-    if (settings.value("viewerstreamwidth", "").toString().length() > 1) {
-        _viewerstreamwidth = settings.value("viewerstreamwidth", "").toString();
-
-    }
-
-    return _viewerstreamwidth.toInt();
-
-
+    return settings.value("viewerstreamwidth", 10).toInt();
 }
 
-int genericHelper::getSelectedScreen(){
-
+int genericHelper::getSelectedScreen()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QString _viewerselectedscreen = "";
-
-    if (settings.value("viewerselectedscreen", "").toString().length() > 0) {
-        _viewerselectedscreen = settings.value("viewerselectedscreen", "").toString();
-
-    }
-
-    return _viewerselectedscreen.toInt();
-
-
+    return settings.value("viewerselectedscreen", 0).toInt();
 }
 
-
-
-int genericHelper::getConcurrentStreams(){
-
+int genericHelper::getConcurrentStreams()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QString _viewerconcurrentstreams = "";
-
-    if (settings.value("viewerconcurrentstreams", "").toString().length() > 0) {
-        _viewerconcurrentstreams = settings.value("viewerconcurrentstreams", "").toString();
-
-    }
-
-    return _viewerconcurrentstreams.toInt();
-
-
+    return settings.value("viewerconcurrentstreams", 0).toInt();
 }
 
-void genericHelper::setConcurrentStreams(int concurrentstreams){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("viewerconcurrentstreams", QString::number(concurrentstreams));
-         settings.sync();
-
-
+void genericHelper::setConcurrentStreams(int concurrentstreams)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("viewerconcurrentstreams", QString::number(concurrentstreams));
+    settings.sync();
 }
 
-
-
-
-void genericHelper::setSelectedScreen(int selectedScreen){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("viewerselectedscreen", QString::number(selectedScreen));
-         settings.sync();
-
-
+void genericHelper::setSelectedScreen(int selectedScreen)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("viewerselectedscreen", QString::number(selectedScreen));
+    settings.sync();
 }
 
 int genericHelper::getSelectedTab()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QString _selectedtab = "";
-
-    if (settings.value("selectedtab", "").toString().length() > 0) {
-        _selectedtab = settings.value("selectedtab", "").toString();
-
-    }
-
-    return _selectedtab.toInt();
+    return settings.value("selectedtab", 0).toInt();
 }
 
 void genericHelper::setSelectedTab(int tab)
@@ -1014,27 +733,20 @@ void genericHelper::setSelectedTab(int tab)
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
     settings.setValue("selectedtab", QString::number(tab));
     settings.sync();
-
 }
 
-void genericHelper::setStreamWidth(int streamWidth){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("viewerstreamwidth", QString::number(streamWidth));
-         settings.sync();
-
-
+void genericHelper::setStreamWidth(int streamWidth)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("viewerstreamwidth", QString::number(streamWidth));
+    settings.sync();
 }
 
-void genericHelper::setPrimaryScreenWidth(int screenwidth){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("viewerprimaryscreenwidth", QString::number(screenwidth));
-         settings.sync();
-
-
+void genericHelper::setPrimaryScreenWidth(int screenwidth)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("viewerprimaryscreenwidth", QString::number(screenwidth));
+    settings.sync();
 }
 
 bool genericHelper::setPosition(QString posname, QString geo)
@@ -1057,7 +769,6 @@ bool genericHelper::deletePosition(QString posname)
 
 QString genericHelper::getPosition(QString posname)
 {
-
     if (posname == "<default>") {
         return "10,10,500,500";
     }
@@ -1091,94 +802,49 @@ QHash<QString, QString> genericHelper::getPositions()
     return hash;
 }
 
-
-
-int genericHelper::getPrimaryScreenWidth(){
-
+int genericHelper::getPrimaryScreenWidth()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QString _viewerprimaryscreenwidth = "";
-
-    if (settings.value("viewerprimaryscreenwidth", "").toString().length() > 1) {
-        _viewerprimaryscreenwidth = settings.value("viewerprimaryscreenwidth", "").toString();
-
-    }
-
-    return _viewerprimaryscreenwidth.toInt();
-
-
+    return settings.value("viewerprimaryscreenwidth", 10).toInt();
 }
 
-
-
-void genericHelper::setPlayerQuality(QString quality){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("viewerplayerquality", quality);
-         settings.sync();
-
-
-}
-
-QString genericHelper::getPlayerQuality(){
-
+void genericHelper::setPlayerQuality(QString quality)
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QString _viewerplayerquality = "";
-
-    if (settings.value("viewerplayerquality", "").toString().length() > 1) {
-        _viewerplayerquality = settings.value("viewerplayerquality", "").toString();
-
-    }
-
-    return _viewerplayerquality;
-
-
+    settings.setValue("viewerplayerquality", quality);
+    settings.sync();
 }
 
-
-void genericHelper::setPlayerCacheSize(int cachesize){
-
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("viewerplayercachesize", QString::number(cachesize));
-         settings.sync();
-
-
-}
-
-int genericHelper::getPlayerCacheSize(){
-
+QString genericHelper::getPlayerQuality()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QString _viewerplayercachesize = "";
-
-    if (settings.value("viewerplayercachesize", "").toString().length() > 1) {
-        _viewerplayercachesize = settings.value("viewerplayercachesize", "").toString();
-
-    }
-
-    return _viewerplayercachesize.toInt();
-
-
+    return settings.value("viewerplayerquality", "").toString();
 }
 
 
+void genericHelper::setPlayerCacheSize(int cachesize)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("viewerplayercachesize", QString::number(cachesize));
+    settings.sync();
+}
 
-void genericHelper::setStreamHeight(int streamHeight){
+int genericHelper::getPlayerCacheSize()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    return settings.value("viewerplayercachesize", 0).toInt();
+}
 
-
-         QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-         settings.setValue("viewerstreamheight", QString::number(streamHeight));
-         settings.sync();
-
-
+void genericHelper::setStreamHeight(int streamHeight)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("viewerstreamheight", QString::number(streamHeight));
+    settings.sync();
 }
 
 
-QString genericHelper::getOAuthAccessToken(){
-
+QString genericHelper::getOAuthAccessToken()
+{
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
 
     QString _oauthtoken = "";
@@ -1189,12 +855,10 @@ QString genericHelper::getOAuthAccessToken(){
     }
 
     return _oauthtoken;
-
-
 }
 
-QString genericHelper::getAppDir(){
-
+QString genericHelper::getAppDir()
+{
     QString _appDir = QDir::homePath() + QDir::separator () + genericHelper::getAppName();
 
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
@@ -1212,8 +876,6 @@ QString genericHelper::getAppDir(){
         settings.sync();
     }
 
-
-
     if (QDir(_appDir).exists() == true) {
 
     } else {
@@ -1228,7 +890,6 @@ QString genericHelper::getAppDir(){
 
         return QDir::tempPath();
     }
-
 }
 
 QString genericHelper::getAppName()
@@ -1236,7 +897,8 @@ QString genericHelper::getAppName()
      return SETTINGS_PRODUCT;
 }
 
-void genericHelper::log(QString logstring) {
+void genericHelper::log(QString logstring)
+{
     QFile file(genericHelper::getAppDir() + QDir::separator() + genericHelper::getAppName()+".log");
     if (!file.open(QIODevice::Append | QIODevice::WriteOnly | QIODevice::Text))
     return;
@@ -1248,12 +910,12 @@ void genericHelper::log(QString logstring) {
     file.close();
 }
 
-void genericHelper::deleteLog() {
+void genericHelper::deleteLog()
+{
     QFile file(genericHelper::getAppDir() + QDir::separator() + genericHelper::getAppName()+".log");
     file.remove();
     file.close();
 }
-
 
 void genericHelper::setVlcPath(QString path)
 {
@@ -1320,23 +982,13 @@ void genericHelper::setFitAllContentToWindow(const bool fit)
 bool genericHelper::getFitAllContentToWindow()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    bool _fit;
-
-    _fit = settings.value("fit_all_content_to_window", false).toBool();
-
-    return _fit;
+    return settings.value("fit_all_content_to_window", false).toBool();
 }
 
 QByteArray genericHelper::getFollowerTableViewColumnWidth()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QByteArray _columnwidth;
-
-    _columnwidth = settings.value("follower_tableview_column_width").toByteArray();
-
-    return _columnwidth;
+    return settings.value("follower_tableview_column_width").toByteArray();
 }
 
 void genericHelper::setFollowerTableViewColumnWidth(const QByteArray _columnwidth)
@@ -1349,12 +1001,7 @@ void genericHelper::setFollowerTableViewColumnWidth(const QByteArray _columnwidt
 QByteArray genericHelper::getBookmarksTableViewColumnWidth()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    QByteArray _columnwidth;
-
-    _columnwidth = settings.value("bookmarks_tableview_column_width").toByteArray();
-
-    return _columnwidth;
+    return settings.value("bookmarks_tableview_column_width").toByteArray();
 }
 
 void genericHelper::setBookmarksTableViewColumnWidth(const QByteArray _columnwidth)
@@ -1423,10 +1070,7 @@ void genericHelper::setBookmarksTableViewColumnWidthManual(const QMap<int, int> 
 int genericHelper::getFollowerSortCol()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    int _col;
-    _col = settings.value("follower_sort_column", "0").toInt();
-    return _col;
+    return settings.value("follower_sort_column", "0").toInt();
 }
 
 Qt::SortOrder genericHelper::getFollowerSortOrder()
@@ -1438,14 +1082,10 @@ Qt::SortOrder genericHelper::getFollowerSortOrder()
     return _order;
 }
 
-
 int genericHelper::getBookmarksSortCol()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
-    int _col;
-    _col = settings.value("bookmarks_sort_column", "0").toInt();
-    return _col;
+    return settings.value("bookmarks_sort_column", "0").toInt();
 }
 
 Qt::SortOrder genericHelper::getBookmarksSortOrder()
@@ -1456,7 +1096,6 @@ Qt::SortOrder genericHelper::getBookmarksSortOrder()
     _order = Qt::SortOrder(settings.value("bookmarks_sort_order", "0").toInt());
     return _order;
 }
-
 
 void genericHelper::setFollowerSortCol(const int col)
 {
@@ -1489,14 +1128,12 @@ void genericHelper::setBookmarksSortOrder(const Qt::SortOrder order)
 bool genericHelper::getInternalVLC()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
     return settings.value("internal_vlc", "0").toBool();
 }
 
 void genericHelper::setInternalVLC(const bool internalvlc)
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-
     settings.setValue("internal_vlc",  internalvlc);
     settings.sync();
 }

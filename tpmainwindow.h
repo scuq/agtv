@@ -1,42 +1,41 @@
 #ifndef TPMAINWINDOW_H
 #define TPMAINWINDOW_H
 
-#include <QMainWindow>
-#include <QDesktopWidget>
-#include "twitchapi.h"
 #include "generichelper.h"
+
+#include "dialogoauthsetup.h"
+#include "dialogoptions.h"
+#include "dialogpositioner.h"
+#include "dialoglaunch.h"
+#include "dialogshowlogfile.h"
+#ifdef WINTERNALVLC
+#include "dialogvideoplayer.h"
+#endif
+
+#include "agtvdefaultitemdelegate.h"
+#include "advqsortfilterproxymodel.h"
+#include "filedownloader.h"
+#include "imageloader.h"
+#include "processlauncher.h"
+#include "videoplayer.h"
+#include "twitchapi.h"
+#include "updatecheck.h"
+
+#include <QClipboard>
+#include <QCloseEvent>
+#include <QComboBox>
+#include <QDesktopWidget>
+#include <QInputDialog>
+#include <QMainWindow>
+#include <QStandardItemModel>
+#include <QSystemTrayIcon>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonValue>
-#include <QComboBox>
-#include <QTreeWidgetItem>
 #include <QTableView>
-#include "dialogoauthsetup.h"
-#include "dialogpositioner.h"
-#include "dialoglaunch.h"
-#include "processlauncher.h"
-#include "dialogoptions.h"
-#include <QSystemTrayIcon>
-#include <QInputDialog>
-#include <QCloseEvent>
+#include <QTreeWidgetItem>
 #include <QThread>
-#include <QClipboard>
-//#include <streamtablemodel.h>
-#include <QStandardItemModel>
-#include "advqsortfilterproxymodel.h"
-#include "imageloader.h"
-#include "updatecheck.h"
-#include "dialogshowlogfile.h"
-#include "filedownloader.h"
-#include "agtvdefaultitemdelegate.h"
-
-#include "videoplayer.h"
-
-
-#ifdef WINTERNALVLC
-#include "dialogvideoplayer.h"
-#endif
 
 namespace Ui {
 class tpMainWindow;
