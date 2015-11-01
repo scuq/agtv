@@ -1137,3 +1137,34 @@ void genericHelper::setInternalVLC(const bool internalvlc)
     settings.setValue("internal_vlc",  internalvlc);
     settings.sync();
 }
+
+QString genericHelper::extractStreamNameFromURL(QString _url)
+{
+    QRegExp re("\\/([^\\/]*)$");
+    _url.contains(re);
+    return re.cap(1);
+}
+
+QString genericHelper::streamURLParser(QString _stream)
+{
+    QString streamname;
+
+    // Detect if link
+    bool isLink = false;
+    if(_stream.contains("http://www.twitch.tv", Qt::CaseInsensitive) ||
+       _stream.contains("https://www.twitch.tv", Qt::CaseInsensitive) ) {
+        isLink = true;
+    }
+
+    if(isLink) {
+        streamname = genericHelper::extractStreamNameFromURL(_stream);
+    } else {
+        // Assume it is the name already
+        streamname = _stream;
+    }
+
+    streamname = streamname.toLower().trimmed();
+
+    qDebug() << streamname;
+    return streamname;
+}

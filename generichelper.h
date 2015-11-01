@@ -150,6 +150,9 @@ public:
     static void setBookmarksSortCol(const int col);
     static void setBookmarksSortOrder(const Qt::SortOrder order);
 
+    static QString extractStreamNameFromURL(QString _url);
+    static QString streamURLParser(QString _stream);
+
 signals:
 
 public slots:
