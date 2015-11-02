@@ -23,8 +23,11 @@
    </item>
    <item row="0" column="0" colspan="2">
     <widget class="QToolBox" name="toolBox">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page">
       <property name="geometry">
@@ -41,6 +44,9 @@
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
         <widget class="QTableView" name="tableViewTopGames">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>

@@ -173,3 +173,12 @@ void DialogGameBrowser::updateFromJsonResponseStreamsForGame(const QJsonDocument
         }
     }
 }
+
+void DialogGameBrowser::on_tableViewGame_activated(const QModelIndex &index)
+{
+    QString _stream;
+
+    _stream = this->stproxymodelGame->data(index.sibling(index.row(),0),0).toString();
+
+    emit startStream( _stream );
+}

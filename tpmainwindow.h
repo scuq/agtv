@@ -154,6 +154,8 @@ private slots:
 
     void on_actionShow_Game_Browser_triggered();
 
+    void startFromGBrowser(const QString stream);
+
 private:
     Ui::tpMainWindow *ui;
 

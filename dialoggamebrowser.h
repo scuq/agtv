@@ -47,6 +47,11 @@ private slots:
 
     void onTableViewGamesScrolled(int);
 
+    void on_tableViewGame_activated(const QModelIndex &index);
+
+signals:
+    void startStream( const QString streamer );
+
 private:
     Ui::DialogGameBrowser *ui;
 

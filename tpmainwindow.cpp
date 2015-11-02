@@ -174,6 +174,22 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     clipboard = QApplication::clipboard();
 
     diaTopGameBrowser = new DialogGameBrowser;
+
+    QObject::connect(diaTopGameBrowser, SIGNAL(startStream(const QString)), this, SLOT(startFromGBrowser(const QString)));
+}
+
+void tpMainWindow::startFromGBrowser(const QString stream)
+{
+    QString _streamer;
+
+   _streamer = stream;
+
+    tw->getChannelAccessToken(_streamer);
+
+    prepareDiaLauncher();
+
+    emit setStreamTitle( _streamer, "" );
+    emit setStreamLogoUrl(channelLogoUrl[_streamer]);
 }
 
 void tpMainWindow::saveSortModes()
