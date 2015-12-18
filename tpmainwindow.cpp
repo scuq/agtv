@@ -1008,6 +1008,22 @@ void tpMainWindow::updateFromJsonResponseBookmark(const QJsonDocument &jsonRespo
                    }
                }
            }
+       } else {
+           // Stream is offline
+           QString streamurl = jsonObject.value("_links").toObject()["self"].toString();
+           QString streamname = genericHelper::extractStreamNameFromURL(streamurl);
+
+           for(int i = 0; i<this->stmodelbookmarks->rowCount(); ++i)
+           {
+               QModelIndex streamer_index = this->stmodelbookmarks->index(i,0);
+               QModelIndex online_index = this->stmodelbookmarks->index(i,1);
+               QModelIndex viewers_index = this->stmodelbookmarks->index(i,2);
+
+               if ( this->stmodelbookmarks->itemData(streamer_index)[0].toString() == streamname )  {
+                   this->stmodelbookmarks->setData(online_index, "offline");
+                   this->stmodelbookmarks->setData(viewers_index, "");
+               }
+           }
        }
    }
 
@@ -1036,12 +1052,15 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
 
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
-    bool isPlaylist, wasPlaylist=false;
-    bool isHosting;
+    bool isPlaylist = false;
+    bool wasPlaylist = false;
+    bool isHosting = false;
+
+    bool updateok = false;
 
     int stateTrans = false;
 
-   for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
+    for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
        onlinename = "";
        if (iter.key() == "stream")
        {
@@ -1058,7 +1077,6 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
               wasPlaylist = genericHelper::isPlaylist(this->stproxymodel->getColData(0,onlinename.toLower(),1).toString());
               isPlaylist = iter.value().toObject()["is_playlist"].toBool();
               isHosting = genericHelper::isHosting(this->stproxymodel->getColData(0,onlinename.toLower(),1).toString());
-
 
               bool updateok = true;
               if (! isPlaylist) {
@@ -1084,9 +1102,16 @@ void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonRespons
                     }
                   }
               }
+          } else {
+              // Stream is offline
+              QString streamurl = jsonObject.value("_links").toObject()["self"].toString();
+              QString streamname = genericHelper::extractStreamNameFromURL(streamurl);
 
+              if(! bunchUpdateStreamDataName(streamname, "offline", "") ) {
+                  genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating model");
+                  updateok = false;
+              }
           }
-
        }
    }
 }

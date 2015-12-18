@@ -276,6 +276,8 @@ winternalvlc {
     debug:   LIBS += -L$${VLC_QT_PATH}/lib -lVLCQtCored -lVLCQtWidgetsd
     INCLUDEPATH += $${VLC_QT_PATH}/include
 
+    message("INCLUDEPATH = $${INCLUDEPATH}}")
+
     SOURCES += dialogvideoplayer.cpp
 
     HEADERS  += dialogvideoplayer.h

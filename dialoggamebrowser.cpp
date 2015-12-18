@@ -182,3 +182,8 @@ void DialogGameBrowser::on_tableViewGame_activated(const QModelIndex &index)
 
     emit startStream( _stream );
 }
+
+void DialogGameBrowser::on_lineEditFilterGames_textChanged(const QString &arg1)
+{
+    stproxymodelTopGames->setFilterFixedString(arg1);
+}

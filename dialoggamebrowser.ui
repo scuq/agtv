@@ -42,7 +42,17 @@
        <string>Games</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="lineEditFilterGames"/>
+       </item>
        <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Filter Game</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
         <widget class="QTableView" name="tableViewTopGames">
          <property name="styleSheet">
           <string notr="true"/>

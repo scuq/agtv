@@ -49,6 +49,8 @@ private slots:
 
     void on_tableViewGame_activated(const QModelIndex &index);
 
+    void on_lineEditFilterGames_textChanged(const QString &arg1);
+
 signals:
     void startStream( const QString streamer );
 
