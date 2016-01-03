@@ -12,6 +12,8 @@ CONFIG += c++11
 DEVELOPER = $$(USERNAME)
 WINDEPLOYMENT = no
 
+QMAKE_CXXFLAGS += -Wall
+
 # If you want to enable the internal VLC player, uncomment
 # the next config statement and check that VLC_QT_PATH is
 # correctly pointing to VLC-QT appropriate for the compiler
@@ -33,14 +35,12 @@ WINDEPLOYMENT = no
 #
 CONFIG += winternalvlc
 
-
-
 # VLC_QT_PATH = "E:\Dropbox\Qt\vlc-qt\build"
 
 QMAKE_TARGET_COMPANY = "AbyleDotOrg"
 QMAKE_TARGET_PRODUCT = "agtv"
 QMAKE_TARGET_DESCRIPTION = "agtv"
-QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2015 AbyleDotOrg"
+QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2016 AbyleDotOrg"
 
 DEFINES += \
 APP_COMPANY=\"\\\"$$QMAKE_TARGET_COMPANY\\\"\" \
@@ -69,19 +69,12 @@ win32 {
         message("setting paths and settings for $${DEVELOPER}}")
         SSL_DIR = "c:/coding/openssl-win32/"
         BUILDBASE = c:/coding/build/agtv/
-
-
     }
     equals(DEVELOPER, "hps") {
         message("setting paths and settings for $${DEVELOPER}}")
         VLC_QT_PATH = "E:\Dropbox\Qt\VLC-Qt_0.90.0_win32_mingw"
-
-
     }
 }
-
-
-
 
 QT       += core gui network multimedia multimediawidgets
 
@@ -94,8 +87,6 @@ VERSION_MAJOR = 0
 VERSION_MINOR = 0
 VERSION_PATCH = 0
 VERSION_BUILD = 0
-
-
 
 VERSION_MAJOR_FILE = $$cat($$PWD\MAJOR.ver)
 VERSION_MINOR_FILE = $$cat($$PWD\MINOR.ver)
@@ -120,11 +111,6 @@ greaterThan(VERSION_BUILD_FILE, 0) {
         VERSION_BUILD = $$format_number($${VERSION_BUILD_FILE}, ibase=10 width=4 zeropad)
 }
 
-
-
-
-
-
 DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
        "VERSION_MINOR=$$VERSION_MINOR"\
        "VERSION_PATCH=$$VERSION_PATCH"\
@@ -137,16 +123,13 @@ VERSION = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}.$${VERSION_BUILD
 DEFINES += VERSION=\\\"$$VERSION\\\"
 DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
 
-
 win32 {
     LIBS += -L"$${SSL_DIR}lib" -llibeay32
     INCLUDEPATH += "$${SSL_DIR}include"
 
     RC_ICONS=agtv.ico
 
-
     #LIBS+= -luser32
-
 
     release: DESTDIR = $${BUILDBASE}release
     release: DESTDIR_RELEASE = $${BUILDBASE}release
@@ -162,12 +145,10 @@ win32 {
     release: SSL_DIR ~= s,/,\\,g
     debug:   DESTDIR = $${BUILDBASE}debug
 
-
     OBJECTS_DIR = $$BUILDBASE/junk/.obj
     MOC_DIR = $$BUILDBASE/junk/.moc
     RCC_DIR = $$BUILDBASE/junk/.qrc
     UI_DIR = $$BUILDBASE/junk/.ui
-
 
     release{
         equals(DEVELOPER, "scuq") {
@@ -200,8 +181,6 @@ win32 {
                 QMAKE_POST_LINK += $$quote(cmd /c xcopy /I /Y $${QT_INSTALL_PLUGINS_WIN}\\platforms $${DESTDIR_RELEASE}\\platforms$$escape_expand(\\n\\t))
                 QMAKE_POST_LINK += $$quote(cmd /c del /Q $${DESTDIR_RELEASE}\\platforms\\*d.dll$$escape_expand(\\n\\t))
 
-
-
                 QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\ssleay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
                 QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libeay32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
                 QMAKE_POST_LINK += $$quote(cmd /c copy $${SSL_DIR}\\libssl32.dll $${DESTDIR_RELEASE}$$escape_expand(\\n\\t))
@@ -211,56 +190,62 @@ win32 {
     }
 }
 
-SOURCES += main.cpp\
-        tpmainwindow.cpp \
-    generichelper.cpp \
-    processlauncher.cpp \
-    twitchapi.cpp \
-    dialogoauthsetup.cpp \
-    dialogpositioner.cpp \
-    dialoglaunch.cpp \
-    dialogoptions.cpp \
-    advqsortfilterproxymodel.cpp \
-    imageloader.cpp \
-    updatecheck.cpp \
-    dialogshowlogfile.cpp \
-    filedownloader.cpp \
-    agtvdefaultitemdelegate.cpp \
-    videoplayer.cpp \
-    dialoggamebrowser.cpp \
-    htmldelegate.cpp \
-    advqsortfilterproxylistmodel.cpp
+SOURCES +=  main.cpp\
+            tpmainwindow.cpp \
+            generichelper.cpp \
+            processlauncher.cpp \
+            twitchapi.cpp \
+            dialogoauthsetup.cpp \
+            dialogpositioner.cpp \
+            dialoglaunch.cpp \
+            dialogoptions.cpp \
+            advqsortfilterproxymodel.cpp \
+            imageloader.cpp \
+            updatecheck.cpp \
+            dialogshowlogfile.cpp \
+            filedownloader.cpp \
+            agtvdefaultitemdelegate.cpp \
+            videoplayer.cpp \
+            dialoggamebrowser.cpp \
+            htmldelegate.cpp \
+            advqsortfilterproxylistmodel.cpp \
+            twitchobject.cpp \
+            logger.cpp \
+            twitchchannel.cpp
 
 HEADERS  += tpmainwindow.h \
-    generichelper.h \
-    processlauncher.h \
-    twitchapi.h \
-    dialogoauthsetup.h \
-    dialogpositioner.h \
-    dialoglaunch.h \
-    dialogoptions.h \
-    twitchclientid.h \
-    advqsortfilterproxymodel.h \
-    imageloader.h \
-    updatecheck.h \
-    twitchclientid.h \
-    dialogshowlogfile.h \
-    filedownloader.h \
-    agtvdefaultitemdelegate.h \
-    videoplayer.h \
-    dialoggamebrowser.h \
-    htmldelegate.h \
-    advqsortfilterproxylistmodel.h
+            generichelper.h \
+            processlauncher.h \
+            twitchapi.h \
+            dialogoauthsetup.h \
+            dialogpositioner.h \
+            dialoglaunch.h \
+            dialogoptions.h \
+            twitchclientid.h \
+            advqsortfilterproxymodel.h \
+            imageloader.h \
+            updatecheck.h \
+            twitchclientid.h \
+            dialogshowlogfile.h \
+            filedownloader.h \
+            agtvdefaultitemdelegate.h \
+            videoplayer.h \
+            dialoggamebrowser.h \
+            htmldelegate.h \
+            advqsortfilterproxylistmodel.h \
+            twitchobject.h \
+            logger.h \
+            twitchchannel.h
 
 FORMS    += tpmainwindow.ui \
-    dialogoauthsetup.ui \
-    dialogpositioner.ui \
-    dialoglaunch.ui \
-    dialogoptions.ui \
-    dialogshowlogfile.ui \
-    dialogqmediaplayer.ui \
-    videoplayer.ui \
-    dialoggamebrowser.ui
+            dialogoauthsetup.ui \
+            dialogpositioner.ui \
+            dialoglaunch.ui \
+            dialogoptions.ui \
+            dialogshowlogfile.ui \
+            dialogqmediaplayer.ui \
+            videoplayer.ui \
+            dialoggamebrowser.ui
 
 RESOURCES += \
     agtv.qrc

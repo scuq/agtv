@@ -21,6 +21,7 @@
 #include "videoplayer.h"
 #include "twitchapi.h"
 #include "updatecheck.h"
+#include "twitchchannel.h"
 
 #include <QClipboard>
 #include <QCloseEvent>
@@ -58,9 +59,6 @@ private slots:
 
     void updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer);
     void updateFromJsonResponseBookmark(const QJsonDocument &jsonResponseBuffer);
-    void updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer);
-    void updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer);
-    void updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer);
 
     void updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer);
     void updateFromJsonResponseUnfollow(const QJsonDocument &jsonResponseBuffer);
@@ -222,6 +220,11 @@ private:
     bool bunchUpdateStreamDataName(const QString &name, const QString &status,
                                    const QString &viewers);
 
+
+    bool bunchUpdateStreamDataName(const QString &name, const QString &onlineStatus,
+                                                 const QString &viewers, const QString &game,
+                                                 const QString &status);
+
     static void fitTableViewToContent(QTableView *tableView);
 
     void saveSortModes();
@@ -265,8 +268,14 @@ private:
 
     QMap<QString, QString> channelLogoUrl;
 
+    TwitchChannel *channel1;
+
+    QMap<QString, TwitchChannel*> twitchChannels;
+
 public slots:
     void executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
+
+    void twitchChannelDataChanged(const bool onlineStatusChanged);
 
 #ifdef WINTERNALVLC
     void executeInternalPlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");

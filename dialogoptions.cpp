@@ -61,9 +61,6 @@ void DialogOptions::refreshUiData()
 #endif
 
     restoreGeometry(genericHelper::getGeometry("options").toByteArray());
-
-    qDebug() << genericHelper::getInternalVLC();
-
 }
 
 void DialogOptions::on_pushButtonOk_clicked()

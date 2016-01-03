@@ -33,13 +33,13 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     version = VERSION;
 
 
-    updateInterval = 12000;
+    this->updateInterval = 12000;
 
     AgtvDefItemDelegate =  new AgtvDefaultItemDelegate();
 
     // ignore update intervals <9 seconds
-    if (genericHelper::getUpdateInterval() >= 9) {
-        updateInterval = genericHelper::getUpdateInterval() * 1000;
+    if (genericHelper::getUpdateInterval() >= 5) {
+        this->updateInterval = genericHelper::getUpdateInterval() * 1000;
     }
 
     QStringList horzHeaders = { "Name", "Status", "#V",
@@ -77,9 +77,6 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(tw, SIGNAL(twitchReadyChannelAccessToken(const QJsonDocument)), this, SLOT(onChannelAccessTokenReady(const QJsonDocument)));
     QObject::connect(tw, SIGNAL(twitchReadyFollows(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollows(const QJsonDocument)));
     QObject::connect(tw, SIGNAL(twitchReadyBookmark(const QJsonDocument)), this, SLOT(updateFromJsonResponseBookmark(const QJsonDocument)));
-    QObject::connect(tw, SIGNAL(twitchReadyStream(const QJsonDocument)), this, SLOT(updateFromJsonResponseStream(const QJsonDocument)));
-    QObject::connect(tw, SIGNAL(twitchReadyChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseChannel(const QJsonDocument)));
-    QObject::connect(tw, SIGNAL(twitchReadyHost(const QJsonDocument)), this, SLOT(updateFromJsonResponseHost(const QJsonDocument)));
 
     QObject::connect(tw, SIGNAL(twitchReadyFollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollow(const QJsonDocument)));
     QObject::connect(tw, SIGNAL(twitchReadyUnfollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseUnfollow(const QJsonDocument)));
@@ -176,6 +173,65 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     diaTopGameBrowser = new DialogGameBrowser;
 
     QObject::connect(diaTopGameBrowser, SIGNAL(startStream(const QString)), this, SLOT(startFromGBrowser(const QString)));
+}
+
+void tpMainWindow::twitchChannelDataChanged(const bool onlineStatusChanged)
+{
+    TwitchChannel *channel = qobject_cast<TwitchChannel *>(QObject::sender());
+    if(channel) {
+        QString onlineStatus = "";
+        switch (channel->getChannelOnlineStatus()) {
+            case TwitchChannel::ChannelOnlineStatus::online:
+                onlineStatus = "online";
+                break;
+            case TwitchChannel::ChannelOnlineStatus::offline:
+                onlineStatus = "offline";
+                break;
+            case TwitchChannel::ChannelOnlineStatus::playlist:
+                onlineStatus = "playlist";
+                break;
+            case TwitchChannel::ChannelOnlineStatus::hosting:
+                onlineStatus = "hosting";
+                break;
+            default:
+                onlineStatus = "unknown";
+        }
+
+        QString viewersString = QString::number(channel->getChannelViewers(), 'f', 0);
+
+        if(! bunchUpdateStreamDataName(channel->getChannelName(), onlineStatus, viewersString,
+                                       channel->getChannelGame(), channel->getChannelTitle()) ) {
+            genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating model");
+        }
+
+        if(onlineStatusChanged) {
+            emit( on_notifyByTray(channel->getChannelName() + " is now " + onlineStatus, channel->getChannelTitle()) );
+        }
+    }
+}
+
+bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString &onlineStatus,
+                                             const QString &viewers, const QString &game,
+                                             const QString &status)
+{
+    bool ret=true;
+    if(! stproxymodel->updateCol(0, name.toLower(), 1, onlineStatus) &&
+         stproxymodelbookmarks->updateCol(0, name.toLower(), 1, onlineStatus) )
+        ret=false;
+    if(! stproxymodel->updateCol(0, name.toLower(), 2, viewers) &&
+         stproxymodelbookmarks->updateCol(0, name.toLower(), 2, viewers) )
+        ret=false;
+    if(! stproxymodel->updateCol(0, name.toLower(), 3, game) &&
+         stproxymodelbookmarks->updateCol(0, name.toLower(), 3, game) )
+        ret=false;
+    if(! stproxymodel->updateCol(0, name.toLower(), 4, status) &&
+         stproxymodelbookmarks->updateCol(0, name.toLower(), 4, status) )
+        ret=false;
+
+    fitTableViewToContent(this->ui->tableView);
+    fitTableViewToContent(this->ui->tableViewBookmarks);
+
+    return ret;
 }
 
 void tpMainWindow::startFromGBrowser(const QString stream)
@@ -937,8 +993,16 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
             {
                 QJsonValue _val = iter.value().toArray().at(i);
 
+                QString channelName = _val.toObject()["channel"].toObject()["name"].toString();
+
                 tw->getStream(_val.toObject()["channel"].toObject()["name"].toString());
                 tw->getChannel(_val.toObject()["channel"].toObject()["name"].toString());
+
+                if(!this->twitchChannels.contains(channelName)) {
+                    TwitchChannel *twitchChannel = new TwitchChannel(this, genericHelper::getOAuthAccessToken(), channelName, this->updateInterval);
+                    this->twitchChannels[channelName] = twitchChannel;
+                    QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
+                }
 
                 QString channelname = _val.toObject()["channel"].toObject()["name"].toString();
 
@@ -1045,137 +1109,7 @@ bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString 
     return ret;
 }
 
-void tpMainWindow::updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer)
-{
 
-    QString onlinename;
-
-    QJsonObject jsonObject = jsonResponseBuffer.object();
-
-    bool isPlaylist = false;
-    bool wasPlaylist = false;
-    bool isHosting = false;
-
-    bool updateok = false;
-
-    int stateTrans = false;
-
-    for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
-       onlinename = "";
-       if (iter.key() == "stream")
-       {
-          if (iter.value() != QJsonValue::Null)
-          {
-              onlinename = iter.value().toObject()["channel"].toObject()["name"].toString();
-
-              QString viewers = QString::number(iter.value().toObject()["viewers"].toInt(),'f',0);
-
-              if (genericHelper::isOnline(this->stproxymodel->getColData(0,onlinename.toLower(),1).toString()) == false) {
-                stateTrans = true;
-              }
-
-              wasPlaylist = genericHelper::isPlaylist(this->stproxymodel->getColData(0,onlinename.toLower(),1).toString());
-              isPlaylist = iter.value().toObject()["is_playlist"].toBool();
-              isHosting = genericHelper::isHosting(this->stproxymodel->getColData(0,onlinename.toLower(),1).toString());
-
-              bool updateok = true;
-              if (! isPlaylist) {
-                if(! bunchUpdateStreamDataName(onlinename, "online", viewers) ) {
-                    genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating model");
-                    updateok = false;
-                }
-              } else {
-                  if (! isHosting) {
-                      if(! bunchUpdateStreamDataName(onlinename, "playlist", viewers) ) {
-                          genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating model");
-                          updateok = false;
-                      }
-                  }
-              }
-
-              if ((stateTrans == true) && (updateok == true) && (genericHelper::getStreamOnlineNotify() == true)) {
-                  if (! isPlaylist) {
-                    emit (on_notifyByTray(onlinename+" is now online.",iter.value().toObject()["channel"].toObject()["status"].toString()));
-                  } else if ((wasPlaylist != isPlaylist )) {
-                    if (! isHosting) {
-                        emit (on_notifyByTray(onlinename+" is now in playlist mode.",iter.value().toObject()["channel"].toObject()["status"].toString()));
-                    }
-                  }
-              }
-          } else {
-              // Stream is offline
-              QString streamurl = jsonObject.value("_links").toObject()["self"].toString();
-              QString streamname = genericHelper::extractStreamNameFromURL(streamurl);
-
-              if(! bunchUpdateStreamDataName(streamname, "offline", "") ) {
-                  genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating model");
-                  updateok = false;
-              }
-          }
-       }
-   }
-}
-
-void tpMainWindow::updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer)
-{
-    QString channelid;
-
-    QJsonObject jsonObject = jsonResponseBuffer.object();
-
-    bool updateok = stproxymodel->updateCol(0,jsonObject["display_name"].toString().toLower(),3,jsonObject["game"].toString());
-    updateok = stproxymodelbookmarks->updateCol(0,jsonObject["display_name"].toString().toLower(),3,jsonObject["game"].toString());
-
-    if(stproxymodel->getColData(0,jsonObject["display_name"].toString().toLower(),1).toString() != "hosting") {
-        updateok = stproxymodel->updateCol(0,jsonObject["display_name"].toString().toLower(),4,jsonObject["status"].toString());
-    }
-    if(stproxymodelbookmarks->getColData(0,jsonObject["display_name"].toString().toLower(),1) != "hosting") {
-        updateok = stproxymodelbookmarks->updateCol(0,jsonObject["display_name"].toString().toLower(),4,jsonObject["status"].toString());
-    }
-
-    fitTableViewToContent(this->ui->tableView);
-    fitTableViewToContent(this->ui->tableViewBookmarks);
-
-    channelid = QString::number(jsonObject["_id"].toDouble(),'f',0);
-
-    tw->getHost(channelid);
-}
-
-void tpMainWindow::updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer)
-{
-    QJsonObject jsonObject = jsonResponseBuffer.object();
-
-    QString hostlogin;
-    QString targetlogin;
-
-    for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
-        hostlogin = "";
-        targetlogin = "";
-        if ( iter.key() == "hosts" &&
-             iter.value() != QJsonValue::Null &&
-             iter.value().toArray().at(0).toObject().keys().count("target_login") > 0 )
-        {
-            hostlogin = iter.value().toArray().at(0).toObject()["host_login"].toString();
-            targetlogin = iter.value().toArray().at(0).toObject()["target_login"].toString();
-
-            if (genericHelper::isOnline(this->stproxymodel->getColData(0,hostlogin.toLower(),1).toString()) == false) {
-                if(! stproxymodel->updateCol(0,hostlogin.toLower(),1,"hosting") )
-                    genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodel");
-                if(! stproxymodel->updateCol(0,hostlogin.toLower(),4, targetlogin) )
-                    genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodel");
-            }
-
-            if (genericHelper::isOnline(this->stproxymodelbookmarks->getColData(0,hostlogin.toLower(),1).toString()) == false) {
-                if(! stproxymodelbookmarks->updateCol(0,hostlogin.toLower(),1,"hosting") )
-                        genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodelbookmarks for streamer " + hostlogin.toLower());
-                if(! stproxymodelbookmarks->updateCol(0,hostlogin.toLower(),4, targetlogin) )
-                    genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating stproxymodelbookmarks for streamer " + hostlogin.toLower());
-            }
-        }
-    }
-
-    fitTableViewToContent(this->ui->tableView);
-    fitTableViewToContent(this->ui->tableViewBookmarks);
-}
 
 void tpMainWindow::updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer)
 {
@@ -1222,10 +1156,7 @@ void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
 
 void tpMainWindow::on_updateNotify(const QString &latestVersion)
 {
-    qDebug() << "update";
     QString latestVersionNumber = latestVersion;
-
-
 
     QMessageBox::StandardButton reply;
 
@@ -1243,13 +1174,6 @@ void tpMainWindow::on_updateNotify(const QString &latestVersion)
       }
 
 }
-
-
-
-
-
-
-
 
 void tpMainWindow::on_actionPositioner_triggered()
 {
@@ -1326,7 +1250,6 @@ void tpMainWindow::on_actionRefresh_triggered()
     this->loadData();
 }
 
-
 void tpMainWindow::on_actionOptions_triggered()
 {
     if (diaOptions->getDialogShown() == true)
@@ -1347,8 +1270,6 @@ void tpMainWindow::on_actionQuit_triggered()
 {
     this->myQuit();
 }
-
-
 
 void tpMainWindow::on_actionCredits_triggered()
 {
@@ -1511,17 +1432,13 @@ void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint
      if ((this->ui->tableViewBookmarks->selectionModel()->selectedRows().count() > 0) || (this->stmodelbookmarks->rowCount() <= 0)) {
         tableviewbookmarksContextMenu->addAction(delete_bookmark);
         if ((this->stmodelbookmarks->rowCount() > 0)) {
-
             tableviewbookmarksContextMenu->addAction(open_in_hexchat_bookmark);
-
         }
 
         tableviewbookmarksContextMenu->addSeparator();
         tableviewbookmarksContextMenu->addAction(copy_streamurl);
         tableviewbookmarksContextMenu->addSeparator();
         tableviewbookmarksContextMenu->addAction(add_follower_bookmark);
-
-
     }
      tableviewbookmarksContextMenu->popup(this->ui->tableView->viewport()->mapToGlobal(pos));
 }

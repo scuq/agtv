@@ -100,10 +100,8 @@ void TwitchApi::getKrakenChannel()
 
 void TwitchApi::getChannel(QString user)
 {
-
     genericHelper::log("twitch-api getChannel - https://api.twitch.tv/kraken/channels/"+user);
     this->getRequestChannel("https://api.twitch.tv/kraken/channels/"+user);
-
 }
 
 void TwitchApi::getHost(QString channelid)
@@ -528,7 +526,6 @@ void TwitchApi::getTopGames(int offset=0, int limit=10)
     // https://github.com/justintv/Twitch-API/blob/master/v3_resources/games.md
     genericHelper::log("twitch-api getGames - https://api.twitch.tv/kraken/games/top?limit"+QString(limit)+"&offset="+QString(offset));
     this->getRequestTopGames("https://api.twitch.tv/kraken/games/top?limit="+QString::number(limit,'f',0)+"&offset="+QString::number(offset,'f',0));
-    qDebug() << "https://api.twitch.tv/kraken/games/top?limit="+QString::number(limit,'f',0)+"&offset="+QString::number(offset,'f',0);
 }
 
 void TwitchApi::getRequestTopGames(const QString &urlString)
