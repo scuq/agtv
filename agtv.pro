@@ -76,6 +76,19 @@ win32 {
     }
 }
 
+macx {
+    BUILDBASE = ../
+
+    DEVELOPER = $$(USER)
+
+    message("OS X detected")
+
+    equals(DEVELOPER, "hps") {
+        message("setting paths and settings on OS X for $${DEVELOPER}}")
+        VLC_QT_PATH = "/Users/hps/Dropbox/Qt/VLC-Qt_1.0.0_osx"
+    }
+}
+
 QT       += core gui network multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -256,11 +269,18 @@ DISTFILES += \
     agtv.nsi
 
 winternalvlc {
+    message("VLC-QT activated")
     DEFINES += WINTERNALVLC
 
-    release: LIBS += -L$${VLC_QT_PATH}/lib -lVLCQtCore -lVLCQtWidgets
-    debug:   LIBS += -L$${VLC_QT_PATH}/lib -lVLCQtCored -lVLCQtWidgetsd
-    INCLUDEPATH += $${VLC_QT_PATH}/include
+    !macx: {
+        INCLUDEPATH += $${VLC_QT_PATH}/include
+        release: LIBS += -L$${VLC_QT_PATH}/lib -lVLCQtCore -lVLCQtWidgets
+        debug:   LIBS += -L$${VLC_QT_PATH}/lib -lVLCQtCored -lVLCQtWidgetsd
+    }
+    macx: {
+        LIBS += -F$${VLC_QT_PATH}/lib -framework VLCQtCore -framework VLCQtWidgets
+        INCLUDEPATH += $${VLC_QT_PATH}/includes
+    }
 
     message("INCLUDEPATH = $${INCLUDEPATH}}")
 
