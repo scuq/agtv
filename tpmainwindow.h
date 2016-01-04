@@ -58,7 +58,6 @@ private slots:
     void startM3u8Player(QString m3u8playlist);
 
     void updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer);
-    void updateFromJsonResponseBookmark(const QJsonDocument &jsonResponseBuffer);
 
     void updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer);
     void updateFromJsonResponseUnfollow(const QJsonDocument &jsonResponseBuffer);

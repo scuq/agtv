@@ -11,12 +11,10 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     currArch = CURRARCH;
 
-
     // delete logfile if clear log on startup setting is true
     if (genericHelper::getClearLogOnStartup() == true) {
         genericHelper::deleteLog();
     }
-
 
     restoreGeometry(genericHelper::getGeometry("main").toByteArray());
     restoreState(genericHelper::getWindowstate("main").toByteArray());
@@ -75,7 +73,6 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     QObject::connect(tw, SIGNAL(twitchReadyChannelAccessToken(const QJsonDocument)), this, SLOT(onChannelAccessTokenReady(const QJsonDocument)));
     QObject::connect(tw, SIGNAL(twitchReadyFollows(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollows(const QJsonDocument)));
-    QObject::connect(tw, SIGNAL(twitchReadyBookmark(const QJsonDocument)), this, SLOT(updateFromJsonResponseBookmark(const QJsonDocument)));
 
     QObject::connect(tw, SIGNAL(twitchReadyFollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollow(const QJsonDocument)));
     QObject::connect(tw, SIGNAL(twitchReadyUnfollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseUnfollow(const QJsonDocument)));
@@ -215,17 +212,30 @@ bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString 
 {
     bool ret=true;
     if(! stproxymodel->updateCol(0, name.toLower(), 1, onlineStatus) &&
-         stproxymodelbookmarks->updateCol(0, name.toLower(), 1, onlineStatus) )
+         ! stproxymodelbookmarks->updateCol(0, name.toLower(), 1, onlineStatus) )
         ret=false;
     if(! stproxymodel->updateCol(0, name.toLower(), 2, viewers) &&
-         stproxymodelbookmarks->updateCol(0, name.toLower(), 2, viewers) )
+         ! stproxymodelbookmarks->updateCol(0, name.toLower(), 2, viewers) )
         ret=false;
     if(! stproxymodel->updateCol(0, name.toLower(), 3, game) &&
-         stproxymodelbookmarks->updateCol(0, name.toLower(), 3, game) )
+         ! stproxymodelbookmarks->updateCol(0, name.toLower(), 3, game) )
         ret=false;
     if(! stproxymodel->updateCol(0, name.toLower(), 4, status) &&
-         stproxymodelbookmarks->updateCol(0, name.toLower(), 4, status) )
+         ! stproxymodelbookmarks->updateCol(0, name.toLower(), 4, status) )
         ret=false;
+
+    for(int i = 0; i<this->stmodelbookmarks->rowCount(); ++i) {
+        QModelIndex streamer_index = this->stmodelbookmarks->index(i,0);
+        QModelIndex online_index = this->stmodelbookmarks->index(i,1);
+        QModelIndex viewers_index = this->stmodelbookmarks->index(i,2);
+        QModelIndex status_index = this->stmodelbookmarks->index(i,4);
+
+        if ( this->stmodelbookmarks->itemData(streamer_index)[0].toString() == name )  {
+            this->stmodelbookmarks->setData(online_index, onlineStatus);
+            this->stmodelbookmarks->setData(status_index, status);
+            this->stmodelbookmarks->setData(viewers_index, viewers);
+        }
+    }
 
     fitTableViewToContent(this->ui->tableView);
     fitTableViewToContent(this->ui->tableViewBookmarks);
@@ -398,10 +408,9 @@ void tpMainWindow::loadBookmarks()
     while (itr.hasNext()) {
         QString current = itr.next();
         if (currentbookmarks.count(current) <= 0) {
-            // tw->getStream(current);
-            // tw->getChannel(current);
-
             if(!this->twitchChannels.contains(current)) {
+                genericHelper::log(QString(__func__) + QString(" Adding TwitchChannel instance for channel ") + current);
+                genericHelper::log(QString(__func__) + QString(" TODO: NEEDS DELETE HANDLING"));
                 TwitchChannel *twitchChannel = new TwitchChannel(this, genericHelper::getOAuthAccessToken(), current, this->updateInterval);
                 this->twitchChannels[current] = twitchChannel;
                 QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
@@ -421,7 +430,6 @@ void tpMainWindow::loadBookmarks()
             }
         }
 
-        tw->getBookmarkStatus(current);
         ++i;
     }
 
@@ -717,7 +725,6 @@ void tpMainWindow::addBookmarkHosted()
 
 void tpMainWindow::deleteBookmark()
 {
-
     refreshTimer->stop();
 
     //get selections
@@ -730,8 +737,6 @@ void tpMainWindow::deleteBookmark()
             removeRows.append(index.row());
         }
     }
-
-
 
     //loop through all selected rows
     for(int i=0;i<removeRows.count();++i)
@@ -1000,10 +1005,9 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
 
                 QString channelName = _val.toObject()["channel"].toObject()["name"].toString();
 
-                // tw->getStream(_val.toObject()["channel"].toObject()["name"].toString());
-                // tw->getChannel(_val.toObject()["channel"].toObject()["name"].toString());
-
                 if(!this->twitchChannels.contains(channelName)) {
+                    genericHelper::log(QString(__func__) + QString(" Adding TwitchChannel instance for channel ") + channelName);
+                    genericHelper::log(QString(__func__) + QString(" TODO: NEEDS DELETE HANDLING"));
                     TwitchChannel *twitchChannel = new TwitchChannel(this, genericHelper::getOAuthAccessToken(), channelName, this->updateInterval);
                     this->twitchChannels[channelName] = twitchChannel;
                     QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
@@ -1041,66 +1045,6 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
     //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
 }
 
-void tpMainWindow::updateFromJsonResponseBookmark(const QJsonDocument &jsonResponseBuffer)
-{
-
-    QString onlinename;
-    QString status;
-    QString viewers;
-
-    QJsonObject jsonObject = jsonResponseBuffer.object();
-
-    for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
-       onlinename = "";
-       status = "";
-       if (iter.key() == "stream")
-       {
-           if (iter.value() != QJsonValue::Null)
-           {
-               onlinename = iter.value().toObject()["channel"].toObject()["name"].toString();
-               status = iter.value().toObject()["channel"].toObject()["status"].toString();
-               viewers = QString::number(iter.value().toObject()["viewers"].toInt(),'f',0);
-
-               channelLogoUrl[onlinename] = iter.value().toObject()["channel"].toObject()["logo"].toString();
-
-               for(int i = 0; i<this->stmodelbookmarks->rowCount(); ++i)
-               {
-                   QModelIndex streamer_index = this->stmodelbookmarks->index(i,0);
-                   QModelIndex online_index = this->stmodelbookmarks->index(i,1);
-                   QModelIndex viewers_index = this->stmodelbookmarks->index(i,2);
-                   QModelIndex status_index = this->stmodelbookmarks->index(i,4);
-
-                   if ( this->stmodelbookmarks->itemData(streamer_index)[0].toString() == onlinename )  {
-                       this->stmodelbookmarks->setData(online_index,"online");
-                       this->stmodelbookmarks->setData(status_index,status);
-                       this->stmodelbookmarks->setData(viewers_index,viewers);
-                   }
-               }
-           }
-       } else {
-           // Stream is offline
-           QString streamurl = jsonObject.value("_links").toObject()["self"].toString();
-           QString streamname = genericHelper::extractStreamNameFromURL(streamurl);
-
-           for(int i = 0; i<this->stmodelbookmarks->rowCount(); ++i)
-           {
-               QModelIndex streamer_index = this->stmodelbookmarks->index(i,0);
-               QModelIndex online_index = this->stmodelbookmarks->index(i,1);
-               QModelIndex viewers_index = this->stmodelbookmarks->index(i,2);
-
-               if ( this->stmodelbookmarks->itemData(streamer_index)[0].toString() == streamname )  {
-                   this->stmodelbookmarks->setData(online_index, "offline");
-                   this->stmodelbookmarks->setData(viewers_index, "");
-               }
-           }
-       }
-   }
-
-    fitTableViewToContent(this->ui->tableViewBookmarks);
-
-   //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
-}
-
 bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString &status,
                                              const QString &viewers)
 {
@@ -1113,8 +1057,6 @@ bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString 
         ret=false;
     return ret;
 }
-
-
 
 void tpMainWindow::updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer)
 {
