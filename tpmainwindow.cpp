@@ -32,14 +32,13 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     version = VERSION;
 
-
-    this->updateInterval = 12000;
-
     AgtvDefItemDelegate =  new AgtvDefaultItemDelegate();
 
     // ignore update intervals <9 seconds
     if (genericHelper::getUpdateInterval() >= 5) {
         this->updateInterval = genericHelper::getUpdateInterval() * 1000;
+    } else {
+        this->updateInterval = 5000;
     }
 
     QStringList horzHeaders = { "Name", "Status", "#V",
