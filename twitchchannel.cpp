@@ -1,5 +1,7 @@
 #include "twitchchannel.h"
 
+#include "generichelper.h"
+
 TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QString channel, const qint64 defaultTimerInterval) :
     TwitchObject(parent, oAuthToken, defaultTimerInterval), channelName( channel )
 {
@@ -25,7 +27,7 @@ TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QS
 
 void TwitchChannel::twitchNetworkError(const QString errorString)
 {
-    qDebug() << __func__ << ": " << errorString;
+    genericHelper::log( QString(__func__) + QString(": ") + errorString);
     this->currentlyUpdating = false;
 }
 
@@ -127,22 +129,22 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
         if(QString::compare(this->channelGame, game, Qt::CaseSensitive) != 0) {
             this->channelGame = game;
             dataChanged = true;
-            qDebug() << this->channelName << ": " << "Game changed";
+            genericHelper::log( this->channelName + QString(": ") + QString("Game changed"));
         }
         if(QString::compare(this->channelStatus, status, Qt::CaseSensitive) != 0) {
             this->channelStatus = status;
             dataChanged = true;
-            qDebug() << this->channelName << ": " << "Status changed";
+            genericHelper::log( this->channelName + QString(": ") + QString("Status changed"));
         }
         if(this->channelViewers != viewersString.toInt()) {
             this->channelViewers = viewersString.toInt();
             dataChanged = true;
-            qDebug() << this->channelName << ": " << "Viewers changed";
+            genericHelper::log( this->channelName + QString(": ") + QString("Viewers changed"));
         }
         if(this->channelFollowers != followersString.toInt()) {
             this->channelFollowers = followersString.toInt();
             dataChanged = true;
-            qDebug() << this->channelName << ": " << "Followers changed";
+            genericHelper::log( this->channelName + QString(": ") + QString("Followers changed"));
         }
 
         this->channelId = channelIdString.toInt();
@@ -152,7 +154,7 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
             this->channelOnlineStatus = currentChannelOnlineStatus;
             dataChanged = true;
             onlineStatusChanged = true;
-            qDebug() << this->channelName << ": " << "Online Status changed to online";
+            genericHelper::log( this->channelName + QString(": ") + QString("Online Status changed to online"));
         }
     } else {
         // "stream": null -> object is offline
@@ -162,19 +164,19 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
             this->channelOnlineStatus = currentChannelOnlineStatus;
             dataChanged = true;
             onlineStatusChanged = true;
-            qDebug() << this->channelName << ": " << "Online Status changed to offline";
+            genericHelper::log( this->channelName + QString(": ") + QString("Online Status changed to offline"));
         } else if(this->isHosting &&this->channelOnlineStatus != ChannelOnlineStatus::hosting ) {
             this->channelOnlineStatus = ChannelOnlineStatus::hosting;
             dataChanged = true;
             onlineStatusChanged = true;
-            qDebug() << this->channelName << ": " << "Online Status changed to hosting";
+            genericHelper::log( this->channelName + QString(": ") + QString("Online Status changed to hosting"));
         }
 
         if(this->isHosting && QString::compare(this->hostedChannel, this->channelStatus, Qt::CaseSensitive) != 0) {
             this->channelStatus = this->hostedChannel;
             dataChanged = true;
             onlineStatusChanged = true;
-            qDebug() << this->channelName << ": " << "Hosted channel changed";
+            genericHelper::log( this->channelName + QString(": ") + QString("Hosted channel changed"));
         }
     }
 

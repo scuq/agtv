@@ -1,5 +1,7 @@
 #include "twitchobject.h"
 
+#include "generichelper.h"
+
 TwitchObject::TwitchObject(QObject *parent, QString token, const qint64 defaultTimerInterval)
     : oAuthToken(token)
 {
@@ -57,7 +59,7 @@ void TwitchObject::parseTwitchNetworkResponseStream()
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            qDebug() << reply->errorString();
+            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
             return;
         }
 
@@ -93,7 +95,7 @@ void TwitchObject::parseTwitchNetworkResponseChannel()
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            qDebug() << reply->errorString();
+            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
             return;
         }
 
@@ -129,7 +131,7 @@ void TwitchObject::parseTwitchNetworkResponseHost()
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            qDebug() << reply->errorString();
+            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
             return;
         }
 

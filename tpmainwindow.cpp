@@ -398,8 +398,14 @@ void tpMainWindow::loadBookmarks()
     while (itr.hasNext()) {
         QString current = itr.next();
         if (currentbookmarks.count(current) <= 0) {
-            tw->getStream(current);
-            tw->getChannel(current);
+            // tw->getStream(current);
+            // tw->getChannel(current);
+
+            if(!this->twitchChannels.contains(current)) {
+                TwitchChannel *twitchChannel = new TwitchChannel(this, genericHelper::getOAuthAccessToken(), current, this->updateInterval);
+                this->twitchChannels[current] = twitchChannel;
+                QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
+            }
 
             if (this->stmodelbookmarks->findItems(current,Qt::MatchExactly,0).length() <= 0) {
                 QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(current));
@@ -994,8 +1000,8 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
 
                 QString channelName = _val.toObject()["channel"].toObject()["name"].toString();
 
-                tw->getStream(_val.toObject()["channel"].toObject()["name"].toString());
-                tw->getChannel(_val.toObject()["channel"].toObject()["name"].toString());
+                // tw->getStream(_val.toObject()["channel"].toObject()["name"].toString());
+                // tw->getChannel(_val.toObject()["channel"].toObject()["name"].toString());
 
                 if(!this->twitchChannels.contains(channelName)) {
                     TwitchChannel *twitchChannel = new TwitchChannel(this, genericHelper::getOAuthAccessToken(), channelName, this->updateInterval);
