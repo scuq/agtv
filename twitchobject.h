@@ -21,7 +21,7 @@ class TwitchObject : public QObject
     public:
         QNetworkAccessManager *nwManager;
 
-        TwitchObject(QObject *parent, QString oAuthToken, const qint64 defaultTimerInterval);
+        TwitchObject(QObject *parent, QString token, const qint64 defaultTimerInterval);
 
         //! Set the time interval
         /*!
@@ -29,9 +29,9 @@ class TwitchObject : public QObject
         */
         void setInterval(qint64 msec);
         //! Start the update timer
-        void startUpdateTimer();
+        void startUpdateTimer()  const;
         //! Stop the update timer
-        void stopUpdateTimer();
+        void stopUpdateTimer()  const;
 
         //! Fires a 'stream' request to the Twitch API
         /*!
@@ -57,7 +57,7 @@ class TwitchObject : public QObject
 
     private:
         QTimer *refreshTimer;
-        QString oAuthToken;
+        const QString oAuthToken;
 
         qint64 refreshTimerInterval;
 

@@ -1,9 +1,8 @@
 #include "twitchobject.h"
 
-TwitchObject::TwitchObject(QObject *parent, QString oAuthToken, const qint64 defaultTimerInterval)
+TwitchObject::TwitchObject(QObject *parent, QString token, const qint64 defaultTimerInterval)
+    : oAuthToken(token)
 {
-    this->oAuthToken = oAuthToken;
-
     nwManager = new QNetworkAccessManager();
 
     this->refreshTimerInterval = defaultTimerInterval;
@@ -24,12 +23,12 @@ void TwitchObject::setInterval(qint64 msec)
     }
 }
 
-void TwitchObject::startUpdateTimer()
+void TwitchObject::startUpdateTimer() const
 {
     this->refreshTimer->start(this->refreshTimerInterval);
 }
 
-void TwitchObject::stopUpdateTimer()
+void TwitchObject::stopUpdateTimer() const
 {
     this->refreshTimer->stop();
 }
@@ -120,6 +119,8 @@ void TwitchObject::getRequestHost(const QString &urlString)
 
     QNetworkReply *reply = nwManager->get(req);
     QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseHost()));
+
+    // TODO: implement timeout handling
 }
 
 void TwitchObject::parseTwitchNetworkResponseHost()

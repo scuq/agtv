@@ -1,9 +1,8 @@
 #include "twitchchannel.h"
 
-TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QString channelName, const qint64 defaultTimerInterval) :
-    TwitchObject(parent, oAuthToken, defaultTimerInterval)
+TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QString channel, const qint64 defaultTimerInterval) :
+    TwitchObject(parent, oAuthToken, defaultTimerInterval), channelName( channel )
 {
-    this->channelName = channelName;
     this->channelViewers = 0;
     this->channelFollowers = 0;
     this->channelId = -1;

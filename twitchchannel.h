@@ -25,7 +25,7 @@ class TwitchChannel : public TwitchObject
             hosting
         };
 
-        TwitchChannel(QObject *parent, const QString oAuthToken = "", const QString channelName = "", const qint64 defaultTimerInterval = 1000);
+        TwitchChannel(QObject *parent, const QString oAuthToken, const QString channel, const qint64 defaultTimerInterval = 1000);
 
         ChannelOnlineStatus getChannelOnlineStatus() const;
         QString getChannelName() const;
@@ -43,7 +43,7 @@ class TwitchChannel : public TwitchObject
     private:
         bool currentlyUpdating, currentlyUpdatingHost;
 
-        QString channelName;
+        const QString channelName;
         QString channelStatus;
         QString channelGame;
         QString channelUrl;
