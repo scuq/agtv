@@ -96,7 +96,7 @@ QStringList genericHelper::getFollows()
 void genericHelper::setBookmarks(QStringList bookmarks)
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-    settings.setValue("bookmarks", bookmarks.join(","));
+    settings.setValue("bookmarks", bookmarks);
     settings.sync();
 }
 
@@ -138,11 +138,7 @@ QVariant genericHelper::getWindowstate(QString window)
 QStringList genericHelper::getBookmarks()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-    QStringList _bookmarksList;
-    if(settings.value("bookmarks", "").toString() > 0) {
-        _bookmarksList = settings.value("bookmarks", "").toString().split(",");
-    }
-    return _bookmarksList;
+    return settings.value("bookmarks", "").toStringList();
 }
 
 void genericHelper::setVlcArgs(QStringList args)
