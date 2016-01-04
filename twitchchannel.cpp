@@ -13,8 +13,6 @@ TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QS
     this->currentlyUpdatingHost = false;
     this->isHosting = false;
 
-    QObject::connect(&m_host, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseHost(QNetworkReply*)));
-
     QObject::connect(this, SIGNAL(twitchReadyStream(const QJsonDocument)), this, SLOT(updateFromJsonResponseStream(const QJsonDocument)));
     QObject::connect(this, SIGNAL(twitchReadyHost(const QJsonDocument)), this, SLOT(updateFromJsonResponseHost(const QJsonDocument)));
     QObject::connect(this, SIGNAL(twitchReadyChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseChannel(const QJsonDocument)));
@@ -155,7 +153,7 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
             this->channelOnlineStatus = currentChannelOnlineStatus;
             dataChanged = true;
             onlineStatusChanged = true;
-            qDebug() << this->channelName << ": " << "Online Status changed to offline";
+            qDebug() << this->channelName << ": " << "Online Status changed to online";
         }
     } else {
         // "stream": null -> object is offline
@@ -200,7 +198,8 @@ void TwitchChannel::getRequestHost(const QString &urlString)
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
-    m_host.get( req  );
+    QNetworkReply *reply = nwManager->get(req);
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseHost()));
 }
 
 void TwitchChannel::updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer)
@@ -221,19 +220,21 @@ void TwitchChannel::updateFromJsonResponseHost(const QJsonDocument &jsonResponse
     }
 }
 
-void TwitchChannel::parseNetworkResponseHost(QNetworkReply *finished)
+void TwitchChannel::parseTwitchNetworkResponseHost()
 {
-    if ( finished->error() != QNetworkReply::NoError )
-    {
-        qDebug() << __func__ << ": " << finished->errorString();
-        emit networkError( finished->errorString() );
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            emit networkError( reply->errorString() );
+            qDebug() << reply->errorString();
+            return;
+        }
 
-        return;
+        QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
+        emit twitchReadyHost( json_buffer );
+
+        reply->deleteLater();
     }
-
-    auto json_buffer = QJsonDocument::fromJson(finished->readAll());
-
-    emit twitchReadyHost( json_buffer );
 }
 
 void TwitchChannel::updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer)

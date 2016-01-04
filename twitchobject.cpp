@@ -4,8 +4,7 @@ TwitchObject::TwitchObject(QObject *parent, QString oAuthToken, const qint64 def
 {
     this->oAuthToken = oAuthToken;
 
-    QObject::connect(&m_stream, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseStream(QNetworkReply*)));
-    QObject::connect(&m_channel, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponseChannel(QNetworkReply*)));
+    nwManager = new QNetworkAccessManager();
 
     this->refreshTimerInterval = defaultTimerInterval;
     this->refreshTimer = new QTimer(this);
@@ -47,22 +46,27 @@ void TwitchObject::getRequestStream(const QString &urlString)
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
-    m_stream.get( req  );
+    QNetworkReply *reply = nwManager->get(req);
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseStream()));
+
     // TODO: implement timeout handling
 }
 
-void TwitchObject::parseNetworkResponseStream(QNetworkReply *finished)
+void TwitchObject::parseTwitchNetworkResponseStream()
 {
-    if ( finished->error() != QNetworkReply::NoError )
-    {
-        emit networkError( finished->errorString() );
-        qDebug() << finished->errorString();
-        return;
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            emit networkError( reply->errorString() );
+            qDebug() << reply->errorString();
+            return;
+        }
+
+        QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
+        emit twitchReadyStream( json_buffer );
+
+        reply->deleteLater();
     }
-
-    QJsonDocument json_buffer = QJsonDocument::fromJson(finished->readAll());
-
-    emit twitchReadyStream( json_buffer );
 }
 
 void TwitchObject::getChannel(QString user)
@@ -78,19 +82,25 @@ void TwitchObject::getRequestChannel(const QString &urlString)
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
-    m_channel.get( req  );
+    QNetworkReply *reply = nwManager->get(req);
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseChannel()));
+
+    // TODO: implement timeout handling
 }
 
-void TwitchObject::parseNetworkResponseChannel(QNetworkReply *finished)
+void TwitchObject::parseTwitchNetworkResponseChannel()
 {
-    if ( finished->error() != QNetworkReply::NoError )
-    {
-        emit networkError( finished->errorString() );
-        qDebug() << finished->errorString();
-        return;
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            emit networkError( reply->errorString() );
+            qDebug() << reply->errorString();
+            return;
+        }
+
+        QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
+        emit twitchReadyChannel( json_buffer );
+
+        reply->deleteLater();
     }
-
-    auto json_buffer = QJsonDocument::fromJson(finished->readAll());
-
-    emit twitchReadyChannel( json_buffer );
 }

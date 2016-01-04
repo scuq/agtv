@@ -41,13 +41,11 @@ private slots:
         void updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer);
         void twitchNetworkError(const QString errorString);
         void updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer);
-        void parseNetworkResponseHost(QNetworkReply *finished);
+        void parseTwitchNetworkResponseHost();
         void updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer);
 
 private:
         bool currentlyUpdating, currentlyUpdatingHost;
-
-        QNetworkAccessManager m_host;
 
         QString channelName;
         QString channelStatus;

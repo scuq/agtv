@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QJsonDocument>
 #include <QNetworkReply>
+#include <QNetworkAccessManager>
 #include <QString>
 #include <QTimer>
 
@@ -12,6 +13,8 @@ class TwitchObject : public QObject
     Q_OBJECT
 
     public:
+        QNetworkAccessManager *nwManager;
+
         TwitchObject(QObject *parent, QString oAuthToken, const qint64 defaultTimerInterval);
 
         void setInterval(qint64 msec);
@@ -30,7 +33,6 @@ class TwitchObject : public QObject
 
 private:
         QString oAuthToken;
-        QNetworkAccessManager m_stream, m_channel;
 
         qint64 refreshTimerInterval;
 
@@ -45,8 +47,8 @@ signals:
         void twitchDataChanged();
 
 private slots:
-        void parseNetworkResponseStream(QNetworkReply *finished);
-        void parseNetworkResponseChannel(QNetworkReply *finished);
+        void parseTwitchNetworkResponseStream();
+        void parseTwitchNetworkResponseChannel();
 
 };
 
