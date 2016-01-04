@@ -32,6 +32,7 @@ class TwitchChannel : public TwitchObject
         QString getChannelTitle() const;
         QString getChannelGame() const;
         QString getChannelUrl() const;
+        QString getChannelLogoUrl() const;
         qint64 getChannelViewers() const;
         qint64 getChannelFollowers() const;
         bool getIsPlaylist() const;
@@ -40,6 +41,7 @@ class TwitchChannel : public TwitchObject
 
         void on_timedUpdate();
 
+
     private:
         bool currentlyUpdating, currentlyUpdatingHost;
 
@@ -47,6 +49,7 @@ class TwitchChannel : public TwitchObject
         QString channelStatus;
         QString channelGame;
         QString channelUrl;
+        QString channelLogoUrl;
         qint64 channelViewers;
         qint64 channelFollowers;
         qint64 channelId;

@@ -42,6 +42,11 @@ void TwitchChannel::on_timedUpdate() {
     }
 }
 
+QString TwitchChannel::getChannelLogoUrl() const
+{
+    return channelLogoUrl;
+}
+
 TwitchChannel::ChannelOnlineStatus TwitchChannel::getChannelOnlineStatus() const
 {
     return channelOnlineStatus;
@@ -218,4 +223,5 @@ void TwitchChannel::updateFromJsonResponseChannel(const QJsonDocument &jsonRespo
                                    channelIdString);
 
     this->channelId = channelIdString.toInt();
+    this->channelLogoUrl = logoUrlString;
 }

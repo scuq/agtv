@@ -254,7 +254,12 @@ void tpMainWindow::startFromGBrowser(const QString stream)
     prepareDiaLauncher();
 
     emit setStreamTitle( _streamer, "" );
-    emit setStreamLogoUrl(channelLogoUrl[_streamer]);
+    QString logoUrl;
+    TwitchChannel *channel = twitchChannels[_streamer];
+    if(channel != 0) {
+        logoUrl = channel->getChannelLogoUrl();
+    }
+    emit setStreamLogoUrl(logoUrl);
 }
 
 void tpMainWindow::saveSortModes()
@@ -1030,8 +1035,6 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
                         QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(_val.toObject()["channel"].toObject()["status"].toString()));
                         stmodel->setItem(i, 4, qsitem4);
 
-                        channelLogoUrl[channelname] = _val.toObject()["channel"].toObject()["logo"].toString();
-
                         genericHelper::addFollow(channelname);
                     }
                 }
@@ -1323,7 +1326,12 @@ void tpMainWindow::on_tableView_activated(const QModelIndex &index)
             prepareDiaLauncher();
 
             emit setStreamTitle( _streamer, "" );
-            emit setStreamLogoUrl(channelLogoUrl[_streamer]);
+            QString logoUrl;
+            TwitchChannel *channel = twitchChannels[_streamer];
+            if(channel != 0) {
+                logoUrl = channel->getChannelLogoUrl();
+            }
+            emit setStreamLogoUrl(logoUrl);
         }
     }
 
@@ -1335,7 +1343,12 @@ void tpMainWindow::on_tableView_activated(const QModelIndex &index)
             prepareDiaLauncher();
 
             emit setStreamTitle( _streamer + "\n\nhosting\n\n" + _hostedStreamer, "" );
-            emit setStreamLogoUrl(channelLogoUrl[_streamer]);
+            QString logoUrl;
+            TwitchChannel *channel = twitchChannels[_streamer];
+            if(channel != 0) {
+                logoUrl = channel->getChannelLogoUrl();
+            }
+            emit setStreamLogoUrl(logoUrl);
         }
     }
 }
@@ -1355,7 +1368,12 @@ void tpMainWindow::on_tableViewBookmarks_activated(const QModelIndex &index)
             prepareDiaLauncher();
 
             emit setStreamTitle( _streamer, "" );
-            emit setStreamLogoUrl(channelLogoUrl[_streamer]);
+            QString logoUrl;
+            TwitchChannel *channel = twitchChannels[_streamer];
+            if(channel != 0) {
+                logoUrl = channel->getChannelLogoUrl();
+            }
+            emit setStreamLogoUrl(logoUrl);
         }
     }
 
@@ -1367,7 +1385,12 @@ void tpMainWindow::on_tableViewBookmarks_activated(const QModelIndex &index)
             prepareDiaLauncher();
 
             emit setStreamTitle( _streamer + "\n\nhosting\n\n" + _hostedStreamer, "" );
-            emit setStreamLogoUrl(channelLogoUrl[_streamer]);
+            QString logoUrl;
+            TwitchChannel *channel = twitchChannels[_streamer];
+            if(channel != 0) {
+                logoUrl = channel->getChannelLogoUrl();
+            }
+            emit setStreamLogoUrl(logoUrl);
         }
     }
 }

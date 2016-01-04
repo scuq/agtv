@@ -262,10 +262,7 @@ private:
 
     QString currArch;
 
-
     TwitchApi *tw;
-
-    QMap<QString, QString> channelLogoUrl;
 
     TwitchChannel *channel1;
 

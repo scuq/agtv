@@ -38,7 +38,6 @@ bool DialogLaunch::getDialogShown()
 void DialogLaunch::refreshUiData()
 {
     restoreGeometry(genericHelper::getGeometry("launch").toByteArray());
-    qDebug() << genericHelper::getStreamPositioning();
     if (genericHelper::getStreamPositioning() == false) {
         this->ui->comboBoxPosSelect->setEnabled(false);
         this->ui->comboBoxPosSelect->setHidden(true);
