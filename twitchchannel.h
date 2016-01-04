@@ -8,6 +8,12 @@
 
 #include "twitchobject.h"
 
+//!  Channel class for the Twitch API interface
+/*!
+  Provides channel related get functions and corresponding signals to interface with the Twitch
+  Api.
+*/
+
 class TwitchChannel : public TwitchObject
 {
     Q_OBJECT
@@ -28,23 +34,13 @@ class TwitchChannel : public TwitchObject
         QString getChannelUrl() const;
         qint64 getChannelViewers() const;
         qint64 getChannelFollowers() const;
-
-public:
-        void on_timedUpdate();
-
         bool getIsPlaylist() const;
         bool getIsHosting() const;
-
         QString getHostedChannel() const;
 
-private slots:
-        void updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer);
-        void twitchNetworkError(const QString errorString);
-        void updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer);
-        void parseTwitchNetworkResponseHost();
-        void updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer);
+        void on_timedUpdate();
 
-private:
+    private:
         bool currentlyUpdating, currentlyUpdatingHost;
 
         QString channelName;
@@ -66,11 +62,13 @@ private:
                                       QString &logoUrlString, QString &partner,
                                       QString &followers, QString &channelId);
 
-        void getHost(QString channelid);
-        void getRequestHost(const QString &urlString);
+    private slots:
+        void updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer);
+        void twitchNetworkError(const QString errorString);
+        void updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer);
+        void updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer);
 
-signals:
-        void twitchReadyHost( const QJsonDocument &twitchAsJSON );
+    signals:
         void twitchChannelDataChanged(const bool onlineStatusChanged);
 };
 

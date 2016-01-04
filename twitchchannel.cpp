@@ -185,23 +185,6 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
     this->currentlyUpdating = false;
 }
 
-void TwitchChannel::getHost(QString channelid)
-{
-    this->getRequestHost("https://tmi.twitch.tv/hosts?include_logins=1&host="+channelid);
-}
-
-void TwitchChannel::getRequestHost(const QString &urlString)
-{
-    QUrl url ( urlString );
-
-    QNetworkRequest req ( url );
-    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
-
-    QNetworkReply *reply = nwManager->get(req);
-    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseHost()));
-}
-
 void TwitchChannel::updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer)
 {
     QJsonObject jsonObject = jsonResponseBuffer.object();
@@ -217,23 +200,6 @@ void TwitchChannel::updateFromJsonResponseHost(const QJsonDocument &jsonResponse
         this->isHosting = true;
     } else {
         this->isHosting = false;
-    }
-}
-
-void TwitchChannel::parseTwitchNetworkResponseHost()
-{
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    if(reply) {
-        if ( reply->error() != QNetworkReply::NoError ) {
-            emit networkError( reply->errorString() );
-            qDebug() << reply->errorString();
-            return;
-        }
-
-        QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
-        emit twitchReadyHost( json_buffer );
-
-        reply->deleteLater();
     }
 }
 
