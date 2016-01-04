@@ -200,6 +200,8 @@ void TwitchChannel::updateFromJsonResponseHost(const QJsonDocument &jsonResponse
     } else {
         this->isHosting = false;
     }
+
+    this->currentlyUpdatingHost = false;
 }
 
 void TwitchChannel::updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer)
