@@ -1,4 +1,4 @@
-# agtv
+# agtv-gui
 Abyle Game TV Client
 
 # Screenshots
