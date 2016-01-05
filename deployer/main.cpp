@@ -87,6 +87,26 @@ int main(int argc, char *argv[])
     QCommandLineOption arch(QStringList() << "a" << "arch",
                QCoreApplication::translate("main", "print architecture"));
 
+    QCommandLineOption copy(QStringList() << "c" << "copy",
+               QCoreApplication::translate("main", "copy"));
+
+    QCommandLineOption copyrecursive(QStringList() << "r" << "recursive",
+               QCoreApplication::translate("main", "copy recursive"));
+
+    QCommandLineOption exclude(QStringList() << "e" << "exclude",
+            QCoreApplication::translate("main", "exclude"),
+            QCoreApplication::translate("main", "exclude from copy regex"));
+
+
+    QCommandLineOption source(QStringList() << "s" << "source",
+            QCoreApplication::translate("main", "source"),
+            QCoreApplication::translate("main", "source"));
+
+    QCommandLineOption destination(QStringList() << "d" << "destination",
+            QCoreApplication::translate("main", "destination"),
+            QCoreApplication::translate("main", "destination"));
+
+
     parser.addOption(versionMajor);
     parser.addOption(versionMinor);
     parser.addOption(versionPatch);
@@ -94,9 +114,20 @@ int main(int argc, char *argv[])
     parser.addOption(platform);
     parser.addOption(arch);
 
+    parser.addOption(copy);
+    parser.addOption(source);
+    parser.addOption(destination);
+    parser.addOption(copyrecursive);
+    parser.addOption(exclude);
+
     parser.process(a);
 
     bool skip = false;
+
+    if ((parser.isSet(copy) == true ) && (skip == false) && (parser.isSet(source) == true) && (parser.isSet(destination) == true)) {
+         QTextStream(stdout) <<  "copy src to dst\n";
+         skip = true;
+    }
 
 
     if ((parser.isSet(versionMajor) == true ) && (skip == false)) {
