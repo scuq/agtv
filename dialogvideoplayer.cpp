@@ -47,7 +47,13 @@ void DialogVideoPlayer::initVLC()
     _player->setVideoWidget(this->ui->video);
     _vlcAudio = _player->audio();
 
-    this->ui->horizontalSliderVolume->setValue(_vlcAudio->volume());
+    int volume = _vlcAudio->volume();
+    if(volume == 0) {
+         this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card-off.png"));
+    } else {
+         this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card.png"));
+    }
+    this->ui->horizontalSliderVolume->setValue(volume);
 
     QObject::connect(_player, SIGNAL(playing()), this, SLOT(onStarted()));
     QObject::connect(_player, SIGNAL(stopped()), this, SLOT(onStopped()));
@@ -209,7 +215,7 @@ void DialogVideoPlayer::on_horizontalSliderVolume_valueChanged(int value)
 void DialogVideoPlayer::on_pushButtonMute_clicked()
 {
     if (ui->horizontalSliderVolume->value() == 0) {
-        this->ui->horizontalSliderVolume->setValue(oldVolume);
+        this->ui->horizontalSliderVolume->setValue(oldVolume == 0 ? 100 : oldVolume);
     } else {
         oldVolume = this->ui->horizontalSliderVolume->value();
         this->ui->horizontalSliderVolume->setValue(0);
