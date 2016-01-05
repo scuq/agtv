@@ -200,7 +200,7 @@ void tpMainWindow::twitchChannelDataChanged(const bool onlineStatusChanged)
             genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating model");
         }
 
-        if(onlineStatusChanged) {
+        if(onlineStatusChanged && genericHelper::getStreamOnlineNotify()) {
             emit( on_notifyByTray(channel->getChannelName() + " is now " + onlineStatus, channel->getChannelTitle()) );
         }
     }
@@ -1175,7 +1175,7 @@ void tpMainWindow::trayIconClicked(QSystemTrayIcon::ActivationReason reason)
 
 void tpMainWindow::on_notifyByTray(QString title, QString message)
 {
-    if( trayIcon->isVisible() && genericHelper::getStreamOnlineNotify() ) {
+    if( trayIcon->isVisible() ) {
         trayIcon->showMessage(title, message);
     }
 }
