@@ -1,0 +1,121 @@
+#-------------------------------------------------
+#
+# Project agtv-gui
+#
+#-------------------------------------------------
+
+CONFIG += c++11
+
+QMAKE_CXXFLAGS += -Wall
+
+VERSION_MAJOR = 0
+VERSION_MINOR = 0
+VERSION_PATCH = 0
+VERSION_BUILD = 0
+
+#Target version
+VERSION = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}.$${VERSION_BUILD}
+
+DEFINES += VERSION=\\\"$$VERSION\\\"
+
+
+DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
+
+DEPLOYMENT = no
+
+BUILDBASE = ../
+
+include(project/developer.pri)
+
+include(project/app.pri)
+
+equals(DEVELOPER, "scuq") {
+    include(project/developer_scuq.pri)
+}
+
+equals(DEVELOPER, "hps") {
+    include(project/developer_hps.pri)
+}
+
+equals(DEVELOPER, "DAS") {
+    include(project/developer_nowx.pri)
+}
+
+
+include(project/win32.pri)
+
+include(project/vlcqt.pri)
+
+
+
+QT       += core gui network multimedia multimediawidgets
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+TARGET = agtv
+TEMPLATE = app
+
+SOURCES +=  main.cpp\
+            tpmainwindow.cpp \
+            generichelper.cpp \
+            processlauncher.cpp \
+            twitchapi.cpp \
+            dialogoauthsetup.cpp \
+            dialogpositioner.cpp \
+            dialoglaunch.cpp \
+            dialogoptions.cpp \
+            advqsortfilterproxymodel.cpp \
+            imageloader.cpp \
+            updatecheck.cpp \
+            dialogshowlogfile.cpp \
+            filedownloader.cpp \
+            agtvdefaultitemdelegate.cpp \
+            videoplayer.cpp \
+            dialoggamebrowser.cpp \
+            htmldelegate.cpp \
+            advqsortfilterproxylistmodel.cpp \
+            twitchobject.cpp \
+            logger.cpp \
+            twitchchannel.cpp \
+
+HEADERS  += tpmainwindow.h \
+            generichelper.h \
+            processlauncher.h \
+            twitchapi.h \
+            dialogoauthsetup.h \
+            dialogpositioner.h \
+            dialoglaunch.h \
+            dialogoptions.h \
+            twitchclientid.h \
+            advqsortfilterproxymodel.h \
+            imageloader.h \
+            updatecheck.h \
+            twitchclientid.h \
+            dialogshowlogfile.h \
+            filedownloader.h \
+            agtvdefaultitemdelegate.h \
+            videoplayer.h \
+            dialoggamebrowser.h \
+            htmldelegate.h \
+            advqsortfilterproxylistmodel.h \
+            twitchobject.h \
+            logger.h \
+            twitchchannel.h \
+    version.h
+
+FORMS    += tpmainwindow.ui \
+            dialogoauthsetup.ui \
+            dialogpositioner.ui \
+            dialoglaunch.ui \
+            dialogoptions.ui \
+            dialogshowlogfile.ui \
+            dialogqmediaplayer.ui \
+            videoplayer.ui \
+            dialoggamebrowser.ui
+
+RESOURCES += \
+    agtv.qrc
+
+DISTFILES += \
+    README.md \
+    agtv.nsi
