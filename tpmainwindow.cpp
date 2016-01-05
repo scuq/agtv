@@ -852,6 +852,11 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
         args << "--volume=0";
     }
 
+
+    //url.append("'");
+    //url.prepend("'");
+
+
     args << url;
     qresBin = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","qres.exe");
 
@@ -912,7 +917,7 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
         }
     }
 
-    genericHelper::log("player or qres binary not found, not starting: "+qresBin+" "+qresargs.join(" "));
+    //genericHelper::log("player or qres binary not found, not starting: "+qresBin+" "+qresargs.join(" "));
     this->playerThreads.append(processLaunchThread);
 }
 

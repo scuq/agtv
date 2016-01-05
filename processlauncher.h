@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QWindow>
 #include <QThread>
+#include <QUrl>
 
 
 class processLauncher : public QObject

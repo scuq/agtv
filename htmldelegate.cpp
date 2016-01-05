@@ -1,4 +1,4 @@
-#include "HTMLDelegate.h"
+#include "htmldelegate.h"
 
 #include <QApplication>
 #include <QAbstractTextDocumentLayout>

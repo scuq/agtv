@@ -32,8 +32,16 @@ QMAKE_CXXFLAGS += -Wall
 # libvlccore.dll
 # and the plugins dir from VLC_QT_PATH/bin/plugins
 # in the path where agtv.exe is placed.
-#
-CONFIG += winternalvlc
+win32 {
+    CONFIG += winternalvlc
+}
+
+win32 {
+    DEFINES += __func__=__FUNCTION__
+}
+
+
+
 
 # VLC_QT_PATH = "E:\Dropbox\Qt\vlc-qt\build"
 
