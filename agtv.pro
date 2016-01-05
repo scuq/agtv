@@ -32,6 +32,7 @@ QMAKE_CXXFLAGS += -Wall
 # libvlccore.dll
 # and the plugins dir from VLC_QT_PATH/bin/plugins
 # in the path where agtv.exe is placed.
+
 win32 {
     CONFIG += winternalvlc
 }
@@ -40,8 +41,10 @@ win32 {
     DEFINES += __func__=__FUNCTION__
 }
 
-
-
+macx {
+    CONFIG += winternalvlc
+    ICON = agtv.icns
+}
 
 # VLC_QT_PATH = "E:\Dropbox\Qt\vlc-qt\build"
 
@@ -80,7 +83,7 @@ win32 {
     }
     equals(DEVELOPER, "hps") {
         message("setting paths and settings for $${DEVELOPER}}")
-        VLC_QT_PATH = "E:\Dropbox\Qt\VLC-Qt_0.90.0_win32_mingw"
+        VLC_QT_PATH = "E:\Dropbox\Qt\VLC-Qt_1.0.0_win32_mingw"
     }
 }
 
@@ -276,6 +279,15 @@ DISTFILES += \
     README.md \
     agtv.nsi
 
+macx: {
+        message("OS X deployment activated")
+        makedmg.commands = ~/Qt/5.5/clang_64/bin/macdeployqt $$OUT_PWD/agtv.app -dmg
+        first.depends = $(first) makedmg
+        export(first.depends)
+        export(makedmg.commands)
+        QMAKE_EXTRA_TARGETS += first makedmg
+}
+
 winternalvlc {
     message("VLC-QT activated")
     DEFINES += WINTERNALVLC
@@ -285,16 +297,33 @@ winternalvlc {
         release: LIBS += -L$${VLC_QT_PATH}/lib -lVLCQtCore -lVLCQtWidgets
         debug:   LIBS += -L$${VLC_QT_PATH}/lib -lVLCQtCored -lVLCQtWidgetsd
     }
+
     macx: {
         LIBS += -F$${VLC_QT_PATH}/lib -framework VLCQtCore -framework VLCQtWidgets
         INCLUDEPATH += $${VLC_QT_PATH}/includes
+        QMAKE_LFLAGS += -F$${VLC_QT_PATH}/lib
+
+        VLC_QT_VLCQtCore_Framework = "$${VLC_QT_PATH}/lib/VLCQtCore.framework"
+        VLC_QT_VLCQtWidgets_Framework = "$${VLC_QT_PATH}/lib/VLCQtWidgets.framework"
+
+        VLC_QT_TARGET_DIR = "$$OUT_PWD/agtv.app/Contents/Frameworks/"
+
+        copydata.commands = if [ ! -d "$$OUT_PWD/agtv.app/Contents/Frameworks" ] ; then mkdir $$OUT_PWD/agtv.app/Contents/Frameworks ; fi && \
+                            if [ ! -d "$$OUT_PWD/agtv.app/Contents/Frameworks/VLCQtCore.framework" ] ; then $(COPY_DIR) $${VLC_QT_VLCQtCore_Framework} $${VLC_QT_TARGET_DIR} ; fi && \
+                            if [ ! -d "$$OUT_PWD/agtv.app/Contents/Frameworks/VLCQtWidgets.framework" ] ; then $(COPY_DIR) $${VLC_QT_VLCQtWidgets_Framework} $${VLC_QT_TARGET_DIR} ; fi && \
+                            install_name_tool -change @rpath/VLCQtCore.framework/Versions/1.0.0/VLCQtCore @executable_path/../Frameworks/VLCQtCore.framework/Versions/1.0.0/VLCQtCore $$OUT_PWD/agtv.app/Contents/MacOS/agtv && \
+                            install_name_tool -change @rpath/VLCQtWidgets.framework/Versions/1.0.0/VLCQtWidgets @executable_path/../Frameworks/VLCQtWidgets.framework/Versions/1.0.0/VLCQtWidgets $$OUT_PWD/agtv.app/Contents/MacOS/agtv
+        first.depends = $(first) makedmg copydata
+        makedmg.depends = copydata
+        export(first.depends)
+        export(copydata.commands)
+        export(makedmg.depends)
+        QMAKE_EXTRA_TARGETS += first copydata
     }
 
     message("INCLUDEPATH = $${INCLUDEPATH}}")
 
     SOURCES += dialogvideoplayer.cpp
-
-    HEADERS  += dialogvideoplayer.h
-
-    FORMS    += dialogvideoplayer.ui
+    HEADERS += dialogvideoplayer.h
+    FORMS   += dialogvideoplayer.ui
 }
