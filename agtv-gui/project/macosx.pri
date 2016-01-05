@@ -1,0 +1,3 @@
+macx {
+    ICON = agtv.icns
+}

@@ -21,8 +21,6 @@
 # sudo add-apt-repository ppa:ntadej/tano
 # sudo apt-get install libvlc-qt-core2 libvlc-qt-widgets2 libvlc-qt-dbg libvlc-qt-dev
 
-CONFIG += winternalvlc
-
 win32 {
     isEmpty(VLC_QT_PATH){
         VLC_QT_PATH = "..\..\VLC-Qt"

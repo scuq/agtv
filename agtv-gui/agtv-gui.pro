@@ -15,13 +15,11 @@ VERSION_BUILD = 0
 
 #Target version
 VERSION = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}.$${VERSION_BUILD}
-
 DEFINES += VERSION=\\\"$$VERSION\\\"
-
-
 DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
 
 DEPLOYMENT = no
+CONFIG += winternalvlc
 
 BUILDBASE = ../
 
@@ -41,6 +39,7 @@ equals(DEVELOPER, "DAS") {
     include(project/developer_nowx.pri)
 }
 
+include(project/macosx.pri)
 
 include(project/win32.pri)
 
