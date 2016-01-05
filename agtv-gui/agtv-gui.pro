@@ -46,8 +46,6 @@ include(project/win32.pri)
 
 include(project/vlcqt.pri)
 
-
-
 QT       += core gui network multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
