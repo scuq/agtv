@@ -1175,9 +1175,8 @@ void tpMainWindow::trayIconClicked(QSystemTrayIcon::ActivationReason reason)
 
 void tpMainWindow::on_notifyByTray(QString title, QString message)
 {
-    if (trayIcon->isVisible()) {
+    if( trayIcon->isVisible() && genericHelper::getStreamOnlineNotify() ) {
         trayIcon->showMessage(title, message);
-
     }
 }
 
