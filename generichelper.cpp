@@ -138,7 +138,7 @@ QVariant genericHelper::getWindowstate(QString window)
 QStringList genericHelper::getBookmarks()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-    return settings.value("bookmarks", "").toStringList();
+    return settings.value("bookmarks", QStringList()).toStringList();
 }
 
 void genericHelper::setVlcArgs(QStringList args)
