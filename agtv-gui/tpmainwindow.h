@@ -22,6 +22,7 @@
 #include "twitchapi.h"
 #include "updatecheck.h"
 #include "twitchchannel.h"
+#include "twitchuser.h"
 
 #include <QClipboard>
 #include <QCloseEvent>
@@ -58,6 +59,10 @@ private slots:
     void startM3u8Player(QString m3u8playlist);
 
     void updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer);
+
+    void onTwitchFollowedChannelsDataChanged(const bool &dataChanged);
+
+    void onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged);
 
     void updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer);
     void updateFromJsonResponseUnfollow(const QJsonDocument &jsonResponseBuffer);
@@ -264,9 +269,12 @@ private:
 
     TwitchApi *tw;
 
+    TwitchUser *twitchUser;
+
     TwitchChannel *channel1;
 
     QMap<QString, TwitchChannel*> twitchChannels;
+    QMap<QString, TwitchChannel*> twitchChannelsBookmarks;
 
 public slots:
     void executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");

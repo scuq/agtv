@@ -71,8 +71,16 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     // init twitch api object
     tw = new TwitchApi(this, genericHelper::getOAuthAccessToken());
 
+    twitchUser = new TwitchUser(this,genericHelper::getOAuthAccessToken(),genericHelper::getUsername(),this->updateInterval);
+    QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(bool)));
+    QObject::connect(twitchUser, SIGNAL(twitchBookmarkedChannelsDataChanged(bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(bool)));
+
+    //on_twitchBookmarkedChannelsDataChanged
+
+    //on_twitchFollowedChannelsDataChanged
+
     QObject::connect(tw, SIGNAL(twitchReadyChannelAccessToken(const QJsonDocument)), this, SLOT(onChannelAccessTokenReady(const QJsonDocument)));
-    QObject::connect(tw, SIGNAL(twitchReadyFollows(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollows(const QJsonDocument)));
+    //QObject::connect(tw, SIGNAL(twitchReadyFollows(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollows(const QJsonDocument)));
 
     QObject::connect(tw, SIGNAL(twitchReadyFollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollow(const QJsonDocument)));
     QObject::connect(tw, SIGNAL(twitchReadyUnfollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseUnfollow(const QJsonDocument)));
@@ -398,6 +406,8 @@ void tpMainWindow::enableInput()
 
 void tpMainWindow::loadBookmarks()
 {
+    /**
+
     QStringList loadedbookmarks;
     loadedbookmarks = genericHelper::getBookmarks();
 
@@ -439,6 +449,8 @@ void tpMainWindow::loadBookmarks()
     }
 
     fitTableViewToContent(this->ui->tableViewBookmarks);
+
+    **/
 }
 
 void tpMainWindow::saveBookmarks()
@@ -485,7 +497,12 @@ void tpMainWindow::loadData()
 {
     //this->ui->treeWidget->clear();
     //this->ui->treeWidgetBookmarks->clear();
-    tw->getFollows(genericHelper::getUsername());
+
+    ////tw->getFollows(genericHelper::getUsername());
+
+
+
+
     this->loadBookmarks();
 }
 
@@ -1051,6 +1068,97 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
     fitTableViewToContent(this->ui->tableView);
 
     //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
+}
+
+void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
+{
+    qDebug() << "data changed";
+    this->twitchChannels = twitchUser->getFollowedChannels();
+
+    QMap<QString, TwitchChannel*>::iterator i = this->twitchChannels.begin();
+
+    int y = 0;
+    while (i != this->twitchChannels.end()) {
+
+        //qDebug() << i.key();
+
+        TwitchChannel *twitchChannel = i.value();
+        QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
+        qDebug() << twitchChannel->getChannelName();
+
+        if (this->stmodel->findItems(twitchChannel->getChannelName(), Qt::MatchExactly,0).length() <= 0) {
+
+            if (twitchChannel->getChannelName().length() > 0) {
+
+                QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelName()));
+                stmodel->setItem(y, 0, qsitem0);
+                QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
+                stmodel->setItem(y, 1, qsitem1);
+                QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
+                stmodel->setItem(y, 2, qsitem2);
+                QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
+                stmodel->setItem(y, 3, qsitem3);
+                QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelTitle()));
+                stmodel->setItem(y, 4, qsitem4);
+
+
+            }
+        }
+
+        ++y;
+        ++i;
+    }
+
+}
+
+void tpMainWindow::onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged)
+{
+
+    qDebug() << "bookmark data changed";
+
+    this->twitchChannelsBookmarks = twitchUser->getBookmarkedChannels();
+
+    QMap<QString, TwitchChannel*>::iterator i = this->twitchChannelsBookmarks.begin();
+
+    int y = 0;
+    while (i != this->twitchChannelsBookmarks.end()) {
+
+        //qDebug() << i.key();
+
+        TwitchChannel *twitchChannel = i.value();
+        QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
+
+
+        if (this->stmodelbookmarks->findItems(twitchChannel->getChannelName(),Qt::MatchExactly,0).length() <= 0) {
+            QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelName()));
+            stmodelbookmarks->setItem(y, 0, qsitem0);
+            QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
+            stmodelbookmarks->setItem(y, 1, qsitem1);
+            QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
+            stmodelbookmarks->setItem(y, 2, qsitem2);
+            QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
+            stmodelbookmarks->setItem(y, 3, qsitem3);
+            QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(""));
+            stmodelbookmarks->setItem(y, 4, qsitem4);
+        }
+
+        ++y;
+        ++i;
+    }
+
+    /**
+    if (this->stmodelbookmarks->findItems(current,Qt::MatchExactly,0).length() <= 0) {
+        QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(current));
+        stmodelbookmarks->setItem(i, 0, qsitem0);
+        QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
+        stmodelbookmarks->setItem(i, 1, qsitem1);
+        QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
+        stmodelbookmarks->setItem(i, 2, qsitem2);
+        QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
+        stmodelbookmarks->setItem(i, 3, qsitem3);
+        QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(""));
+        stmodelbookmarks->setItem(i, 4, qsitem4);
+    }**/
 }
 
 bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString &status,

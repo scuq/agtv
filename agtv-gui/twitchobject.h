@@ -47,7 +47,16 @@ class TwitchObject : public QObject
         /*!
           \param channelId the channel id to which the request should be sent
         */
+        void getUserFollowedChannels(QString user);
+        //! Fires a user request to the Twitch API
+        /*!
+
+        */
         void getHost(QString channelId);
+
+        qint64 getRefreshTimerInterval();
+
+        QString getOAuthToken();
 
     public slots:
         virtual void on_timedUpdate() = 0;
@@ -64,11 +73,13 @@ class TwitchObject : public QObject
         void getRequestStream(const QString &urlString);
         void getRequestChannel(const QString &urlString);
         void getRequestHost(const QString &urlString);
+        void getRequestUser(const QString &urlString);
 
     private slots:
         void parseTwitchNetworkResponseStream();
         void parseTwitchNetworkResponseChannel();
         void parseTwitchNetworkResponseHost();
+        void parseTwitchNetworkResponseUser();
 
     signals:
         void networkError( QString errmessage );
@@ -76,6 +87,7 @@ class TwitchObject : public QObject
         void twitchReadyStream( const QJsonDocument &twitchAsJSON );
         void twitchReadyChannel( const QJsonDocument &twitchAsJSON );
         void twitchReadyHost( const QJsonDocument &twitchAsJSON );
+        void twitchReadyUserFollowedChannels( const QJsonDocument &twitchAsJSON );
 
         void twitchDataChanged();
 };

@@ -75,6 +75,11 @@ void TwitchObject::getChannel(QString user)
     this->getRequestChannel("https://api.twitch.tv/kraken/channels/"+user);
 }
 
+void TwitchObject::getUserFollowedChannels(QString user)
+{
+    this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels");
+}
+
 void TwitchObject::getRequestChannel(const QString &urlString)
 {
     QUrl url ( urlString );
@@ -111,6 +116,16 @@ void TwitchObject::getHost(QString channelId)
     this->getRequestHost("https://tmi.twitch.tv/hosts?include_logins=1&host="+channelId);
 }
 
+qint64 TwitchObject::getRefreshTimerInterval()
+{
+    return this->refreshTimerInterval;
+}
+
+QString TwitchObject::getOAuthToken()
+{
+    return this->oAuthToken;
+}
+
 void TwitchObject::getRequestHost(const QString &urlString)
 {
     QUrl url ( urlString );
@@ -125,6 +140,18 @@ void TwitchObject::getRequestHost(const QString &urlString)
     // TODO: implement timeout handling
 }
 
+void TwitchObject::getRequestUser(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    QNetworkReply *reply = nwManager->get(req);
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseUser()));
+}
+
 void TwitchObject::parseTwitchNetworkResponseHost()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
@@ -137,6 +164,23 @@ void TwitchObject::parseTwitchNetworkResponseHost()
 
         QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
         emit twitchReadyHost( json_buffer );
+
+        reply->deleteLater();
+    }
+}
+
+void TwitchObject::parseTwitchNetworkResponseUser()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            emit networkError( reply->errorString() );
+            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            return;
+        }
+
+        QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
+        emit twitchReadyUserFollowedChannels( json_buffer );
 
         reply->deleteLater();
     }
