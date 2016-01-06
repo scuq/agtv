@@ -68,7 +68,11 @@ private slots:
     void updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer);
     void updateFromJsonResponseUnfollow(const QJsonDocument &jsonResponseBuffer);
 
+    void updateOnUnfollow(QString msg);
+
     void on_actionSetup_Twitch_Auth_triggered();
+
+    void showOnStatusBar(const QString errorMsg);
 
     void twitchApiNetworkError(QString error);
 

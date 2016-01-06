@@ -77,6 +77,14 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(const bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(const bool)));
 
+    QObject::connect(twitchUser, SIGNAL(twitchFollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
+
+    QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelSuccess(const QString)), this, SLOT(updateOnUnfollow(const QString)));
+
+    QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
+
+
+
     QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
 
     twitchUserLocal->loadBookmarks();
@@ -84,8 +92,8 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(tw, SIGNAL(twitchReadyChannelAccessToken(const QJsonDocument)), this, SLOT(onChannelAccessTokenReady(const QJsonDocument)));
     //QObject::connect(tw, SIGNAL(twitchReadyFollows(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollows(const QJsonDocument)));
 
-    QObject::connect(tw, SIGNAL(twitchReadyFollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollow(const QJsonDocument)));
-    QObject::connect(tw, SIGNAL(twitchReadyUnfollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseUnfollow(const QJsonDocument)));
+    //QObject::connect(tw, SIGNAL(twitchReadyFollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollow(const QJsonDocument)));
+    //QObject::connect(tw, SIGNAL(twitchReadyUnfollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseUnfollow(const QJsonDocument)));
 
     QObject::connect(tw, SIGNAL(networkError(QString)), this, SLOT(twitchApiNetworkError(QString)));
 
@@ -617,7 +625,9 @@ void tpMainWindow::deleteFollower()
                  tr("Do you really want to unfollow ") + _streamer + "?",
                  QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok) {
-        tw->unfollowChannel(_streamer);
+        //tw->unfollowChannel(_streamer);
+        twitchUser->unfollowChannel(_streamer);
+
 
         followerToRemove.append(_streamer);
     }
@@ -799,7 +809,9 @@ void tpMainWindow::addFollow()
     QString _text = QInputDialog::getText(this, tr("Follow Channel"), tr("Enter Channel URL or name"), QLineEdit::Normal,"");
     QString _streamer = genericHelper::streamURLParser(_text);
     if (!_streamer.isEmpty()) {
-        tw->followChannel(_streamer);
+        //tw->followChannel(_streamer);
+        twitchUser->followChannel(_streamer);
+
         this->ui->statusBar->showMessage(tr("Sent follow request for channel") + " " + _streamer, DEFSTATUSTIMEOUT);
     }
 }
@@ -1203,6 +1215,20 @@ void tpMainWindow::updateFromJsonResponseUnfollow(const QJsonDocument &jsonRespo
     refreshTimer->start(updateInterval);
 }
 
+void tpMainWindow::updateOnUnfollow(QString msg)
+{
+    QString _name;
+
+    while(! followerToRemove.isEmpty() ) {
+        _name = followerToRemove.takeLast();
+
+        deleteFollowerFromList(_name);
+    }
+
+    refreshTimer->start(updateInterval);
+
+}
+
 void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
 {
     if (diaOauthSetup->getDialogShown() == true)
@@ -1217,6 +1243,11 @@ void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
         diaOauthSetup->show();
         diaOauthSetup->setDialogShown();
     }
+}
+
+void tpMainWindow::showOnStatusBar(const QString errorMsg)
+{
+      this->ui->statusBar->showMessage(errorMsg, DEFSTATUSTIMEOUT);
 }
 
 void tpMainWindow::on_updateNotify(const QString &latestVersion)

@@ -7,6 +7,7 @@
 #include <QNetworkAccessManager>
 #include <QString>
 #include <QTimer>
+#include <QSignalMapper>
 
 //!  Base class for the Twitch API interface
 /*!
@@ -52,11 +53,17 @@ class TwitchObject : public QObject
         /*!
 
         */
+        void followChannelUser(QString channelName, QString user);
+
+        void unfollowChannelUser(QString channelName, QString user);
+
         void getHost(QString channelId);
 
         qint64 getRefreshTimerInterval();
 
         QString getOAuthToken();
+
+
 
     public slots:
         virtual void on_timedUpdate() = 0;
@@ -73,13 +80,17 @@ class TwitchObject : public QObject
         void getRequestStream(const QString &urlString);
         void getRequestChannel(const QString &urlString);
         void getRequestHost(const QString &urlString);
-        void getRequestUser(const QString &urlString);
+        void getRequestUser(const QString &urlString, QString callingFuncName);
+        void putRequestUser(const QString &urlString, QString callingFuncName);
+        void delRequestUser(const QString &urlString, QString callingFuncName);
+
+        QSignalMapper *smUserNetworkRequest;
 
     private slots:
         void parseTwitchNetworkResponseStream();
         void parseTwitchNetworkResponseChannel();
         void parseTwitchNetworkResponseHost();
-        void parseTwitchNetworkResponseUser();
+        void parseTwitchNetworkResponseUser(QString callingFuncName);
 
     signals:
         void networkError( QString errmessage );
@@ -88,6 +99,8 @@ class TwitchObject : public QObject
         void twitchReadyChannel( const QJsonDocument &twitchAsJSON );
         void twitchReadyHost( const QJsonDocument &twitchAsJSON );
         void twitchReadyUserFollowedChannels( const QJsonDocument &twitchAsJSON );
+        void twitchReadyUserFollowChannel( const QJsonDocument &twitchAsJSON );
+        void twitchReadyUserUnfollowChannel( const QJsonDocument &twitchAsJSON );
 
         void twitchDataChanged();
 };
