@@ -1,6 +1,6 @@
 #ifndef AGTVDEFAULTITEMDELEGATE_H
 #define AGTVDEFAULTITEMDELEGATE_H
-
+#
 #include <QObject>
 #include <QItemDelegate>
 #include <QLabel>

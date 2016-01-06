@@ -12,6 +12,7 @@
 # libxslt.dll
 # libVLCQtCored.dll
 # libVLCQtWidgets.dll
+#
 # libiconv.dll
 # libvlccore.dll
 # and the plugins dir from VLC_QT_PATH/bin/plugins
