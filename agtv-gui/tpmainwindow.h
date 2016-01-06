@@ -23,6 +23,7 @@
 #include "updatecheck.h"
 #include "twitchchannel.h"
 #include "twitchuser.h"
+#include "twitchuserlocal.h"
 
 #include <QClipboard>
 #include <QCloseEvent>
@@ -270,6 +271,8 @@ private:
     TwitchApi *tw;
 
     TwitchUser *twitchUser;
+
+    TwitchUserLocal *twitchUserLocal;
 
     TwitchChannel *channel1;
 

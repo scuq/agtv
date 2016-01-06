@@ -9,8 +9,6 @@
 #include "twitchobject.h"
 #include "twitchchannel.h"
 
-#include "generichelper.h"
-
 class TwitchUser : public TwitchObject
 {
     Q_OBJECT
@@ -18,22 +16,18 @@ class TwitchUser : public TwitchObject
 
         TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval = 1000);
 
-
         QMap<QString, TwitchChannel*> getFollowedChannels();
-        QMap<QString, TwitchChannel*> getBookmarkedChannels();
-        void on_timedUpdate();
 
+        void on_timedUpdate();
+        void loadBookmarks();
 
     private:
         bool currentlyUpdating;
         bool followedChannelsDataChanged;
         bool bookmarkedChannelsDataChanged;
-        void loadBookmarks();
-
 
         const QString userName;
         QMap<QString, TwitchChannel*> followedChannels;
-        QMap<QString, TwitchChannel*> bookmarkedChannels;
 
 
 
@@ -43,7 +37,6 @@ class TwitchUser : public TwitchObject
 
     signals:
         void twitchFollowedChannelsDataChanged(const bool followedChannelsDataChanged);
-        void twitchBookmarkedChannelsDataChanged(const bool bookmarkedChannelsDataChanged);
 
 };
 

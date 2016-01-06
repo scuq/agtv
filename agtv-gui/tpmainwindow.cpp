@@ -72,12 +72,14 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     tw = new TwitchApi(this, genericHelper::getOAuthAccessToken());
 
     twitchUser = new TwitchUser(this,genericHelper::getOAuthAccessToken(),genericHelper::getUsername(),this->updateInterval);
-    QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(bool)));
-    QObject::connect(twitchUser, SIGNAL(twitchBookmarkedChannelsDataChanged(bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(bool)));
 
-    //on_twitchBookmarkedChannelsDataChanged
+    twitchUserLocal = new TwitchUserLocal(this,genericHelper::getOAuthAccessToken(),genericHelper::getUsername(),this->updateInterval);
 
-    //on_twitchFollowedChannelsDataChanged
+    QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(const bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(const bool)));
+
+    QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
+
+    twitchUserLocal->loadBookmarks();
 
     QObject::connect(tw, SIGNAL(twitchReadyChannelAccessToken(const QJsonDocument)), this, SLOT(onChannelAccessTokenReady(const QJsonDocument)));
     //QObject::connect(tw, SIGNAL(twitchReadyFollows(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollows(const QJsonDocument)));
@@ -1116,7 +1118,7 @@ void tpMainWindow::onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged
 
     qDebug() << "bookmark data changed";
 
-    this->twitchChannelsBookmarks = twitchUser->getBookmarkedChannels();
+    this->twitchChannelsBookmarks = twitchUserLocal->getBookmarkedChannels();
 
     QMap<QString, TwitchChannel*>::iterator i = this->twitchChannelsBookmarks.begin();
 

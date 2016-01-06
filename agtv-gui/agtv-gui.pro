@@ -74,7 +74,8 @@ SOURCES +=  main.cpp\
             twitchobject.cpp \
             logger.cpp \
             twitchchannel.cpp \
-    twitchuser.cpp
+    twitchuser.cpp \
+    twitchuserlocal.cpp
 
 HEADERS  += tpmainwindow.h \
             generichelper.h \
@@ -100,7 +101,8 @@ HEADERS  += tpmainwindow.h \
             logger.h \
             twitchchannel.h \
     version.h \
-    twitchuser.h
+    twitchuser.h \
+    twitchuserlocal.h
 
 FORMS    += tpmainwindow.ui \
             dialogoauthsetup.ui \

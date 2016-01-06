@@ -4,6 +4,10 @@ SSL_DIR = "C:/OpenSSL-Win32/"
 BUILDBASE = z:/build/agtv/
 VLC_QT_PATH = "Z:\VLC-Qt"
 
+linux {
+ BUILDBASE = /home/scuq/build/
+}
+
 
 message("BUILDBASE $${BUILDBASE}}")
 release {
