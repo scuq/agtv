@@ -1,0 +1,12 @@
+Introductions to build and deploy agtv:
+
+Windows with MINGW (has to be in the PATH):
+    mkdir build
+    cd build
+    cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DQT_ROOT_PATH=PATH_TO_QT
+    mingw32-make
+
+(with, e.g., QT_ROOT_PATH=E:\Qt\5.5\mingw492_32)
+    
+To make a package:
+    mingw32-make package
