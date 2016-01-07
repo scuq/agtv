@@ -71,11 +71,12 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     // init twitch api object
     tw = new TwitchApi(this, genericHelper::getOAuthAccessToken());
 
-    twitchUser = new TwitchUser(this,genericHelper::getOAuthAccessToken(),genericHelper::getUsername(),this->updateInterval);
-
-    //twitchUserLocal = new TwitchUserLocal(this,genericHelper::getOAuthAccessToken(),genericHelper::getUsername(),this->updateInterval);
     twitchUserLocal = new TwitchUserLocal(this,this->updateInterval);
     
+    twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(),this->updateInterval);
+    
+    
+      
     twitchUserLocal->getStoredOAuthAccessToken();
 
     QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(const bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(const bool)));

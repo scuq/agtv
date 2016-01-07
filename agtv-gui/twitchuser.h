@@ -15,12 +15,19 @@ class TwitchUser : public TwitchObject
     public:
 
         TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval = 1000);
+        
+        enum class AuthenticationStatus {
+            ok,
+            nok,
+            needssetup
+        };
 
         QMap<QString, TwitchChannel*> getFollowedChannels();
         void on_timedUpdate();
 
         void followChannel(QString channelName);
         void unfollowChannel(QString channelName);
+        
 
 
 
@@ -28,6 +35,7 @@ class TwitchUser : public TwitchObject
         bool currentlyUpdating;
         bool followedChannelsDataChanged;
         bool bookmarkedChannelsDataChanged;
+        AuthenticationStatus authStatus;
 
         const QString userName;
         QMap<QString, TwitchChannel*> followedChannels;
@@ -38,8 +46,13 @@ class TwitchUser : public TwitchObject
         void updateFromJsonResponseUserFollowedChannels(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseUserFollowChannel(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseUserUnfollowChannel(const QJsonDocument &jsonResponseBuffer);
-
-        void twitchNetworkError(const QString errorString);
+        void updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument &jsonResponseBuffer);
+        void onAuthCheckSuccessfull();
+        
+        void twitchNetworkErrorUserFollowedChannels(const QString errorString);
+        void twitchNetworkErrorUserFollowChannel(const QString errorString);
+        void twitchNetworkErrorUserUnfollowChannel(const QString errorString);
+        void twitchNetworkErrorUserAuthenticationStatus(const QString errorString);
 
     signals:
         void twitchFollowedChannelsDataChanged(const bool followedChannelsDataChanged);

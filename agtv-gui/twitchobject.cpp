@@ -92,6 +92,11 @@ void TwitchObject::unfollowChannelUser(QString channelName, QString user)
     this->delRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, __func__);
 }
 
+void TwitchObject::getUserAuthenticationStatus(QString user)
+{  
+    this->getRequestUser("https://api.twitch.tv/kraken/user", __func__);
+}
+
 void TwitchObject::getRequestChannel(const QString &urlString)
 {
     QUrl url ( urlString );
@@ -158,6 +163,7 @@ void TwitchObject::getRequestUser(const QString &urlString, QString callingFuncN
 
     QNetworkRequest req ( url );
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setRawHeader("Authorization", "OAuth "+this->oAuthToken.toLatin1());
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
     QNetworkReply *reply = nwManager->get(req);
@@ -245,7 +251,20 @@ void TwitchObject::parseTwitchNetworkResponseUser(QString callingFuncName)
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(smUserNetworkRequest->mapping(callingFuncName));
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
-            emit networkError( reply->errorString() );
+            //emit networkError( reply->errorString() );
+            
+            if (callingFuncName == "TwitchObject::getUserFollowedChannels") {
+                emit twitchNetworkErrorUserFollowedChannels( reply->errorString() );
+            } else if (callingFuncName == "TwitchObject::followChannelUser") {
+                emit twitchNetworkErrorUserFollowChannel( reply->errorString() );
+            } else if (callingFuncName == "TwitchObject::unfollowChannelUser") {
+                emit twitchNetworkErrorUserUnfollowChannel( reply->errorString() );
+            } else if (callingFuncName == "TwitchObject::getUserAuthenticationStatus") {
+                emit twitchNetworkErrorUserAuthenticationStatus( reply->errorString() );
+            }
+            
+            
+            
             genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
 
             return;
@@ -260,7 +279,11 @@ void TwitchObject::parseTwitchNetworkResponseUser(QString callingFuncName)
             emit twitchReadyUserFollowChannel( json_buffer );
         } else if (callingFuncName == "TwitchObject::unfollowChannelUser") {
             emit twitchReadyUserUnfollowChannel( json_buffer );
+        } else if (callingFuncName == "TwitchObject::getUserAuthenticationStatus") {
+            emit twitchReadyUserAuthenticationStatus( json_buffer );
         }
+        
+
 
         reply->deleteLater();
     } else {

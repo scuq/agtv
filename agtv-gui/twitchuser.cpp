@@ -8,16 +8,27 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
      this->currentlyUpdating = false;
 
      this->followedChannelsDataChanged = false;
+    
+    
+     QObject::connect(this, SIGNAL(twitchReadyUserAuthenticationStatus(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument)));
 
      QObject::connect(this, SIGNAL(twitchReadyUserFollowedChannels(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserFollowedChannels(const QJsonDocument)));
 
      QObject::connect(this, SIGNAL(twitchReadyUserFollowChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserFollowChannel(const QJsonDocument)));
 
      QObject::connect(this, SIGNAL(twitchReadyUserUnfollowChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserUnfollowChannel(const QJsonDocument)));
+     
+     QObject::connect(this, SIGNAL(twitchNetworkErrorUserFollowedChannels(QString)), this, SLOT(twitchNetworkErrorUserFollowedChannels(QString)));
+     
+     QObject::connect(this, SIGNAL(twitchNetworkErrorUserFollowChannel(QString)), this, SLOT(twitchNetworkErrorUserFollowChannel(QString)));
+     
+     QObject::connect(this, SIGNAL(twitchNetworkErrorUserUnfollowChannel(QString)), this, SLOT(twitchNetworkErrorUserUnfollowChannel(QString)));
+     
+     QObject::connect(this, SIGNAL(twitchNetworkErrorUserAuthenticationStatus(QString)), this, SLOT(twitchNetworkErrorUserAuthenticationStatus(QString)));
 
-     QObject::connect(this, SIGNAL(networkError(QString)), this, SLOT(twitchNetworkError(QString)));
-
-     this->getUserFollowedChannels(this->userName);
+     
+     
+     this->getUserAuthenticationStatus(this->userName);
 
      this->setupTimer();
 
@@ -116,7 +127,46 @@ void TwitchUser::updateFromJsonResponseUserUnfollowChannel(const QJsonDocument &
     }
 }
 
-void TwitchUser::twitchNetworkError(const QString errorString)
+void TwitchUser::updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument &jsonResponseBuffer)
+{
+    
+    QJsonObject jsonObject = jsonResponseBuffer.object();
+    
+    if (!jsonObject["email"].isNull()) {
+         this->authStatus = AuthenticationStatus::ok;
+         emit onAuthCheckSuccessfull();
+         
+    }
+    
+   
+}
+
+void TwitchUser::onAuthCheckSuccessfull()
+{
+    this->getUserFollowedChannels(this->userName);
+}
+
+
+void TwitchUser::twitchNetworkErrorUserFollowedChannels(const QString errorString)
 {
     qDebug() << errorString;
+}
+
+void TwitchUser::twitchNetworkErrorUserFollowChannel(const QString errorString)
+{
+    qDebug() << errorString;
+}
+
+void TwitchUser::twitchNetworkErrorUserUnfollowChannel(const QString errorString)
+{
+    qDebug() << errorString;
+}
+
+void TwitchUser::twitchNetworkErrorUserAuthenticationStatus(const QString errorString)
+{
+    
+    if (errorString.contains("requires authentication")) {
+        this->authStatus = AuthenticationStatus::nok;
+    }
+    
 }

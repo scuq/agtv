@@ -56,6 +56,8 @@ class TwitchObject : public QObject
         void followChannelUser(QString channelName, QString user);
 
         void unfollowChannelUser(QString channelName, QString user);
+        
+        void getUserAuthenticationStatus(QString user);
 
         void getHost(QString channelId);
 
@@ -94,6 +96,11 @@ class TwitchObject : public QObject
 
     signals:
         void networkError( QString errmessage );
+        void twitchNetworkErrorUserFollowedChannels( QString errmessage );
+        void twitchNetworkErrorUserFollowChannel( QString errmessage );
+        void twitchNetworkErrorUserUnfollowChannel( QString errmessage );
+        void twitchNetworkErrorUserAuthenticationStatus( QString errmessage );
+        
 
         void twitchReadyStream( const QJsonDocument &twitchAsJSON );
         void twitchReadyChannel( const QJsonDocument &twitchAsJSON );
@@ -101,6 +108,7 @@ class TwitchObject : public QObject
         void twitchReadyUserFollowedChannels( const QJsonDocument &twitchAsJSON );
         void twitchReadyUserFollowChannel( const QJsonDocument &twitchAsJSON );
         void twitchReadyUserUnfollowChannel( const QJsonDocument &twitchAsJSON );
+        void twitchReadyUserAuthenticationStatus( const QJsonDocument &twitchAsJSON );
 
         void twitchDataChanged();
 };
