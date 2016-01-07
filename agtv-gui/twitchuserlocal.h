@@ -18,18 +18,18 @@ class TwitchUserLocal : public QObject
 
         TwitchUserLocal(QObject *parent, const qint64 defaultTimerInterval = 1000);
         
-
         QMap<QString, TwitchChannel*> getBookmarkedChannels();
-
-   
+ 
         void loadBookmarks();
+        
+        QString getStoredOAuthAccessToken(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool saveOAuthAccessToken(QString oAuthAccessToken, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
 
     private:
   
 
         bool bookmarkedChannelsDataChanged;
         
-
         const QString userName;
 
         QMap<QString, TwitchChannel*> bookmarkedChannels;
@@ -38,8 +38,6 @@ class TwitchUserLocal : public QObject
         
         qint64 refreshTimerInterval;
         
-
-
 
     private slots:
 

@@ -11,6 +11,8 @@ TwitchUserLocal::TwitchUserLocal(QObject *parent, const qint64 defaultTimerInter
 }
 
 
+
+
 QMap<QString, TwitchChannel *> TwitchUserLocal::getBookmarkedChannels()
 {
     return this->bookmarkedChannels;
@@ -36,6 +38,34 @@ void TwitchUserLocal::loadBookmarks()
      qDebug() << "emit bookmarkedChannels";
      emit twitchBookmarkedChannelsDataChanged(this->bookmarkedChannelsDataChanged);
      
+}
+
+QString TwitchUserLocal::getStoredOAuthAccessToken(QString company, QString app)
+{
+    QSettings settings(company, app);
+    
+    QString _oauthtoken = "<NONE>";
+    
+    if (settings.value("oauthAccessToken", "").toString().length() > 1) {
+        _oauthtoken = settings.value("oauthAccessToken", "").toString();
+    
+    }
+    
+    return _oauthtoken;
+}
+
+bool TwitchUserLocal::saveOAuthAccessToken(QString oAuthAccessToken, QString company, QString app)
+{
+    bool ok = false;
+    
+    if (oAuthAccessToken.length() > 0) {
+        QSettings settings(company, app);
+        settings.setValue("oauthAccessToken", oAuthAccessToken);
+        settings.sync();    
+        ok = true;
+    }
+    
+    return ok;
 }
 
 qint64 TwitchUserLocal::getRefreshTimerInterval()

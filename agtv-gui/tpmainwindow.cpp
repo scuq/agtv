@@ -75,6 +75,8 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     //twitchUserLocal = new TwitchUserLocal(this,genericHelper::getOAuthAccessToken(),genericHelper::getUsername(),this->updateInterval);
     twitchUserLocal = new TwitchUserLocal(this,this->updateInterval);
+    
+    twitchUserLocal->getStoredOAuthAccessToken();
 
     QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(const bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(const bool)));
 
@@ -1036,6 +1038,7 @@ void tpMainWindow::startM3u8Player(QString m3u8playlist)
 
 void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer)
 {
+    /*
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
     for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
@@ -1083,6 +1086,7 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
     fitTableViewToContent(this->ui->tableView);
 
     //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
+    */
 }
 
 void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
