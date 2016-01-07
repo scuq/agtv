@@ -12,7 +12,6 @@
 #include <QtCore/QJsonValue>
 #include "generichelper.h"
 #include "twitchapi.h"
-#include "twitchclientid.h"
 #include "imageloader.h"
 
 namespace Ui {
@@ -47,11 +46,14 @@ private slots:
     void loadProfileImage();
 
     void on_lineEditOAuthToken_textChanged(const QString &arg1);
+    
+    
 
 
 
 signals:
 void twitchAuthSetupChanged(bool);
+void onAuthorizeRequested();
 
 private:
     Ui::dialogOauthSetup *ui;

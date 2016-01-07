@@ -143,6 +143,21 @@ QString TwitchObject::getOAuthToken()
     return this->oAuthToken;
 }
 
+QString TwitchObject::getTwitchClientId()
+{
+    return this->twitchClientId;
+}
+
+void TwitchObject::setTwitchClientId()
+{
+    this->getRequestClientId("http://agtv.abyle.org/clid/twitchClientId");
+}
+
+void TwitchObject::setUserAgentStr(QString useragent)
+{
+    this->userAgentStr = useragent;
+}
+
 void TwitchObject::getRequestHost(const QString &urlString)
 {
     QUrl url ( urlString );
@@ -225,7 +240,21 @@ void TwitchObject::delRequestUser(const QString &urlString, QString callingFuncN
     QObject::connect(reply, SIGNAL(finished()), smUserNetworkRequest, SLOT(map()));
     QObject::connect(smUserNetworkRequest, SIGNAL(mapped(QString)), this, SLOT(parseTwitchNetworkResponseUser(QString)));
     smUserNetworkRequest->setMapping(reply, callingFuncName);
+    
+}
 
+void TwitchObject::getRequestClientId(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    QNetworkReply *reply = nwManager->get(req);
+
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseClientId()));
+    
 }
 
 void TwitchObject::parseTwitchNetworkResponseHost()
@@ -289,4 +318,22 @@ void TwitchObject::parseTwitchNetworkResponseUser(QString callingFuncName)
     } else {
         genericHelper::log( QString(__func__) + QString(": ") + "reply is NULL");
     }
+}
+
+void TwitchObject::parseTwitchNetworkResponseClientId()
+{
+    
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            emit networkError( reply->errorString() );
+            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            return;
+        }
+
+        this->twitchClientId = reply->readAll().replace("\n",""); 
+        qDebug() << this->twitchClientId;
+        
+        reply->deleteLater();
+    }    
 }

@@ -75,7 +75,11 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     
     twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(),this->updateInterval);
     
+    twitchUser->setUserAgentStr(genericHelper::getAppName()+"/"+version);
+        
+    QObject::connect(twitchUser, SIGNAL(twitchNeedsOAuthSetup()), this, SLOT(onStartAuthSetup()));
     
+    twitchUser->checkAuthenticationSetup();
       
     twitchUserLocal->getStoredOAuthAccessToken();
 
@@ -111,6 +115,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     QObject::connect(this, SIGNAL(setStreamUrlWithQuality(QMap<QString, QString>)), diaLaunch, SLOT(setStreamUrlWithQuality(QMap<QString, QString>)));
 
     QObject::connect(diaOauthSetup, SIGNAL(twitchAuthSetupChanged(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
+    QObject::connect(diaOauthSetup, SIGNAL(onAuthorizeRequested()), this, SLOT(onBrowserAuthorizeRequested()));
 
 
     QObject::connect(this->ui->lineEditFilter, SIGNAL(textChanged(QString)), this->stproxymodel, SLOT(setFilterRegExp(QString)));
@@ -150,7 +155,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     showOfflineStreamers = true;
 
-    if (genericHelper::getUsername() == "") {
+    if (!twitchUserLocal->isUserSetupOk()) {
         this->disableInput();
     }
 
@@ -1237,6 +1242,7 @@ void tpMainWindow::updateOnUnfollow(QString msg)
 
 void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
 {
+   
     if (diaOauthSetup->getDialogShown() == true)
     {
         diaOauthSetup->close();
@@ -1249,6 +1255,30 @@ void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
         diaOauthSetup->show();
         diaOauthSetup->setDialogShown();
     }
+}
+
+void tpMainWindow::onStartAuthSetup()
+{
+    qDebug() << "onStartAuthSetup";
+    if (diaOauthSetup->getDialogShown() == true)
+    {
+        diaOauthSetup->close();
+
+        diaOauthSetup->show();
+
+    } else {
+
+
+        diaOauthSetup->show();
+        diaOauthSetup->setDialogShown();
+    }
+}
+
+void tpMainWindow::onBrowserAuthorizeRequested()
+{
+    
+    QString link = "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id="+this->twitchUser->getTwitchClientId()+"&redirect_uri=http://oauth.abyle.org/&scope=channel_editor+user_read+user_subscriptions+user_follows_edit+chat_login+channel_read";
+    QDesktopServices::openUrl(QUrl(link));
 }
 
 void tpMainWindow::showOnStatusBar(const QString errorMsg)

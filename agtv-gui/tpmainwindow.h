@@ -71,6 +71,10 @@ private slots:
     void updateOnUnfollow(QString msg);
 
     void on_actionSetup_Twitch_Auth_triggered();
+    
+    void onStartAuthSetup();
+    
+    void onBrowserAuthorizeRequested();
 
     void showOnStatusBar(const QString errorMsg);
 

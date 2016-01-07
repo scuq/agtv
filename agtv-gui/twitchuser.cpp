@@ -4,10 +4,15 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
     TwitchObject(parent, oAuthToken, defaultTimerInterval), userName( username )
 {
 
+    
+
+
 
      this->currentlyUpdating = false;
 
      this->followedChannelsDataChanged = false;
+    
+    
     
     
      QObject::connect(this, SIGNAL(twitchReadyUserAuthenticationStatus(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument)));
@@ -26,7 +31,7 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
      
      QObject::connect(this, SIGNAL(twitchNetworkErrorUserAuthenticationStatus(QString)), this, SLOT(twitchNetworkErrorUserAuthenticationStatus(QString)));
 
-     
+     this->setTwitchClientId();
      
      this->getUserAuthenticationStatus(this->userName);
 
@@ -60,6 +65,21 @@ void TwitchUser::unfollowChannel(QString channelName)
     this->followedChannelsDataChanged = true;
 
     emit twitchFollowedChannelsDataChanged(this->followedChannelsDataChanged);
+}
+
+void TwitchUser::checkAuthenticationSetup()
+{
+    
+    
+    
+    if ((this->getOAuthToken() == "<NONE>") ||(this->getOAuthToken() == "")) {
+        this->authStatus = AuthenticationStatus::needssetup;
+        emit twitchNeedsOAuthSetup();
+    } else {
+        this->authStatus = AuthenticationStatus::unknown;
+    }
+    
+    
 }
 
 

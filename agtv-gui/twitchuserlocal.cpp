@@ -54,6 +54,12 @@ QString TwitchUserLocal::getStoredOAuthAccessToken(QString company, QString app)
     return _oauthtoken;
 }
 
+QString TwitchUserLocal::getStoredUsername(QString company, QString app)
+{
+    QSettings settings(company, app);
+    return settings.value("username", "").toString();
+}
+
 bool TwitchUserLocal::saveOAuthAccessToken(QString oAuthAccessToken, QString company, QString app)
 {
     bool ok = false;
@@ -66,6 +72,15 @@ bool TwitchUserLocal::saveOAuthAccessToken(QString oAuthAccessToken, QString com
     }
     
     return ok;
+}
+
+bool TwitchUserLocal::isUserSetupOk(QString company, QString app)
+{
+    if (this->getStoredUsername() != "") {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 qint64 TwitchUserLocal::getRefreshTimerInterval()

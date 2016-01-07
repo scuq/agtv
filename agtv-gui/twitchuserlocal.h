@@ -23,7 +23,9 @@ class TwitchUserLocal : public QObject
         void loadBookmarks();
         
         QString getStoredOAuthAccessToken(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        QString getStoredUsername(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool saveOAuthAccessToken(QString oAuthAccessToken, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool isUserSetupOk(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
 
     private:
   

@@ -19,7 +19,8 @@ class TwitchUser : public TwitchObject
         enum class AuthenticationStatus {
             ok,
             nok,
-            needssetup
+            needssetup,
+            unknown
         };
 
         QMap<QString, TwitchChannel*> getFollowedChannels();
@@ -27,6 +28,7 @@ class TwitchUser : public TwitchObject
 
         void followChannel(QString channelName);
         void unfollowChannel(QString channelName);
+        void checkAuthenticationSetup();
         
 
 
@@ -60,6 +62,7 @@ class TwitchUser : public TwitchObject
         void twitchFollowChannelSuccess(const QString msg);
         void twitchUnfollowChannelError(const QString msg);
         void twitchUnfollowChannelSuccess(const QString msg);
+        void twitchNeedsOAuthSetup();
 
 };
 
