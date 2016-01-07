@@ -6,31 +6,38 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-#include "twitchobject.h"
+
 #include "twitchchannel.h"
 
 #include "generichelper.h"
 
-class TwitchUserLocal : public TwitchObject
+class TwitchUserLocal : public QObject
 {
     Q_OBJECT
     public:
 
-        TwitchUserLocal(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval = 1000);
+        TwitchUserLocal(QObject *parent, const qint64 defaultTimerInterval = 1000);
+        
 
         QMap<QString, TwitchChannel*> getBookmarkedChannels();
 
-        void on_timedUpdate();
+   
         void loadBookmarks();
 
     private:
-        bool currentlyUpdating;
-        bool followedChannelsDataChanged;
+  
+
         bool bookmarkedChannelsDataChanged;
+        
 
         const QString userName;
 
         QMap<QString, TwitchChannel*> bookmarkedChannels;
+        
+        qint64 getRefreshTimerInterval();
+        
+        qint64 refreshTimerInterval;
+        
 
 
 

@@ -1,9 +1,12 @@
 #include "twitchuserlocal.h"
 
-TwitchUserLocal::TwitchUserLocal(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval) :
-    TwitchObject(parent, oAuthToken, defaultTimerInterval), userName( username )
+TwitchUserLocal::TwitchUserLocal(QObject *parent, const qint64 defaultTimerInterval) :
+    QObject(parent)
 {
-     this->bookmarkedChannelsDataChanged = false;
+    this->refreshTimerInterval = defaultTimerInterval;
+    
+    this->bookmarkedChannelsDataChanged = false;
+    
 
 }
 
@@ -11,11 +14,6 @@ TwitchUserLocal::TwitchUserLocal(QObject *parent, const QString oAuthToken, cons
 QMap<QString, TwitchChannel *> TwitchUserLocal::getBookmarkedChannels()
 {
     return this->bookmarkedChannels;
-}
-
-void TwitchUserLocal::on_timedUpdate()
-{
-    return;
 }
 
 
@@ -29,7 +27,7 @@ void TwitchUserLocal::loadBookmarks()
 
     while (itr.hasNext()) {
         QString current = itr.next();
-        TwitchChannel *twitchChannel = new TwitchChannel(this, this->getOAuthToken(), current, this->getRefreshTimerInterval());
+        TwitchChannel *twitchChannel = new TwitchChannel(this, "this->oAuthToken", current, this->getRefreshTimerInterval());
         this->bookmarkedChannels[current] = twitchChannel;
 
         this->bookmarkedChannelsDataChanged = true;
@@ -37,5 +35,10 @@ void TwitchUserLocal::loadBookmarks()
 
      qDebug() << "emit bookmarkedChannels";
      emit twitchBookmarkedChannelsDataChanged(this->bookmarkedChannelsDataChanged);
+     
+}
 
+qint64 TwitchUserLocal::getRefreshTimerInterval()
+{
+    return this->refreshTimerInterval;
 }
