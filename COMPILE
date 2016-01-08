@@ -28,6 +28,6 @@ Windows with Visual Studio 2013 and nmake:
     activates the internal VLC player.
 
     To make a package:
-        mingw32-make package
+        nmake package
 
     Note: An msbuild.exe build does not work, yet.
