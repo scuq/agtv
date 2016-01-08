@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.11)
+cmake_minimum_required (VERSION 3.0.2)
 project (agtv)
 
 set(COMPANY "AbyleDotOrg")
@@ -23,7 +23,8 @@ file(WRITE ${CMAKE_BINARY_DIR}/MINOR.ver ${AGTV_MINOR_VERSION})
 file(WRITE ${CMAKE_BINARY_DIR}/PATCH.ver ${AGTV_PATCH_VERSION})
         
 if(NOT QT_ROOT_PATH)
-    message(FATAL_ERROR "QT_ROOT_PATH not set. Use cmake -DQT_ROOT_PATH=PATH_TO_QT")
+    message(STATUS "QT_ROOT_PATH not set. Use cmake -DQT_ROOT_PATH=PATH_TO_QT")
+    message(STATUS "Trying to use system QT")
 else(NOT QT_ROOT_PATH)
     message(STATUS "USing QT_ROOT_PATH = ${QT_ROOT_PATH}")
 endif(NOT QT_ROOT_PATH)
