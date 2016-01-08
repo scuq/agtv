@@ -31,3 +31,20 @@ Windows with Visual Studio 2013 and nmake:
         nmake package
 
     Note: An msbuild.exe build does not work, yet.
+
+Debian:
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR="DEB" [-DQT_ROOT_PATH=PATH_TO_QT] [-DVLC_QT_PATH=PATH_TO_VLC_QT]
+        make
+
+    (with, e.g., QT_ROOT_PATH=/home/user/Qt/5.5/gcc and VLC_QT_PATH=/usr)
+
+    Specifying VLC_QT_PATH lets cmake look for the VLC-Qt package (https://vlc-qt.tano.si/) and if found
+    activates the internal VLC player.
+
+    This has been tested using the Ubuntu packages provided from https://vlc-qt.tano.si/.
+
+    To make a package (as we specified DEB as generator, we get a debian package):
+        make package
+
