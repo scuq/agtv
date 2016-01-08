@@ -35,7 +35,7 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
      // trigger auth status update
      this->getUserAuthenticationStatus();
 
-     this->setupTimer();
+     // this->setupTimer();
 
      this->getUserFollowedChannels(this->userName);
 
@@ -45,8 +45,6 @@ QMap<QString, TwitchChannel *> TwitchUser::getFollowedChannels()
 {
     return this->followedChannels;
 }
-
-
 
 void TwitchUser::on_timedUpdate()
 {
@@ -118,8 +116,6 @@ void TwitchUser::updateFromJsonResponseUserFollowedChannels(const QJsonDocument 
 {
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
-    genericHelper::log( QString(__func__));
-
     for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
         if (iter.key() == "follows")
         {
@@ -128,21 +124,18 @@ void TwitchUser::updateFromJsonResponseUserFollowedChannels(const QJsonDocument 
                 QJsonValue _val = iter.value().toArray().at(i);
 
                 QString channelName = _val.toObject()["channel"].toObject()["name"].toString();
-
-
-                TwitchChannel *twitchChannel = new TwitchChannel(this, this->getOAuthToken(), channelName, this->getRefreshTimerInterval());
-                this->followedChannels[channelName] = twitchChannel;
-
-                this->followedChannelsDataChanged = true;
-
+                if(channelName.length()>0) {
+                    if(!this->followedChannels.contains(channelName)) {
+                        TwitchChannel *twitchChannel = new TwitchChannel(this, this->getOAuthToken(), channelName, this->getRefreshTimerInterval());
+                        this->followedChannels[channelName] = twitchChannel;
+                        this->followedChannelsDataChanged = true;
+                    }
+                }
             }
         }
-
     }
 
     emit twitchFollowedChannelsDataChanged(this->followedChannelsDataChanged);
-
-
 }
 
 void TwitchUser::updateFromJsonResponseUserFollowChannel(const QJsonDocument &jsonResponseBuffer)
