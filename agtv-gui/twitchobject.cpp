@@ -61,7 +61,7 @@ void TwitchObject::parseTwitchNetworkResponseStream()
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
             return;
         }
 
@@ -79,22 +79,22 @@ void TwitchObject::getChannel(QString user)
 
 void TwitchObject::getUserFollowedChannels(QString user)
 {
-    this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels", __func__);
+    this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels", Q_FUNC_INFO);
 }
 
 void TwitchObject::followChannelUser(QString channelName, QString user)
 {
-    this->putRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, __func__);
+    this->putRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, Q_FUNC_INFO);
 }
 
 void TwitchObject::unfollowChannelUser(QString channelName, QString user)
 {
-    this->delRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, __func__);
+    this->delRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, Q_FUNC_INFO);
 }
 
 void TwitchObject::getUserAuthenticationStatus(QString user)
 {  
-    this->getRequestUser("https://api.twitch.tv/kraken/user", __func__);
+    this->getRequestUser("https://api.twitch.tv/kraken/user", Q_FUNC_INFO);
 }
 
 void TwitchObject::getRequestChannel(const QString &urlString)
@@ -117,7 +117,7 @@ void TwitchObject::parseTwitchNetworkResponseChannel()
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
             return;
         }
 
@@ -263,7 +263,7 @@ void TwitchObject::parseTwitchNetworkResponseHost()
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
             return;
         }
 
@@ -294,7 +294,7 @@ void TwitchObject::parseTwitchNetworkResponseUser(QString callingFuncName)
             
             
             
-            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
 
             return;
         }
@@ -316,7 +316,7 @@ void TwitchObject::parseTwitchNetworkResponseUser(QString callingFuncName)
 
         reply->deleteLater();
     } else {
-        genericHelper::log( QString(__func__) + QString(": ") + "reply is NULL");
+        genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + "reply is NULL");
     }
 }
 
@@ -327,7 +327,7 @@ void TwitchObject::parseTwitchNetworkResponseClientId()
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
             return;
         }
 
