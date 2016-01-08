@@ -15,26 +15,23 @@ QMap<QString, TwitchChannel *> TwitchUserLocal::getBookmarkedChannels()
     return this->bookmarkedChannels;
 }
 
-
 void TwitchUserLocal::loadBookmarks()
 {
     QStringList loadedbookmarks;
     loadedbookmarks = this->getBookmarks();
-    
-    this->bookmarkedChannels.clear();
 
     QListIterator<QString> itr (loadedbookmarks);
 
     while (itr.hasNext()) {
         QString current = itr.next();
-        TwitchChannel *twitchChannel = new TwitchChannel(this, "this->oAuthToken", current, this->getRefreshTimerInterval());
-        this->bookmarkedChannels[current] = twitchChannel;
-
-        this->bookmarkedChannelsDataChanged = true;
+        if(!this->bookmarkedChannels.contains(current)) {
+            TwitchChannel *twitchChannel = new TwitchChannel(this, "this->oAuthToken", current, this->getRefreshTimerInterval());
+            this->bookmarkedChannels[current] = twitchChannel;
+            this->bookmarkedChannelsDataChanged = true;
+        }
     }
 
-     emit twitchBookmarkedChannelsDataChanged(this->bookmarkedChannelsDataChanged);
-     
+    emit twitchBookmarkedChannelsDataChanged(this->bookmarkedChannelsDataChanged);
 }
 
 QString TwitchUserLocal::getStoredOAuthAccessToken(QString company, QString app)

@@ -26,6 +26,8 @@ TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QS
     this->currentlyUpdatingChannel = true;
 
     this->setupTimer();
+
+    genericHelper::log( this->channelName + QString(": ") + QString("TwitchChannel setup and ready"));
 }
 
 void TwitchChannel::twitchNetworkError(const QString errorString)
