@@ -88,7 +88,6 @@ HEADERS  += tpmainwindow.h \
             advqsortfilterproxymodel.h \
             imageloader.h \
             updatecheck.h \
-            twitchclientid.h \
             dialogshowlogfile.h \
             filedownloader.h \
             agtvdefaultitemdelegate.h \
