@@ -50,8 +50,23 @@ find_package(Qt5Network)
 find_package(Qt5Multimedia)
 find_package(Qt5MultimediaWidgets)
 
+set(LINK_TO_LIBS Qt5::Widgets Qt5::OpenGL Qt5::Network Qt5::Multimedia Qt5::MultimediaWidgets)
+
+find_package(VLCQt QUIET
+             PATHS ${VLC_QT_PATH} NO_DEFAULT_PATH
+             COMPONENTS Core Widgets)
+
+if(VLCQt_FOUND)
+    message(STATUS "Compiling with VLC-Qt support")
+    add_definitions(-DWINTERNALVLC)
+    LIST(APPEND CPP_SOURCE_FILES dialogvideoplayer.cpp)
+    LIST(APPEND LINK_TO_LIBS VLCQt::Core VLCQt::Widgets)
+else()
+    message(STATUS "Compiling without VLC-Qt support")
+endif()
+
 add_executable(agtv WIN32 ${CPP_SOURCE_FILES})
-target_link_libraries(agtv Qt5::Widgets Qt5::OpenGL Qt5::Network Qt5::Multimedia Qt5::MultimediaWidgets)
+target_link_libraries(agtv ${LINK_TO_LIBS})
 
 # ------------------------------------------------------------------------- #
 # INSTALL SECTION
