@@ -1,0 +1,50 @@
+Introductions to build and deploy agtv:
+
+Windows with MINGW (has to be in the PATH):
+        mkdir build
+        cd build
+        cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release [-DQT_ROOT_PATH=PATH_TO_QT] [-DVLC_QT_PATH=PATH_TO_VLC_QT]
+        mingw32-make
+
+    (with, e.g., QT_ROOT_PATH=E:\Qt\5.5\mingw492_32 and VLC_QT_PATH=E:\Qt\VLC-Qt_1.0.0_win32_mingw)
+
+    Specifying VLC_QT_PATH lets cmake look for the VLC-Qt package (https://vlc-qt.tano.si/) and if found
+    activates the internal VLC player.
+
+    To make a package:
+        mingw32-make package
+    
+Windows with Visual Studio 2013 and nmake:
+    First start by opening the 'VS2013 x64 Native Tools Command Prompt' to be sure that the correct
+    enviroment variables are set. After that the build process can be started by
+        mkdir build
+        cd build
+        cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release [-DQT_ROOT_PATH=PATH_TO_QT] [-DVLC_QT_PATH=PATH_TO_VLC_QT]
+        nmake
+
+    (with, e.g., QT_ROOT_PATH=E:\Qt\5.5\msvc2013_64 and VLC_QT_PATH=E:\Qt\VLC-Qt_1.0.0_win64_msvc2013)
+
+    Specifying VLC_QT_PATH lets cmake look for the VLC-Qt package (https://vlc-qt.tano.si/) and if found
+    activates the internal VLC player.
+
+    To make a package:
+        nmake package
+
+    Note: An msbuild.exe build does not work, yet.
+
+Debian:
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release -DCPACK_GENERATOR="DEB" [-DQT_ROOT_PATH=PATH_TO_QT] [-DVLC_QT_PATH=PATH_TO_VLC_QT]
+        make
+
+    (with, e.g., QT_ROOT_PATH=/home/user/Qt/5.5/gcc and VLC_QT_PATH=/usr)
+
+    Specifying VLC_QT_PATH lets cmake look for the VLC-Qt package (https://vlc-qt.tano.si/) and if found
+    activates the internal VLC player.
+
+    This has been tested using the Ubuntu packages provided from https://vlc-qt.tano.si/.
+
+    To make a package (as we specified DEB as generator, we get a debian package):
+        make package
+

@@ -74,8 +74,8 @@ SOURCES +=  main.cpp\
             twitchobject.cpp \
             logger.cpp \
             twitchchannel.cpp \
-    twitchuser.cpp \
-    twitchuserlocal.cpp
+            twitchuser.cpp \
+            twitchuserlocal.cpp
 
 HEADERS  += tpmainwindow.h \
             generichelper.h \
@@ -85,11 +85,9 @@ HEADERS  += tpmainwindow.h \
             dialogpositioner.h \
             dialoglaunch.h \
             dialogoptions.h \
-            twitchclientid.h \
             advqsortfilterproxymodel.h \
             imageloader.h \
             updatecheck.h \
-            twitchclientid.h \
             dialogshowlogfile.h \
             filedownloader.h \
             agtvdefaultitemdelegate.h \
@@ -100,9 +98,9 @@ HEADERS  += tpmainwindow.h \
             twitchobject.h \
             logger.h \
             twitchchannel.h \
-    version.h \
-    twitchuser.h \
-    twitchuserlocal.h
+            version.h \
+            twitchuser.h \
+            twitchuserlocal.h
 
 FORMS    += tpmainwindow.ui \
             dialogoauthsetup.ui \
@@ -115,8 +113,8 @@ FORMS    += tpmainwindow.ui \
             dialoggamebrowser.ui
 
 RESOURCES += \
-    agtv.qrc
+            agtv.qrc
 
 DISTFILES += \
-    README.md \
-    agtv.nsi
+            README.md \
+            agtv.nsi

@@ -27,7 +27,7 @@ TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QS
 
 void TwitchChannel::twitchNetworkError(const QString errorString)
 {
-    genericHelper::log( QString(__func__) + QString(": ") + errorString);
+    genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + errorString);
     this->currentlyUpdating = false;
 }
 

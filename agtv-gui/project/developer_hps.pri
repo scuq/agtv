@@ -1,7 +1,7 @@
 message("setting paths and settings for $${DEVELOPER}}")
 
 win32 {
-    VLC_QT_PATH = "E:\Dropbox\Qt\VLC-Qt_1.0.0_win32_mingw"
+    VLC_QT_PATH = "E:\Qt\VLC-Qt_1.0.0_win32_mingw"
 }
 
 macx {
