@@ -69,6 +69,16 @@ get_target_property(QtMultimedia_location Qt5::Multimedia LOCATION)
 get_target_property(QtMultimediaWidgets_location Qt5::MultimediaWidgets LOCATION)
 
 if(MINGW AND WIN32)
+    find_library(libwinpthread-1_location libwinpthread-1)
+    message(STATUS "Installing ${libwinpthread-1_location}")
+    install(FILES 	${libwinpthread-1_location}
+            DESTINATION bin)
+
+    find_library(libgcc_s_dw2-1_location libgcc_s_dw2-1)
+    message(STATUS "Installing ${libgcc_s_dw2-1_location}")
+    install(FILES 	${libgcc_s_dw2-1_location}
+            DESTINATION bin)
+
     find_library(libstdc++-6_location libstdc++-6)
     message(STATUS "Installing ${libstdc++-6_location}")
     install(FILES 	${libstdc++-6_location}
@@ -91,8 +101,19 @@ if(WIN32)
                     ${QtNetwork_location}
                     ${QtMultimedia_location}
                     ${QtMultimediaWidgets_location}
-    DESTINATION bin)
-endif(WIN32)   
+            DESTINATION bin)
+
+    foreach(plugin ${Qt5Gui_PLUGINS})
+        get_target_property(_loc ${plugin} LOCATION)
+        message(STATUS "Installing plugin for ${plugin}: ${_loc}")
+        get_filename_component(_loc_path "${_loc}" PATH)
+        get_filename_component(_loc_parent_path "${_loc_path}" PATH)
+        get_filename_component(_loc_dir_name "${_loc_path}" NAME)
+        get_filename_component(_loc_name "${_loc}" NAME)
+        install(FILES ${_loc}
+                DESTINATION bin/${_loc_dir_name})
+    endforeach()
+endif(WIN32)
    
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_VENDOR ${COMPANY})
