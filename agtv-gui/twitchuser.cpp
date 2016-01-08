@@ -4,17 +4,11 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
     TwitchObject(parent, oAuthToken, defaultTimerInterval), userName( username )
 {
 
-    
-
-
-
+        
      this->currentlyUpdating = false;
 
      this->followedChannelsDataChanged = false;
-    
-    
-    
-    
+        
      QObject::connect(this, SIGNAL(twitchReadyUserAuthenticationStatus(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument)));
 
      QObject::connect(this, SIGNAL(twitchReadyUserFollowedChannels(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserFollowedChannels(const QJsonDocument)));
@@ -23,17 +17,21 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
 
      QObject::connect(this, SIGNAL(twitchReadyUserUnfollowChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserUnfollowChannel(const QJsonDocument)));
      
-     QObject::connect(this, SIGNAL(twitchNetworkErrorUserFollowedChannels(QString)), this, SLOT(twitchNetworkErrorUserFollowedChannels(QString)));
+     QObject::connect(this, SIGNAL(twitchNetworkErrorUserFollowedChannels(QString)), this, SLOT(onTwitchNetworkErrorUserFollowedChannels(QString)));
      
-     QObject::connect(this, SIGNAL(twitchNetworkErrorUserFollowChannel(QString)), this, SLOT(twitchNetworkErrorUserFollowChannel(QString)));
+     QObject::connect(this, SIGNAL(twitchNetworkErrorUserFollowChannel(QString)), this, SLOT(onTwitchNetworkErrorUserFollowChannel(QString)));
      
-     QObject::connect(this, SIGNAL(twitchNetworkErrorUserUnfollowChannel(QString)), this, SLOT(twitchNetworkErrorUserUnfollowChannel(QString)));
+     QObject::connect(this, SIGNAL(twitchNetworkErrorUserUnfollowChannel(QString)), this, SLOT(onTwitchNetworkErrorUserUnfollowChannel(QString)));
      
-     QObject::connect(this, SIGNAL(twitchNetworkErrorUserAuthenticationStatus(QString)), this, SLOT(twitchNetworkErrorUserAuthenticationStatus(QString)));
-
+     QObject::connect(this, SIGNAL(twitchNetworkErrorUserAuthenticationStatus(QString)), this, SLOT(onTwitchNetworkErrorUserAuthenticationStatus(QString)));
+     
+     QObject::connect(this, SIGNAL(authCheckSuccessfull()), this, SLOT(onAuthCheckSuccessfull()));
+         
+     // fetch and set twitch client id
      this->setTwitchClientId();
      
-     this->getUserAuthenticationStatus(this->userName);
+     // trigger auth status update
+     this->getUserAuthenticationStatus();
 
      this->setupTimer();
 
@@ -68,18 +66,47 @@ void TwitchUser::unfollowChannel(QString channelName)
 }
 
 void TwitchUser::checkAuthenticationSetup()
+{   
+  
+    if ((this->getOAuthToken() == "<NONE>") ||(this->getOAuthToken() == "")) {
+        this->setAuthenticationStatus(AuthenticationStatus::needssetup);  
+    } else {
+        this->setAuthenticationStatus(AuthenticationStatus::unknown);  
+    }  
+    
+}
+
+void TwitchUser::setAuthenticationStatus(AuthenticationStatus newStatus)
 {
     
     
-    
-    if ((this->getOAuthToken() == "<NONE>") ||(this->getOAuthToken() == "")) {
-        this->authStatus = AuthenticationStatus::needssetup;
-        emit twitchNeedsOAuthSetup();
+    if (this->authStatus != newStatus) {
+        
+        if (timerLastStatusChange.elapsed() > 100) {
+        
+            this->authStatus = newStatus;
+            timerLastStatusChange.restart();
+            
+            switch( newStatus )
+            {
+            case AuthenticationStatus::ok:
+                emit authCheckSuccessfull();
+                break ;
+            case AuthenticationStatus::needssetup:
+                emit twitchNeedsOAuthSetup();
+                break ;
+            default:
+                emit authCheckFailed();
+                break ;
+                
+            }
+        
+        } else  {
+            qDebug() << "Last status change occured < 100ms dampening emits.";
+        }
     } else {
-        this->authStatus = AuthenticationStatus::unknown;
+         qDebug() << "Last status is current status dampening emits.";
     }
-    
-    
 }
 
 
@@ -151,11 +178,25 @@ void TwitchUser::updateFromJsonResponseUserAuthenticationStatus(const QJsonDocum
 {
     
     QJsonObject jsonObject = jsonResponseBuffer.object();
-    
+        
     if (!jsonObject["email"].isNull()) {
-         this->authStatus = AuthenticationStatus::ok;
-         emit onAuthCheckSuccessfull();
+        
          
+         this->setAuthenticationStatus(AuthenticationStatus::ok);
+       
+         // set username if <NONE> or empty - needed on first setup
+         if ((this->userName == "<NONE>") || (this->userName == "")) {
+             if (!jsonObject["name"].isNull()) {
+                 this->userName = jsonObject["name"].toString();
+                 emit newUsernameDetected(this->userName);
+             }
+         }
+         
+        
+         
+    } else {
+       
+        this->setAuthenticationStatus(AuthenticationStatus::nok);
     }
     
    
@@ -166,27 +207,35 @@ void TwitchUser::onAuthCheckSuccessfull()
     this->getUserFollowedChannels(this->userName);
 }
 
+void TwitchUser::validateNewAuthToken(QString newOAuthToken)
+{
+    this->setOAuthToken(newOAuthToken);
+    this->getUserAuthenticationStatus();
+    
+}
 
-void TwitchUser::twitchNetworkErrorUserFollowedChannels(const QString errorString)
+
+void TwitchUser::onTwitchNetworkErrorUserFollowedChannels(const QString errorString)
 {
     qDebug() << errorString;
 }
 
-void TwitchUser::twitchNetworkErrorUserFollowChannel(const QString errorString)
+void TwitchUser::onTwitchNetworkErrorUserFollowChannel(const QString errorString)
 {
     qDebug() << errorString;
 }
 
-void TwitchUser::twitchNetworkErrorUserUnfollowChannel(const QString errorString)
+void TwitchUser::onTwitchNetworkErrorUserUnfollowChannel(const QString errorString)
 {
     qDebug() << errorString;
 }
 
-void TwitchUser::twitchNetworkErrorUserAuthenticationStatus(const QString errorString)
+void TwitchUser::onTwitchNetworkErrorUserAuthenticationStatus(const QString errorString)
 {
+
     
     if (errorString.contains("requires authentication")) {
-        this->authStatus = AuthenticationStatus::nok;
+        this->setAuthenticationStatus(AuthenticationStatus::nok);
     }
     
 }

@@ -7,8 +7,6 @@ TwitchObject::TwitchObject(QObject *parent, QString token, const qint64 defaultT
 {
     nwManager = new QNetworkAccessManager();
 
-    smUserNetworkRequest = new QSignalMapper(this);
-
     this->refreshTimerInterval = defaultTimerInterval;
     this->refreshTimer = new QTimer(this);
 }
@@ -92,7 +90,7 @@ void TwitchObject::unfollowChannelUser(QString channelName, QString user)
     this->delRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, __func__);
 }
 
-void TwitchObject::getUserAuthenticationStatus(QString user)
+void TwitchObject::getUserAuthenticationStatus()
 {  
     this->getRequestUser("https://api.twitch.tv/kraken/user", __func__);
 }
@@ -143,6 +141,12 @@ QString TwitchObject::getOAuthToken()
     return this->oAuthToken;
 }
 
+void TwitchObject::setOAuthToken(QString oauthtoken)
+{
+    this->oAuthToken = oauthtoken;
+
+}
+
 QString TwitchObject::getTwitchClientId()
 {
     return this->twitchClientId;
@@ -183,11 +187,9 @@ void TwitchObject::getRequestUser(const QString &urlString, QString callingFuncN
 
     QNetworkReply *reply = nwManager->get(req);
 
-    //QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseUser()));
-
-    QObject::connect(reply, SIGNAL(finished()), smUserNetworkRequest, SLOT(map()));
-    QObject::connect(smUserNetworkRequest, SIGNAL(mapped(QString)), this, SLOT(parseTwitchNetworkResponseUser(QString)));
-    smUserNetworkRequest->setMapping(reply, callingFuncName);
+    netReplies[reply] = callingFuncName;
+    
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseUser()));
 
 }
 
@@ -198,33 +200,19 @@ void TwitchObject::putRequestUser(const QString &urlString, QString callingFuncN
     QNetworkRequest req ( url );
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setRawHeader("Authorization", "OAuth "+this->oAuthToken.toLatin1());
+    
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
     QNetworkReply *reply = nwManager->put(req, url.toEncoded());
-    //QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseUser()));
+    
+    netReplies[reply] = callingFuncName;
+    
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseUser()));
 
-    QObject::connect(reply, SIGNAL(finished()), smUserNetworkRequest, SLOT(map()));
-    QObject::connect(smUserNetworkRequest, SIGNAL(mapped(QString)), this, SLOT(parseTwitchNetworkResponseUser(QString)));
-    smUserNetworkRequest->setMapping(reply, callingFuncName);
 }
 
 void TwitchObject::delRequestUser(const QString &urlString, QString callingFuncName)
 {
-
-    /**
-    QUrl url ( urlString );
-
-    QNetworkRequest req ( url );
-    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
-    req.setRawHeader( "User-Agent" , "iOS / Safari 7: Mozilla/5.0 (iPad; CPU OS 7_0_4 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11B554a Safari/9537.53" );
-    req.setRawHeader("Authorization", "OAuth "+this->oAuthAccessToken.toLatin1());
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
-    req.setUrl(url);
-
-    m_unfollow.deleteResource( req );
-
-     */
-
 
     QUrl url ( urlString );
 
@@ -235,12 +223,11 @@ void TwitchObject::delRequestUser(const QString &urlString, QString callingFuncN
     req.setUrl(url);
 
     QNetworkReply *reply = nwManager->deleteResource(req);
-    //QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseUser()));
-
-    QObject::connect(reply, SIGNAL(finished()), smUserNetworkRequest, SLOT(map()));
-    QObject::connect(smUserNetworkRequest, SIGNAL(mapped(QString)), this, SLOT(parseTwitchNetworkResponseUser(QString)));
-    smUserNetworkRequest->setMapping(reply, callingFuncName);
     
+    netReplies[reply] = callingFuncName;
+    
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseUser()));
+
 }
 
 void TwitchObject::getRequestClientId(const QString &urlString)
@@ -255,6 +242,11 @@ void TwitchObject::getRequestClientId(const QString &urlString)
 
     QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseClientId()));
     
+}
+
+qint64 TwitchObject::getPendingReplyCount()
+{
+    return this->netReplies.count();
 }
 
 void TwitchObject::parseTwitchNetworkResponseHost()
@@ -274,10 +266,15 @@ void TwitchObject::parseTwitchNetworkResponseHost()
     }
 }
 
-void TwitchObject::parseTwitchNetworkResponseUser(QString callingFuncName)
+void TwitchObject::parseTwitchNetworkResponseUser()
 {
 
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(smUserNetworkRequest->mapping(callingFuncName));
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    
+    QString callingFuncName = "";
+    
+    callingFuncName = netReplies[reply];
+    
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             //emit networkError( reply->errorString() );
@@ -291,10 +288,12 @@ void TwitchObject::parseTwitchNetworkResponseUser(QString callingFuncName)
             } else if (callingFuncName == "TwitchObject::getUserAuthenticationStatus") {
                 emit twitchNetworkErrorUserAuthenticationStatus( reply->errorString() );
             }
+                       
+            genericHelper::log( QString(__func__) + "(" + callingFuncName + ")" + QString(": ") + reply->errorString());
             
-            
-            
-            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            reply->abort();
+            reply->deleteLater();
+            netReplies.remove(reply);
 
             return;
         }
@@ -313,11 +312,15 @@ void TwitchObject::parseTwitchNetworkResponseUser(QString callingFuncName)
         }
         
 
-
         reply->deleteLater();
+        netReplies.remove(reply);
+        
     } else {
         genericHelper::log( QString(__func__) + QString(": ") + "reply is NULL");
     }
+    qDebug() << "Pending Replys: "  << this->getPendingReplyCount();
+    
+    
 }
 
 void TwitchObject::parseTwitchNetworkResponseClientId()
@@ -332,7 +335,6 @@ void TwitchObject::parseTwitchNetworkResponseClientId()
         }
 
         this->twitchClientId = reply->readAll().replace("\n",""); 
-        qDebug() << this->twitchClientId;
         
         reply->deleteLater();
     }    

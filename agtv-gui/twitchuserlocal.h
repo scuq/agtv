@@ -5,11 +5,11 @@
 #include <QString>
 #include <QJsonArray>
 #include <QJsonObject>
-
+#include <QSettings>
 
 #include "twitchchannel.h"
 
-#include "generichelper.h"
+
 
 class TwitchUserLocal : public QObject
 {
@@ -24,8 +24,17 @@ class TwitchUserLocal : public QObject
         
         QString getStoredOAuthAccessToken(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         QString getStoredUsername(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        QStringList getBookmarks(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool setBookmarks(QStringList bookmarks, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool addBookmark(QString bookmark, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool saveOAuthAccessToken(QString oAuthAccessToken, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool saveUsername(QString userName, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool isUserSetupOk(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        
+    public slots:
+        void onSaveOAuthAccessToken(QString oAuthAccessToken);
+        void onSaveUsername(QString userName);
+        
 
     private:
   
@@ -43,8 +52,12 @@ class TwitchUserLocal : public QObject
 
     private slots:
 
+
+        
     signals:
         void twitchBookmarkedChannelsDataChanged(const bool bookmarkedChannelsDataChanged);
+        void oAuthAccessTokenLoaded(QString oAuthAccessToken);
+        
+        
 };
-
 #endif // TWITCHUSERLOCAL_H

@@ -93,22 +93,6 @@ QStringList genericHelper::getFollows()
     return settings.value("follows", "").toString().split(",");
 }
 
-void genericHelper::setBookmarks(QStringList bookmarks)
-{
-    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-    settings.setValue("bookmarks", bookmarks);
-    settings.sync();
-}
-
-void genericHelper::addBookmark(QString bookmark)
-{
-    QStringList currentbookmarks = genericHelper::getBookmarks();
-    if (currentbookmarks.count(bookmark) <= 0) {
-        currentbookmarks << bookmark;
-        genericHelper::setBookmarks(currentbookmarks);
-    }
-}
-
 void genericHelper::saveGeometry(QString window, QVariant geo)
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
@@ -135,11 +119,6 @@ QVariant genericHelper::getWindowstate(QString window)
     return settings.value("windowstate_"+window, "");
 }
 
-QStringList genericHelper::getBookmarks()
-{
-    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-    return settings.value("bookmarks", QStringList()).toStringList();
-}
 
 void genericHelper::setVlcArgs(QStringList args)
 {

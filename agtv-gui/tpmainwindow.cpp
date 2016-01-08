@@ -75,12 +75,17 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     
     twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(),this->updateInterval);
     
-    twitchUser->setUserAgentStr(genericHelper::getAppName()+"/"+version);
+    
         
-    QObject::connect(twitchUser, SIGNAL(twitchNeedsOAuthSetup()), this, SLOT(onStartAuthSetup()));
+    QObject::connect(twitchUser, SIGNAL(twitchNeedsOAuthSetup()), this, SLOT(on_actionSetup_Twitch_Auth_triggered()));
     
     twitchUser->checkAuthenticationSetup();
       
+     QObject::connect(twitchUserLocal, SIGNAL(oAuthAccessTokenLoaded(QString)), diaOauthSetup, SLOT(setCurrentStoredAuthToken(QString)));
+     QObject::connect(diaOauthSetup, SIGNAL(saveAuthTokenRequested(QString)), twitchUserLocal, SLOT(onSaveOAuthAccessToken(QString)));
+     QObject::connect(twitchUser, SIGNAL(newUsernameDetected(QString)), twitchUserLocal, SLOT(onSaveUsername(QString)));    
+   
+    
     twitchUserLocal->getStoredOAuthAccessToken();
 
     QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(const bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(const bool)));
@@ -94,6 +99,9 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
 
     QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
+    QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
+ 
+    
 
     twitchUserLocal->loadBookmarks();
 
@@ -114,9 +122,14 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     QObject::connect(this, SIGNAL(setStreamUrlWithQuality(QMap<QString, QString>)), diaLaunch, SLOT(setStreamUrlWithQuality(QMap<QString, QString>)));
 
-    QObject::connect(diaOauthSetup, SIGNAL(twitchAuthSetupChanged(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
+    //QObject::connect(diaOauthSetup, SIGNAL(twitchAuthSetupChanged(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
     QObject::connect(diaOauthSetup, SIGNAL(onAuthorizeRequested()), this, SLOT(onBrowserAuthorizeRequested()));
-
+    QObject::connect(diaOauthSetup, SIGNAL(authTokenChanged(QString)), twitchUser, SLOT(validateNewAuthToken(QString)));
+   
+    
+    QObject::connect(twitchUser, SIGNAL(authCheckSuccessfull()), diaOauthSetup, SLOT(onAuthOk()));
+    QObject::connect(twitchUser, SIGNAL(authCheckFailed()), diaOauthSetup, SLOT(onAuthNok()));
+    
 
     QObject::connect(this->ui->lineEditFilter, SIGNAL(textChanged(QString)), this->stproxymodel, SLOT(setFilterRegExp(QString)));
     QObject::connect(this->ui->lineEditFilterBookmark, SIGNAL(textChanged(QString)), this->stproxymodelbookmarks, SLOT(setFilterRegExp(QString)));
@@ -488,8 +501,10 @@ void tpMainWindow::saveBookmarks()
       currentbookmarks << this->stmodelbookmarks->item( row, 0 )->text();
 
     }
-
-    genericHelper::setBookmarks(currentbookmarks);
+    
+    twitchUserLocal->setBookmarks(currentbookmarks);
+    twitchUserLocal->loadBookmarks();
+    
 }
 
 void tpMainWindow::enableDelete()
@@ -522,7 +537,8 @@ void tpMainWindow::loadData()
 
 
 
-    this->loadBookmarks();
+    //this->loadBookmarks();
+    twitchUserLocal->loadBookmarks();
 }
 
 void tpMainWindow::closeEvent(QCloseEvent *event)
@@ -619,7 +635,10 @@ void tpMainWindow::addFollowerBookmark()
     const QString _status = this->ui->tableViewBookmarks->selectionModel()->selectedRows(1).at(0).data().toString();
     const QString _text = this->ui->tableViewBookmarks->selectionModel()->selectedRows(4).at(0).data().toString();
 
-    tw->followChannel(_streamer);
+    //tw->followChannel(_streamer);
+    
+    twitchUser->followChannel(_streamer);
+    
     this->ui->statusBar->showMessage(tr("Sent follow request for channel") + " " + _streamer, DEFSTATUSTIMEOUT);
 }
 
@@ -753,9 +772,10 @@ void tpMainWindow::addBookmarkHosted()
        QString hostedfor;
        hostedfor = this->ui->tableView->selectionModel()->selectedRows(4).at(0).data().toString();
 
-       if (genericHelper::getBookmarks().count(hostedfor) <= 0) {
-           genericHelper::addBookmark(hostedfor);
-           this->loadBookmarks();
+       if (twitchUserLocal->getBookmarks().count(hostedfor) <= 0) {
+           twitchUserLocal->addBookmark(hostedfor);
+           //this->loadBookmarks();
+           twitchUserLocal->loadBookmarks();
        }
 
 
@@ -797,7 +817,9 @@ void tpMainWindow::deleteBookmark()
    //this->disableDelete();
 
    this->saveBookmarks();
-   this->loadBookmarks();
+    
+   //this->loadBookmarks();
+   
 
 
    refreshTimer->start(updateInterval);
@@ -808,8 +830,9 @@ void tpMainWindow::addBookmark()
 {
     QString text = QInputDialog::getText(this, tr("Add Bookmark"), tr("Enter Channel URL or name"), QLineEdit::Normal,"");
     if (!text.isEmpty()) {
-        genericHelper::addBookmark(genericHelper::streamURLParser(text));
-        this->loadBookmarks();
+        twitchUserLocal->addBookmark(genericHelper::streamURLParser(text));
+        //this->loadBookmarks();
+        twitchUserLocal->loadBookmarks();
     }
 }
 
@@ -1097,7 +1120,7 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
 
 void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
 {
-    qDebug() << "data changed";
+
     this->twitchChannels = twitchUser->getFollowedChannels();
 
     QMap<QString, TwitchChannel*>::iterator i = this->twitchChannels.begin();
@@ -1109,7 +1132,7 @@ void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
 
         TwitchChannel *twitchChannel = i.value();
         QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
-        qDebug() << twitchChannel->getChannelName();
+        //qDebug() << twitchChannel->getChannelName();
 
         if (this->stmodel->findItems(twitchChannel->getChannelName(), Qt::MatchExactly,0).length() <= 0) {
 
@@ -1139,16 +1162,12 @@ void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
 void tpMainWindow::onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged)
 {
 
-    qDebug() << "bookmark data changed";
-
     this->twitchChannelsBookmarks = twitchUserLocal->getBookmarkedChannels();
 
     QMap<QString, TwitchChannel*>::iterator i = this->twitchChannelsBookmarks.begin();
 
     int y = 0;
     while (i != this->twitchChannelsBookmarks.end()) {
-
-        //qDebug() << i.key();
 
         TwitchChannel *twitchChannel = i.value();
         QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
@@ -1171,19 +1190,6 @@ void tpMainWindow::onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged
         ++i;
     }
 
-    /**
-    if (this->stmodelbookmarks->findItems(current,Qt::MatchExactly,0).length() <= 0) {
-        QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(current));
-        stmodelbookmarks->setItem(i, 0, qsitem0);
-        QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
-        stmodelbookmarks->setItem(i, 1, qsitem1);
-        QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
-        stmodelbookmarks->setItem(i, 2, qsitem2);
-        QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
-        stmodelbookmarks->setItem(i, 3, qsitem3);
-        QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(""));
-        stmodelbookmarks->setItem(i, 4, qsitem4);
-    }**/
 }
 
 bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString &status,
@@ -1242,7 +1248,7 @@ void tpMainWindow::updateOnUnfollow(QString msg)
 
 void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
 {
-   
+    qDebug() << "on_actionSetup_Twitch_Auth_triggered";
     if (diaOauthSetup->getDialogShown() == true)
     {
         diaOauthSetup->close();
@@ -1257,22 +1263,6 @@ void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
     }
 }
 
-void tpMainWindow::onStartAuthSetup()
-{
-    qDebug() << "onStartAuthSetup";
-    if (diaOauthSetup->getDialogShown() == true)
-    {
-        diaOauthSetup->close();
-
-        diaOauthSetup->show();
-
-    } else {
-
-
-        diaOauthSetup->show();
-        diaOauthSetup->setDialogShown();
-    }
-}
 
 void tpMainWindow::onBrowserAuthorizeRequested()
 {
@@ -1280,6 +1270,11 @@ void tpMainWindow::onBrowserAuthorizeRequested()
     QString link = "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id="+this->twitchUser->getTwitchClientId()+"&redirect_uri=http://oauth.abyle.org/&scope=channel_editor+user_read+user_subscriptions+user_follows_edit+chat_login+channel_read";
     QDesktopServices::openUrl(QUrl(link));
 }
+
+//void tpMainWindow::onIsAuthOkCheck(QString newOAuthToken)
+//{
+//    twitchUser->setOAuthToken(newOAuthToken);  
+//}
 
 void tpMainWindow::showOnStatusBar(const QString errorMsg)
 {
@@ -1436,17 +1431,20 @@ void tpMainWindow::on_actionShow_Approximate_Viewer_Count_toggled(bool arg1)
 
 void tpMainWindow::on_Ready()
 {
+    /*
     refreshTimer->start(updateInterval);
     this->enableInput();
+    */
 }
 
 void tpMainWindow::on_SwitchInputEnabled(bool enable)
 {
-    if (enable == true) {
+    /*if (enable == true) {
         this->enableInput();
     } else {
         this->disableInput();
     }
+    */
 }
 
 

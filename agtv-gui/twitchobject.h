@@ -57,15 +57,15 @@ class TwitchObject : public QObject
 
         void unfollowChannelUser(QString channelName, QString user);
         
-        void getUserAuthenticationStatus(QString user);
-        
-        
+        void getUserAuthenticationStatus();
 
         void getHost(QString channelId);
 
         qint64 getRefreshTimerInterval();
 
         QString getOAuthToken();
+        
+        void setOAuthToken(QString oauthtoken);
         
         QString getTwitchClientId();
         
@@ -83,11 +83,13 @@ class TwitchObject : public QObject
 
     private:
         QTimer *refreshTimer;
-        const QString oAuthToken;
+        QString oAuthToken;
         QString twitchClientId;
         QString userAgentStr;
 
         qint64 refreshTimerInterval;
+        
+        QMap<QNetworkReply*, QString> netReplies;
 
         void getRequestStream(const QString &urlString);
         void getRequestChannel(const QString &urlString);
@@ -96,15 +98,13 @@ class TwitchObject : public QObject
         void putRequestUser(const QString &urlString, QString callingFuncName);
         void delRequestUser(const QString &urlString, QString callingFuncName);
         void getRequestClientId(const QString &urlString);
-        
-
-        QSignalMapper *smUserNetworkRequest;
+        qint64 getPendingReplyCount();
 
     private slots:
         void parseTwitchNetworkResponseStream();
         void parseTwitchNetworkResponseChannel();
         void parseTwitchNetworkResponseHost();
-        void parseTwitchNetworkResponseUser(QString callingFuncName);
+        void parseTwitchNetworkResponseUser();
         void parseTwitchNetworkResponseClientId();
         
 

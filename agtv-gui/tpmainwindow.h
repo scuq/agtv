@@ -72,9 +72,9 @@ private slots:
 
     void on_actionSetup_Twitch_Auth_triggered();
     
-    void onStartAuthSetup();
-    
     void onBrowserAuthorizeRequested();
+    
+    //void onIsAuthOkCheck(QString newOAuthToken);
 
     void showOnStatusBar(const QString errorMsg);
 
@@ -302,6 +302,7 @@ signals:
     void setStreamUrl(QString);
     void setStreamLogoUrl(QString);
     void setStreamUrlWithQuality(QMap<QString, QString>);
+    void authOk(bool);
 
 
 };

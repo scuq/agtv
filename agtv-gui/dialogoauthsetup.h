@@ -27,42 +27,38 @@ public:
     ~dialogOauthSetup();
     void setDialogShown();
     bool getDialogShown();
-    void refreshUiData();
+  
+public slots:
+    void setCurrentStoredAuthToken(QString currentStoredAuthToken);
+    
 
 private slots:
     void on_pushButtonAuthorizeOnTwitch_clicked();
-
-    void on_pushButtonTestOAuth_clicked();
-    void on_AuthSuccess(const QJsonDocument message);
-    void errorPopup(QString message);
-
-
-    void on_pushButtonOk_clicked();
+    
+    void onAuthOk();
+    
+    void onAuthNok();
 
     void on_pushButtonRevoke_clicked();
 
     void on_pushButtonCancel_clicked();
-
-    void loadProfileImage();
-
-    void on_lineEditOAuthToken_textChanged(const QString &arg1);
     
+    void on_pushButtonVerify_clicked();
     
-
-
-
+    void on_pushButtonSave_clicked();
+    
 signals:
-void twitchAuthSetupChanged(bool);
-void onAuthorizeRequested();
+
+
+    void onAuthorizeRequested();
+    void authTokenChanged(QString);
+    void saveAuthTokenRequested(QString);
 
 private:
     Ui::dialogOauthSetup *ui;
     bool dialogShown;
-    TwitchApi *tw;
-    imageLoader *imgl;
-    QPixmap profileimage;
-    QString profileimageUrl;
-    bool setupModeStarted;
+
+
 };
 
 #endif // DIALOGOAUTHSETUP_H
