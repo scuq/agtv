@@ -1,5 +1,7 @@
 #include "twitchuser.h"
 
+#include "generichelper.h"
+
 TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval) :
     TwitchObject(parent, oAuthToken, defaultTimerInterval), userName( username )
 {
@@ -34,6 +36,8 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
      this->getUserAuthenticationStatus();
 
      this->setupTimer();
+
+     this->getUserFollowedChannels(this->userName);
 
 }
 
@@ -112,8 +116,9 @@ void TwitchUser::setAuthenticationStatus(AuthenticationStatus newStatus)
 
 void TwitchUser::updateFromJsonResponseUserFollowedChannels(const QJsonDocument &jsonResponseBuffer)
 {
-
     QJsonObject jsonObject = jsonResponseBuffer.object();
+
+    genericHelper::log( QString(__func__));
 
     for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
         if (iter.key() == "follows")

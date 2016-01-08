@@ -77,22 +77,22 @@ void TwitchObject::getChannel(QString user)
 
 void TwitchObject::getUserFollowedChannels(QString user)
 {
-    this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels", __func__);
+    this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels", "TwitchObject::getUserFollowedChannels");
 }
 
 void TwitchObject::followChannelUser(QString channelName, QString user)
 {
-    this->putRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, __func__);
+    this->putRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, "TwitchObject::followChannelUser");
 }
 
 void TwitchObject::unfollowChannelUser(QString channelName, QString user)
 {
-    this->delRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, __func__);
+    this->delRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, "TwitchObject::unfollowChannelUser");
 }
 
 void TwitchObject::getUserAuthenticationStatus()
 {  
-    this->getRequestUser("https://api.twitch.tv/kraken/user", __func__);
+    this->getRequestUser("https://api.twitch.tv/kraken/user", "TwitchObject::getUserAuthenticationStatus");
 }
 
 void TwitchObject::getRequestChannel(const QString &urlString)
@@ -241,7 +241,6 @@ void TwitchObject::getRequestClientId(const QString &urlString)
     QNetworkReply *reply = nwManager->get(req);
 
     QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseClientId()));
-    
 }
 
 qint64 TwitchObject::getPendingReplyCount()
@@ -268,7 +267,6 @@ void TwitchObject::parseTwitchNetworkResponseHost()
 
 void TwitchObject::parseTwitchNetworkResponseUser()
 {
-
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     
     QString callingFuncName = "";
@@ -300,7 +298,6 @@ void TwitchObject::parseTwitchNetworkResponseUser()
 
         QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
 
-
         if (callingFuncName == "TwitchObject::getUserFollowedChannels") {
             emit twitchReadyUserFollowedChannels( json_buffer );
         } else if (callingFuncName == "TwitchObject::followChannelUser") {
@@ -310,8 +307,9 @@ void TwitchObject::parseTwitchNetworkResponseUser()
         } else if (callingFuncName == "TwitchObject::getUserAuthenticationStatus") {
             emit twitchReadyUserAuthenticationStatus( json_buffer );
         }
-        
 
+        genericHelper::log( QString(__func__) + QString(": Success"));
+        
         reply->deleteLater();
         netReplies.remove(reply);
         
