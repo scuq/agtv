@@ -65,15 +65,33 @@ else()
     message(STATUS "Compiling without VLC-Qt support")
 endif()
 
-add_executable(agtv WIN32 ${CPP_SOURCE_FILES})
+# For Apple set the icns file containing icons
+IF(APPLE)
+    SET(MACOSX_BUNDLE_ICON_FILE agtv.icns)
+    SET_SOURCE_FILES_PROPERTIES(${CMAKE_CURRENT_SOURCE_DIR}/agtv.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    LIST(APPEND CPP_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/agtv.icns)
+ENDIF(APPLE)
+
+if(WIN32)
+    add_executable(agtv WIN32 ${CPP_SOURCE_FILES})
+elseif(APPLE)
+    add_executable(agtv MACOSX_BUNDLE ${CPP_SOURCE_FILES})
+else()
+    add_executable(agtv ${CPP_SOURCE_FILES})
+endif()
 target_link_libraries(agtv ${LINK_TO_LIBS})
 
 # ------------------------------------------------------------------------- #
 # INSTALL SECTION
 # ------------------------------------------------------------------------- #
-install(TARGETS agtv
-    RUNTIME
-    DESTINATION bin)
+if(APPLE)
+    install(TARGETS agtv
+        RUNTIME DESTINATION bin
+        BUNDLE DESTINATION bin COMPONENT Runtime)
+else()
+    install(TARGETS agtv
+        RUNTIME DESTINATION bin)
+endif()
    
 get_target_property(QtCore_location Qt5::Core LOCATION)
 get_target_property(QtGui_location Qt5::Gui LOCATION)
@@ -97,10 +115,11 @@ if(MINGW AND WIN32)
     find_library(libstdc++-6_location libstdc++-6)
     message(STATUS "Installing ${libstdc++-6_location}")
     install(FILES 	${libstdc++-6_location}
-            DESTINATION bin)
+            DESTINATION bin
+            BUNDLE_DESTIONATION bin)
 endif(MINGW AND WIN32)
 
-if(WIN32)
+if(WIN32 AND APPLE)
     message(STATUS "Installing ${QtGui_location}")
     message(STATUS "Installing ${QtCore_location}")
     message(STATUS "Installing ${QtOpenGL_location}")
@@ -128,8 +147,8 @@ if(WIN32)
         install(FILES ${_loc}
                 DESTINATION bin/${_loc_dir_name})
     endforeach()
-endif(WIN32)
-   
+endif(WIN32 AND APPLE)
+
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_VENDOR ${COMPANY})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${DESCRIPTION})
@@ -141,3 +160,4 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY "agtv-cpack")
  
 # This must always be last!
 include(CPack)
+
