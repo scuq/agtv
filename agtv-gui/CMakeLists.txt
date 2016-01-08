@@ -43,12 +43,12 @@ set(CMAKE_AUTORCC ON)
 add_definitions(-DSETTINGS_COMPANY="${COMPANY}" -DSETTINGS_PRODUCT="${PROJECT_NAME}" -DCURRARCH="x86" -DVERSION="${AGTV_VERSION}")
 
 # Find the Qt libraries
-find_package(Qt5Core)
-find_package(Qt5Widgets)
-find_package(Qt5OpenGL)
-find_package(Qt5Network)
-find_package(Qt5Multimedia)
-find_package(Qt5MultimediaWidgets)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5OpenGL REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(Qt5Multimedia REQUIRED)
+find_package(Qt5MultimediaWidgets REQUIRED)
 
 set(LINK_TO_LIBS Qt5::Widgets Qt5::OpenGL Qt5::Network Qt5::Multimedia Qt5::MultimediaWidgets)
 
