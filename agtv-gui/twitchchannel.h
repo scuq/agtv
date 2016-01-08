@@ -35,15 +35,15 @@ class TwitchChannel : public TwitchObject
         QString getChannelLogoUrl() const;
         qint64 getChannelViewers() const;
         qint64 getChannelFollowers() const;
+        bool getIsPartner() const;
         bool getIsPlaylist() const;
         bool getIsHosting() const;
         QString getHostedChannel() const;
 
         void on_timedUpdate();
 
-
     private:
-        bool currentlyUpdating, currentlyUpdatingHost;
+        bool currentlyUpdating, currentlyUpdatingHost, currentlyUpdatingChannel;
 
         const QString channelName;
         QString channelStatus;
@@ -53,6 +53,7 @@ class TwitchChannel : public TwitchObject
         qint64 channelViewers;
         qint64 channelFollowers;
         qint64 channelId;
+        bool isPartner;
         ChannelOnlineStatus channelOnlineStatus;
 
         bool isHosting;
@@ -60,10 +61,11 @@ class TwitchChannel : public TwitchObject
 
         QString hostedChannel;
 
-        bool parseStreamChannelObject(const QJsonObject channelObject, QString &name,
-                                      QString &status, QString &game,
-                                      QString &logoUrlString, QString &partner,
-                                      QString &followers, QString &channelId);
+        bool updateChannelData(const QJsonObject channelObject);
+
+        void doStreamUpdate();
+        void doChannelUpdate();
+        void doHostUpdate();
 
     private slots:
         void updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer);

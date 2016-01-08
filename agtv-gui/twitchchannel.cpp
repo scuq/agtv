@@ -12,6 +12,8 @@ TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QS
 
     this->currentlyUpdating = false;
     this->currentlyUpdatingHost = false;
+    this->currentlyUpdatingChannel = false;
+
     this->isHosting = false;
 
     QObject::connect(this, SIGNAL(twitchReadyStream(const QJsonDocument)), this, SLOT(updateFromJsonResponseStream(const QJsonDocument)));
@@ -21,6 +23,7 @@ TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QS
     QObject::connect(this, SIGNAL(networkError(QString)), this, SLOT(twitchNetworkError(QString)));
 
     this->getChannel(this->channelName);
+    this->currentlyUpdatingChannel = true;
 
     this->setupTimer();
 }
@@ -29,17 +32,45 @@ void TwitchChannel::twitchNetworkError(const QString errorString)
 {
     genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + errorString);
     this->currentlyUpdating = false;
+    this->currentlyUpdatingChannel = false;
+    this->currentlyUpdatingHost = false;
 }
 
 void TwitchChannel::on_timedUpdate() {
+    this->doStreamUpdate();
+    this->doHostUpdate();
+}
+
+void TwitchChannel::doStreamUpdate() {
     if(! this->currentlyUpdating) {
         this->currentlyUpdating = true;
         this->getStream(this->channelName);
+    } else {
+        genericHelper::log( this->channelName + QString(": ") + QString("Not starting Stream update"));
     }
+}
+
+void TwitchChannel::doChannelUpdate() {
+    if(!this->currentlyUpdatingChannel) {
+        this->getChannel(this->channelName);
+        this->currentlyUpdatingChannel = true;
+    } else {
+        genericHelper::log( this->channelName + QString(": ") + QString("Not starting Channel update"));
+    }
+}
+
+void TwitchChannel::doHostUpdate() {
     if((! this->currentlyUpdatingHost) && (this->channelId != -1) ) {
         this->currentlyUpdatingHost = true;
         this->getHost(QString::number(this->channelId,'f',0));
+    } else {
+        genericHelper::log( this->channelName + QString(": ") + QString("Not starting Host update"));
     }
+}
+
+bool TwitchChannel::getIsPartner() const
+{
+    return isPartner;
 }
 
 QString TwitchChannel::getChannelLogoUrl() const
@@ -97,20 +128,58 @@ bool TwitchChannel::getIsPlaylist() const
     return isPlaylist;
 }
 
-bool TwitchChannel::parseStreamChannelObject(const QJsonObject channelObject, QString &name,
-                                             QString &status, QString &game,
-                                             QString &logoUrlString, QString &partner,
-                                             QString &followers, QString &channelId)
-{
-    name = channelObject["name"].toString();
-    status = channelObject["status"].toString();
-    game = channelObject["game"].toString();
-    logoUrlString = channelObject["logo"].toString();
-    partner = channelObject["partner"].toBool();
-    followers = QString::number(channelObject["followers"].toInt(),'f',0);
-    channelId = QString::number(channelObject["_id"].toInt(),'f',0);
+bool TwitchChannel::updateChannelData(const QJsonObject channelObject) {
+    genericHelper::log( this->channelName + QString(": ") + QString("Updating Channel data"));
+    bool dataChanged = false;
 
-    return true;
+    QString name = channelObject["name"].toString();
+    if(QString::compare(this->channelName, name, Qt::CaseSensitive) != 0) {
+        genericHelper::log( this->channelName + QString(": ") + QString("ERROR: ChannelName wrong in JSON: ") + name);
+    }
+
+    QString status = channelObject["status"].toString();
+    if(QString::compare(this->channelStatus, status, Qt::CaseSensitive) != 0) {
+        this->channelStatus = status;
+        dataChanged = true;
+        genericHelper::log( this->channelName + QString(": ") + QString("Status changed"));
+    }
+
+    QString game = channelObject["game"].toString();
+    if(QString::compare(this->channelGame, game, Qt::CaseSensitive) != 0) {
+        this->channelGame = game;
+        dataChanged = true;
+        genericHelper::log( this->channelName + QString(": ") + QString("Game changed"));
+    }
+
+    QString logoUrlString = channelObject["logo"].toString();
+    if(QString::compare(this->channelLogoUrl, logoUrlString, Qt::CaseSensitive) != 0) {
+        this->channelLogoUrl = logoUrlString;
+        dataChanged = true;
+        genericHelper::log( this->channelName + QString(": ") + QString("Channel Logo Url changed"));
+    }
+
+    bool partner = channelObject["partner"].toBool();
+    if(this->isPartner != partner) {
+        this->isPartner = partner;
+        dataChanged = true;
+        genericHelper::log( this->channelName + QString(": ") + QString("Partner status changed"));
+    }
+
+    QString followers = QString::number(channelObject["followers"].toInt(),'f',0);
+    if(this->channelFollowers != followers.toInt()) {
+        this->channelFollowers = followers.toInt();
+        dataChanged = true;
+        genericHelper::log( this->channelName + QString(": ") + QString("Followers changed"));
+    }
+
+    QString id = QString::number(channelObject["_id"].toInt(),'f',0);
+    if(this->channelId != id.toInt()) {
+        this->channelId = id.toInt();
+        dataChanged = true;
+        genericHelper::log( this->channelName + QString(": ") + QString("Channel ID changed"));
+    }
+
+    return dataChanged;
 }
 
 void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer)
@@ -124,36 +193,16 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
 
     if (streamValue != QJsonValue::Null) {
         // Object is live
-        QString onlinename, status, game, viewersString, logoUrlString, partner, followersString, channelIdString;
-        this->parseStreamChannelObject(streamValue.toObject()["channel"].toObject(),
-                onlinename, status, game, logoUrlString, partner, followersString, channelIdString);
+        dataChanged = updateChannelData(streamValue.toObject()["channel"].toObject());
 
-        viewersString = QString::number(streamValue.toObject()["viewers"].toInt(),'f',0);
-        this->isPlaylist = streamValue.toObject()["is_playlist"].toBool();
-
-        if(QString::compare(this->channelGame, game, Qt::CaseSensitive) != 0) {
-            this->channelGame = game;
-            dataChanged = true;
-            genericHelper::log( this->channelName + QString(": ") + QString("Game changed"));
-        }
-        if(QString::compare(this->channelStatus, status, Qt::CaseSensitive) != 0) {
-            this->channelStatus = status;
-            dataChanged = true;
-            genericHelper::log( this->channelName + QString(": ") + QString("Status changed"));
-        }
+        QString viewersString = QString::number(streamValue.toObject()["viewers"].toInt(),'f',0);
         if(this->channelViewers != viewersString.toInt()) {
             this->channelViewers = viewersString.toInt();
             dataChanged = true;
             genericHelper::log( this->channelName + QString(": ") + QString("Viewers changed"));
         }
-        if(this->channelFollowers != followersString.toInt()) {
-            this->channelFollowers = followersString.toInt();
-            dataChanged = true;
-            genericHelper::log( this->channelName + QString(": ") + QString("Followers changed"));
-        }
 
-        this->channelId = channelIdString.toInt();
-
+        this->isPlaylist = streamValue.toObject()["is_playlist"].toBool();
         ChannelOnlineStatus currentChannelOnlineStatus = ( !this->isPlaylist ? ChannelOnlineStatus::online : ChannelOnlineStatus::playlist );
         if(this->channelOnlineStatus != currentChannelOnlineStatus) {
             this->channelOnlineStatus = currentChannelOnlineStatus;
@@ -163,7 +212,9 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
         }
     } else {
         // "stream": null -> object is offline
-        QString streamurl = jsonObject.value("_links").toObject()["self"].toString();
+        // We fire up a channel update in that case
+        this->doChannelUpdate();
+        // and try to figure out if it is really offline or hosting
         ChannelOnlineStatus currentChannelOnlineStatus = ChannelOnlineStatus::offline;
         if(this->channelOnlineStatus != currentChannelOnlineStatus && !this->isHosting) {
             this->channelOnlineStatus = currentChannelOnlineStatus;
@@ -215,13 +266,8 @@ void TwitchChannel::updateFromJsonResponseChannel(const QJsonDocument &jsonRespo
 {
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
-    QString onlinename, status, game, viewersString, logoUrlString,
-            partner, followersString, channelIdString;
-    this->parseStreamChannelObject(jsonObject,
-                                   onlinename, status, game,
-                                   logoUrlString, partner, followersString,
-                                   channelIdString);
+    if(updateChannelData(jsonObject))
+        emit twitchChannelDataChanged(false);
 
-    this->channelId = channelIdString.toInt();
-    this->channelLogoUrl = logoUrlString;
+    this->currentlyUpdatingChannel = false;
 }
