@@ -27,6 +27,7 @@ class TwitchUserLocal : public QObject
         QStringList getBookmarks(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool setBookmarks(QStringList bookmarks, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool addBookmark(QString bookmark, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool deleteBookmark(QString bookmark, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool saveOAuthAccessToken(QString oAuthAccessToken, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool saveUsername(QString userName, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool isUserSetupOk(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);

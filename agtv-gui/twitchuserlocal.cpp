@@ -27,11 +27,17 @@ void TwitchUserLocal::loadBookmarks()
         if(!this->bookmarkedChannels.contains(current)) {
             TwitchChannel *twitchChannel = new TwitchChannel(this, "this->oAuthToken", current, this->getRefreshTimerInterval());
             this->bookmarkedChannels[current] = twitchChannel;
+            
             this->bookmarkedChannelsDataChanged = true;
+            
         }
     }
-
+    
     emit twitchBookmarkedChannelsDataChanged(this->bookmarkedChannelsDataChanged);
+    
+    this->bookmarkedChannelsDataChanged = false;
+
+    
 }
 
 QString TwitchUserLocal::getStoredOAuthAccessToken(QString company, QString app)
@@ -74,13 +80,40 @@ bool TwitchUserLocal::setBookmarks(QStringList bookmarks, QString company, QStri
 
 bool TwitchUserLocal::addBookmark(QString bookmark, QString company, QString app)
 {
+
     QStringList currentbookmarks = this->getBookmarks();
+
     if (currentbookmarks.count(bookmark) <= 0) {
+     
         currentbookmarks << bookmark;
         this->setBookmarks(currentbookmarks);
+        this->loadBookmarks();
     }    
     
+
+    
     return true;
+}
+
+bool TwitchUserLocal::deleteBookmark(QString bookmark, QString company, QString app)
+{
+    int bookmarkIndex;
+    
+    QStringList currentbookmarks = this->getBookmarks();
+    
+    bookmarkIndex = currentbookmarks.indexOf(bookmark);
+    
+    if (bookmarkIndex >= 0) {
+            currentbookmarks.removeAt(bookmarkIndex);
+            this->setBookmarks(currentbookmarks);
+            this->bookmarkedChannels.remove(bookmark);
+            
+            emit twitchBookmarkedChannelsDataChanged(true);
+            return true;
+    }
+    
+    return false;
+    
 }
 
 
@@ -95,6 +128,7 @@ bool TwitchUserLocal::saveOAuthAccessToken(QString oAuthAccessToken, QString com
         settings.sync();    
         ok = true;
     }
+    
     
     return ok;
 }

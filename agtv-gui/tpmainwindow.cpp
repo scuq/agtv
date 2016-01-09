@@ -99,7 +99,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
 
     QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
-    QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
+   // QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
  
     
 
@@ -775,7 +775,7 @@ void tpMainWindow::addBookmarkHosted()
        if (twitchUserLocal->getBookmarks().count(hostedfor) <= 0) {
            twitchUserLocal->addBookmark(hostedfor);
            //this->loadBookmarks();
-           twitchUserLocal->loadBookmarks();
+           //twitchUserLocal->loadBookmarks();
        }
 
 
@@ -788,42 +788,9 @@ void tpMainWindow::addBookmarkHosted()
 
 void tpMainWindow::deleteBookmark()
 {
-    //refreshTimer->stop();
+   const QString _streamer = this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toString();
 
-    //get selections
-    QItemSelection selection = this->ui->tableViewBookmarks->selectionModel()->selection();
-
-    //find out selected rows
-    QList<int> removeRows;
-    foreach(QModelIndex index, selection.indexes()) {
-        if(!removeRows.contains(index.row())) {
-            removeRows.append(index.row());
-        }
-    }
-
-    //loop through all selected rows
-    for(int i=0;i<removeRows.count();++i)
-    {
-        //decrement all rows after the current - as the row-number will change if we remove the current
-        for(int j=i;j<removeRows.count();++j) {
-            if(removeRows.at(j) > removeRows.at(i)) {
-                removeRows[j]--;
-            }
-        }
-        //remove the selected row
-        this->stproxymodelbookmarks->removeRows(removeRows.at(i), 1);
-    }
-
-   //this->disableDelete();
-
-   this->saveBookmarks();
-    
-   //this->loadBookmarks();
-   
-
-
-   //refreshTimer->start(updateInterval);
-
+   twitchUserLocal->deleteBookmark(_streamer);
 }
 
 void tpMainWindow::addBookmark()
@@ -831,8 +798,6 @@ void tpMainWindow::addBookmark()
     QString text = QInputDialog::getText(this, tr("Add Bookmark"), tr("Enter Channel URL or name"), QLineEdit::Normal,"");
     if (!text.isEmpty()) {
         twitchUserLocal->addBookmark(genericHelper::streamURLParser(text));
-        //this->loadBookmarks();
-        twitchUserLocal->loadBookmarks();
     }
 }
 
@@ -1162,33 +1127,54 @@ void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
 void tpMainWindow::onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged)
 {
 
+    QStringList _twitchChannelList;
+   
     this->twitchChannelsBookmarks = twitchUserLocal->getBookmarkedChannels();
 
     QMap<QString, TwitchChannel*>::iterator i = this->twitchChannelsBookmarks.begin();
 
+   
     int y = 0;
     while (i != this->twitchChannelsBookmarks.end()) {
+        
+        
 
         TwitchChannel *twitchChannel = i.value();
         QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
 
 
-        if (this->stmodelbookmarks->findItems(twitchChannel->getChannelName(),Qt::MatchExactly,0).length() <= 0) {
-            QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelName()));
-            stmodelbookmarks->setItem(y, 0, qsitem0);
-            QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
-            stmodelbookmarks->setItem(y, 1, qsitem1);
-            QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
-            stmodelbookmarks->setItem(y, 2, qsitem2);
-            QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
-            stmodelbookmarks->setItem(y, 3, qsitem3);
-            QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(""));
-            stmodelbookmarks->setItem(y, 4, qsitem4);
-        }
+            _twitchChannelList << twitchChannel->getChannelName();
+
+
+            if (this->stmodelbookmarks->findItems(twitchChannel->getChannelName(),Qt::MatchExactly,0).length() <= 0) {
+                QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelName()));
+                stmodelbookmarks->setItem(y, 0, qsitem0);
+                QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
+                stmodelbookmarks->setItem(y, 1, qsitem1);
+                QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
+                stmodelbookmarks->setItem(y, 2, qsitem2);
+                QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
+                stmodelbookmarks->setItem(y, 3, qsitem3);
+                QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(""));
+                stmodelbookmarks->setItem(y, 4, qsitem4);
+            } 
+        
 
         ++y;
         ++i;
     }
+    
+    for(int y = 0; y<this->stmodelbookmarks->rowCount(); ++y) {
+        QModelIndex streamer_index = this->stmodelbookmarks->index(y,0);
+
+
+        if ( _twitchChannelList.count(this->stmodelbookmarks->itemData(streamer_index)[0].toString()) <= 0 )  {
+            this->stmodelbookmarks->removeRow(streamer_index.row());
+            break;
+        }
+    }
+    
+
 
 }
 
