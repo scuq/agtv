@@ -141,7 +141,7 @@ bool TwitchChannel::getIsPlaylist() const
 }
 
 bool TwitchChannel::updateChannelData(const QJsonObject channelObject) {
-    genericHelper::log( this->channelName + QString(": ") + QString("Updating Channel data"));
+    // genericHelper::log( this->channelName + QString(": ") + QString("Updating Channel data"));
     bool dataChanged = false;
 
     QString name = channelObject["name"].toString();
@@ -240,11 +240,14 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
             genericHelper::log( this->channelName + QString(": ") + QString("Online Status changed to hosting"));
         }
 
-        if(this->isHosting && QString::compare(this->hostedChannel, this->channelStatus, Qt::CaseSensitive) != 0) {
-            this->channelStatus = QString("Hosting ") + this->hostedChannel;
-            dataChanged = true;
-            onlineStatusChanged = true;
-            genericHelper::log( this->channelName + QString(": ") + QString("Hosted channel changed"));
+        if(this->isHosting) {
+            QString hostedStatus = QString("Hosting ") + this->hostedChannel;
+            if (QString::compare(hostedStatus, this->channelStatus, Qt::CaseSensitive) != 0) {
+                this->channelStatus = hostedStatus;
+                dataChanged = true;
+                onlineStatusChanged = true;
+                genericHelper::log( this->channelName + QString(": ") + QString("Hosted channel changed"));
+            }
         }
     }
 
