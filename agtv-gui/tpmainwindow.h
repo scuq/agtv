@@ -197,7 +197,7 @@ private:
 
     bool showOfflineStreamers;
 
-    QTimer *refreshTimer;
+    //QTimer *refreshTimer;
     int updateInterval;
 
     QMap<QString, QString> parseM3U8Playlist(QString m3u8playlist);

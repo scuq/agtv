@@ -143,7 +143,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
         uc->getCheck();
     }
 
-    this->loadData();
+    //this->loadData();
 
 
     // init QPixmaps for ok, not ok icons
@@ -155,10 +155,10 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     genericHelper::setPrimaryScreenWidth(desktop->screenGeometry(-1).width());
 
     // init qtimer, set update interval and connect the timeout singal of qtimer to the updateFormFieldsSlot of this form
-    refreshTimer = new QTimer(this);
-    refreshTimer->setInterval(updateInterval);
-    QObject::connect(refreshTimer, SIGNAL(timeout()), this, SLOT(on_loadData()));
-    refreshTimer->start(updateInterval);
+    //refreshTimer = new QTimer(this);
+    //refreshTimer->setInterval(updateInterval);
+    //QObject::connect(refreshTimer, SIGNAL(timeout()), this, SLOT(on_loadData()));
+    //refreshTimer->start(updateInterval);
 
     // some stuff needed for the tray icon
     createActions();
@@ -379,7 +379,7 @@ void tpMainWindow::on_tabChanged(const int tabid)
 void tpMainWindow::disableInput()
 {
 
-    refreshTimer->stop();
+    //refreshTimer->stop();
 
     genericHelper::setClearLogOnStartup(true);
     genericHelper::setCheckUpdate(true);
@@ -538,7 +538,7 @@ void tpMainWindow::loadData()
 
 
     //this->loadBookmarks();
-    twitchUserLocal->loadBookmarks();
+    //twitchUserLocal->loadBookmarks();
 }
 
 void tpMainWindow::closeEvent(QCloseEvent *event)
@@ -706,7 +706,7 @@ void tpMainWindow::myQuit()
 
 void tpMainWindow::on_loadData()
 {
-    this->loadData();
+    //this->loadData();
 }
 
 void tpMainWindow::openStreamBrowser()
@@ -788,7 +788,7 @@ void tpMainWindow::addBookmarkHosted()
 
 void tpMainWindow::deleteBookmark()
 {
-    refreshTimer->stop();
+    //refreshTimer->stop();
 
     //get selections
     QItemSelection selection = this->ui->tableViewBookmarks->selectionModel()->selection();
@@ -822,7 +822,7 @@ void tpMainWindow::deleteBookmark()
    
 
 
-   refreshTimer->start(updateInterval);
+   //refreshTimer->start(updateInterval);
 
 }
 
@@ -1207,15 +1207,16 @@ bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString 
 
 void tpMainWindow::updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer)
 {
-    QJsonObject jsonObject = jsonResponseBuffer.object();
+   // QJsonObject jsonObject = jsonResponseBuffer.object();
 
     // TODO: Test the response
 
-    this->loadData();
+    //this->loadData();
 }
 
 void tpMainWindow::updateFromJsonResponseUnfollow(const QJsonDocument &jsonResponseBuffer)
 {
+    /*
     QJsonObject jsonObject = jsonResponseBuffer.object();
 
     refreshTimer->stop();
@@ -1230,6 +1231,7 @@ void tpMainWindow::updateFromJsonResponseUnfollow(const QJsonDocument &jsonRespo
     }
 
     refreshTimer->start(updateInterval);
+    */
 }
 
 void tpMainWindow::updateOnUnfollow(QString msg)
@@ -1242,7 +1244,7 @@ void tpMainWindow::updateOnUnfollow(QString msg)
         deleteFollowerFromList(_name);
     }
 
-    refreshTimer->start(updateInterval);
+    //refreshTimer->start(updateInterval);
 
 }
 
@@ -1373,7 +1375,7 @@ void tpMainWindow::on_actionReport_Bug_triggered()
 
 void tpMainWindow::on_actionRefresh_triggered()
 {
-    this->loadData();
+    //this->loadData();
 }
 
 void tpMainWindow::on_actionOptions_triggered()
@@ -1620,8 +1622,8 @@ void tpMainWindow::twitchApiNetworkError(QString error)
 
 void tpMainWindow::deleteFollowerFromList(QString _name)
 {
-    this->stproxymodel->deleteCol(0, _name );
-    this->loadData();
+    //this->stproxymodel->deleteCol(0, _name );
+    //this->loadData();
 }
 
 void tpMainWindow::on_actionShow_Game_Browser_triggered()
