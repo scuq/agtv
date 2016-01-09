@@ -55,8 +55,6 @@ public:
 
 private slots:
 
-    void onChannelAccessTokenReady(const QJsonDocument &jsonResponseBuffer);
-
     void startM3u8Player(QString m3u8playlist);
 
     void updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer);
@@ -105,10 +103,7 @@ private slots:
 
     void myQuit();
 
-    void on_loadData();
-
     void openStreamBrowser();
-
     void openStreamBrowserBookmark();
 
     void openChatHexChat();
@@ -120,7 +115,6 @@ private slots:
     void addBookmarkHosted();
 
     void deleteBookmark();
-
     void addBookmark();
 
     void addFollow();
@@ -277,8 +271,6 @@ private:
     updateCheck *uc;
 
     QString currArch;
-
-    // TwitchApi *tw;
 
     TwitchUser *twitchUser;
 

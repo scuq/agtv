@@ -68,9 +68,6 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     diaOptions = new DialogOptions(this);
     diaShowLogFile = new DialogShowLogFile(this);
 
-    // init twitch api object
-    // tw = new TwitchApi(this, genericHelper::getOAuthAccessToken());
-
     twitchUserLocal = new TwitchUserLocal(this,this->updateInterval);
     
     twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(),this->updateInterval);
@@ -105,14 +102,6 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     twitchUserLocal->loadBookmarks();
 
-    //QObject::connect(tw, SIGNAL(twitchReadyChannelAccessToken(const QJsonDocument)), this, SLOT(onChannelAccessTokenReady(const QJsonDocument)));
-    //QObject::connect(tw, SIGNAL(twitchReadyFollows(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollows(const QJsonDocument)));
-
-    //QObject::connect(tw, SIGNAL(twitchReadyFollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollow(const QJsonDocument)));
-    //QObject::connect(tw, SIGNAL(twitchReadyUnfollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseUnfollow(const QJsonDocument)));
-
-    // QObject::connect(tw, SIGNAL(networkError(QString)), this, SLOT(twitchApiNetworkError(QString)));
-
     QObject::connect(this, SIGNAL(setStreamTitle(QString,QString)), diaLaunch, SLOT(setStreamTitle(QString,QString)));
     QObject::connect(this, SIGNAL(setStreamUrl(QString)), diaLaunch, SLOT(setStreamUrl(QString)));
     QObject::connect(this, SIGNAL(setStreamLogoUrl(QString)), diaLaunch, SLOT(setStreamLogoUrl(QString)));
@@ -142,9 +131,6 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     if (genericHelper::getCheckUpdate() == true) {
         uc->getCheck();
     }
-
-    //this->loadData();
-
 
     // init QPixmaps for ok, not ok icons
     //offline = QPixmap(":images/offline.png");
@@ -521,20 +507,6 @@ void tpMainWindow::disableDelete()
     launchBookmarkEnabled = true;
 }
 
-void tpMainWindow::loadData()
-{
-    //this->ui->treeWidget->clear();
-    //this->ui->treeWidgetBookmarks->clear();
-
-    ////tw->getFollows(genericHelper::getUsername());
-
-
-
-
-    //this->loadBookmarks();
-    //twitchUserLocal->loadBookmarks();
-}
-
 void tpMainWindow::closeEvent(QCloseEvent *event)
 {
 
@@ -629,8 +601,6 @@ void tpMainWindow::addFollowerBookmark()
     const QString _status = this->ui->tableViewBookmarks->selectionModel()->selectedRows(1).at(0).data().toString();
     const QString _text = this->ui->tableViewBookmarks->selectionModel()->selectedRows(4).at(0).data().toString();
 
-    //tw->followChannel(_streamer);
-    
     twitchUser->followChannel(_streamer);
     
     this->ui->statusBar->showMessage(tr("Sent follow request for channel") + " " + _streamer, DEFSTATUSTIMEOUT);
@@ -647,7 +617,6 @@ void tpMainWindow::deleteFollower()
                  tr("Do you really want to unfollow ") + _streamer + "?",
                  QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok) {
-        //tw->unfollowChannel(_streamer);
         twitchUser->unfollowChannel(_streamer);
 
 
@@ -696,11 +665,6 @@ void tpMainWindow::myQuit()
 #endif
 
     qApp->quit();
-}
-
-void tpMainWindow::on_loadData()
-{
-    //this->loadData();
 }
 
 void tpMainWindow::openStreamBrowser()
@@ -796,7 +760,6 @@ void tpMainWindow::addFollow()
     QString _text = QInputDialog::getText(this, tr("Follow Channel"), tr("Enter Channel URL or name"), QLineEdit::Normal,"");
     QString _streamer = genericHelper::streamURLParser(_text);
     if (!_streamer.isEmpty()) {
-        //tw->followChannel(_streamer);
         twitchUser->followChannel(_streamer);
 
         this->ui->statusBar->showMessage(tr("Sent follow request for channel") + " " + _streamer, DEFSTATUSTIMEOUT);
@@ -937,41 +900,6 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
 
     //genericHelper::log("player or qres binary not found, not starting: "+qresBin+" "+qresargs.join(" "));
     this->playerThreads.append(processLaunchThread);
-}
-
-void tpMainWindow::onChannelAccessTokenReady(const QJsonDocument &jsonResponseBuffer)
-{
-//    QString _pl = "";
-
-//    QJsonObject jsonObject = jsonResponseBuffer.object();
-
-//    if ( (!jsonObject["token"].isNull()) &&
-//          (!jsonObject["sig"].isNull()) ) {
-//        QString channel = "";
-
-//        QListIterator<QString> itr (jsonObject["token"].toString().split(","));
-
-//        while (itr.hasNext()) {
-//            QString current = itr.next();
-
-//            if ( current.contains("channel") ) {
-//                if ( current.count(":") > 0) {
-//                    channel = QString(current.split(":")[1]).replace("\"","");
-//                }
-//            }
-//        }
-
-
-//        if (channel != "") {
-//            _pl = tw->getPlayListUrl(channel,QUrl::toPercentEncoding(jsonObject["token"].toString()).replace("%7B","{").replace("%7D","}").replace("%3A",":").replace("%2C",",").replace("%5B","[").replace("%5D","]"),jsonObject["sig"].toString());
-//            if (! genericHelper::getStreamQuality()) {
-//                emit setStreamUrl( _pl );
-//            } else {
-//                QUrl streamUrl( _pl );
-//                m_m3u8playlist->downloadUrl(streamUrl);
-//            }
-//        }
-//    }
 }
 
 void tpMainWindow::loadNew(const QString game, const QString url) {

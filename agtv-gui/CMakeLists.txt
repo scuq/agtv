@@ -6,7 +6,6 @@ set(CPP_SOURCE_FILES
     tpmainwindow.cpp
     generichelper.cpp
     processlauncher.cpp
-    twitchapi.cpp
     dialogoauthsetup.cpp
     dialogpositioner.cpp
     dialoglaunch.cpp

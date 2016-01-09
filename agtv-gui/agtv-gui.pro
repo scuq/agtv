@@ -56,7 +56,6 @@ SOURCES +=  main.cpp\
             tpmainwindow.cpp \
             generichelper.cpp \
             processlauncher.cpp \
-            twitchapi.cpp \
             dialogoauthsetup.cpp \
             dialogpositioner.cpp \
             dialoglaunch.cpp \
@@ -81,7 +80,6 @@ SOURCES +=  main.cpp\
 HEADERS  += tpmainwindow.h \
             generichelper.h \
             processlauncher.h \
-            twitchapi.h \
             dialogoauthsetup.h \
             dialogpositioner.h \
             dialoglaunch.h \
