@@ -769,20 +769,16 @@ void tpMainWindow::openChatHexChatBookmark()
 void tpMainWindow::addBookmarkHosted()
 {
 
-       QString hostedfor;
-       hostedfor = this->ui->tableView->selectionModel()->selectedRows(4).at(0).data().toString();
+       QString _channel;
+       QString _hostedfor;
+       _channel = this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toString();
+       _hostedfor = this->twitchChannels[_channel]->getHostedChannel();
 
-       if (twitchUserLocal->getBookmarks().count(hostedfor) <= 0) {
-           twitchUserLocal->addBookmark(hostedfor);
-           //this->loadBookmarks();
-           //twitchUserLocal->loadBookmarks();
+       if (twitchUserLocal->getBookmarks().count(_hostedfor) <= 0) {
+           twitchUserLocal->addBookmark(_hostedfor);
        }
 
-
-
-
        this->ui->tabWidget->setCurrentIndex(1);
-       //this->ui->lineEditFilterBookmark->setText(hostedfor);
 
 }
 
