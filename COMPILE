@@ -19,13 +19,15 @@ Windows with Visual Studio 2013 and nmake:
     enviroment variables are set. After that the build process can be started by
         mkdir build
         cd build
-        cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release [-DQT_ROOT_PATH=PATH_TO_QT] [-DVLC_QT_PATH=PATH_TO_VLC_QT]
+        cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release [-DQT_ROOT_PATH=PATH_TO_QT] [-DVLC_QT_PATH=PATH_TO_VLC_QT] [-SSL_DIR=PATH_TO_OPENSSL]
         nmake
 
-    (with, e.g., QT_ROOT_PATH=E:\Qt\5.5\msvc2013_64 and VLC_QT_PATH=E:\Qt\VLC-Qt_1.0.0_win64_msvc2013)
+    (with, e.g., QT_ROOT_PATH=E:\Qt\5.5\msvc2013_64, VLC_QT_PATH=E:\Qt\VLC-Qt_1.0.0_win64_msvc2013 and -SSL_DIR=E:\openssl-1.0.2e-x64_86-win64)
 
     Specifying VLC_QT_PATH lets cmake look for the VLC-Qt package (https://vlc-qt.tano.si/) and if found
     activates the internal VLC player.
+
+    For Windows it may be necessary to specify the SSL_DIR and supply a openssl build to get a working deployable package.
 
     To make a package:
         nmake package

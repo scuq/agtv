@@ -52,11 +52,13 @@ find_package(Qt5MultimediaWidgets REQUIRED)
 
 set(LINK_TO_LIBS Qt5::Widgets Qt5::OpenGL Qt5::Network Qt5::Multimedia Qt5::MultimediaWidgets)
 
+if(NOT NO_VLC_QT)
 find_package(VLCQt
              PATHS ${VLC_QT_PATH}
              COMPONENTS Core Widgets)
+endif()
 
-if(VLCQt_FOUND AND (NOT NO_VLC_QT))
+if(VLCQt_FOUND)
     message(STATUS "Compiling with VLC-Qt support")
     add_definitions(-DWINTERNALVLC)
     LIST(APPEND CPP_SOURCE_FILES dialogvideoplayer.cpp)
@@ -119,7 +121,22 @@ if(MINGW AND WIN32)
             BUNDLE_DESTIONATION bin)
 endif(MINGW AND WIN32)
 
-if(WIN32 AND APPLE)
+if(WIN32)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES_OLD ${CMAKE_FIND_LIBRARY_SUFFIXES})
+    set(CMAKE_FIND_LIBRARY_SUFFIXES .dll .dll.a .a)
+    find_library(ssleay32_location ssleay32
+                 PATHS ${SSL_DIR} NO_DEFAULT_PATH)
+    find_library(libeay32_location libeay32
+                 PATHS ${SSL_DIR} NO_DEFAULT_PATH)
+    message(STATUS "Installing ${ssleay32_location}")
+    message(STATUS "Installing ${libeay32_location}")
+    install(FILES   ${ssleay32_location}
+                    ${libeay32_location}
+            DESTINATION bin)
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES_OLD})
+endif()
+
+if(WIN32 OR APPLE)
     message(STATUS "Installing ${QtGui_location}")
     message(STATUS "Installing ${QtCore_location}")
     message(STATUS "Installing ${QtOpenGL_location}")
@@ -147,12 +164,40 @@ if(WIN32 AND APPLE)
         install(FILES ${_loc}
                 DESTINATION bin/${_loc_dir_name})
     endforeach()
-endif(WIN32 AND APPLE)
 
-if(NO_VLC_QT)
-    set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-else()
+    if(VLCQt_FOUND)
+        get_target_property(VLCQtCore_location VLCQt::Core LOCATION)
+        get_target_property(VLCQtWidgets_location VLCQt::Widgets LOCATION)
+
+        get_filename_component(VLCQt_path "${VLCQtCore_location}" PATH)
+        set(VLCQtCore_nodebug_location ${VLCQt_path}/VLCQtCore.dll)
+        set(VLCQtWidgets_nodebug_location ${VLCQt_path}/VLCQtWidgets.dll)
+        set(libvlc_nodebug_location ${VLCQt_path}/libvlc.dll)
+        set(libvlccore_nodebug_location ${VLCQt_path}/libvlccore.dll)
+        set(vlcqt_plugins_location ${VLCQt_path}/plugins)
+
+        message(STATUS "Installing ${VLCQtCore_location}")
+        message(STATUS "Installing ${VLCQtWidgets_location}")
+        message(STATUS "Installing ${VLCQtCore_nodebug_location}")
+        message(STATUS "Installing ${VLCQtWidgets_nodebug_location}")
+        message(STATUS "Installing ${vlcqt_plugins_location}")
+
+        install(FILES   ${VLCQtCore_location}
+                        ${VLCQtWidgets_location}
+                        ${VLCQtCore_nodebug_location}
+                        ${VLCQtWidgets_nodebug_location}
+                        ${libvlc_nodebug_location}
+                        ${libvlccore_nodebug_location}
+                DESTINATION bin)
+        install(DIRECTORY  ${vlcqt_plugins_location}
+                DESTINATION bin)
+    endif()
+endif(WIN32 OR APPLE)
+
+if(VLCQt_FOUND)
     set(CPACK_PACKAGE_NAME ${PROJECT_NAME}-vlcqt)
+else()
+    set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 endif()
 set(CPACK_PACKAGE_VENDOR ${COMPANY})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${DESCRIPTION})
@@ -180,7 +225,7 @@ if(CPACK_GENERATOR STREQUAL "DEB")
           "${CPACK_PACKAGE_NAME_LOWERCASE}_${AGTV_VERSION}-${AGTV_REVISION_VERSION}_${CMAKE_SYSTEM_NAME}")
     endif(DPKG_PROGRAM)
 
-    if(NOT NOT_VLC_QT)
+    if(VLCQt_FOUND)
         SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, libvlc5 (>= 2.2)")
     endif()
 endif()

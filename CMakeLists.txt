@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.0.2)
 project (agtv)
 
-set(COMPANY "AbyleDotOrg")
+set(COMPANY "Abyle")
 set(DESCRIPTION "agtv - A desktop app for twitch.tv using VLC as player and Hexchat as chat client.")
 
 # ------------------------------------------------------------------------- #
