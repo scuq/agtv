@@ -729,12 +729,12 @@ void tpMainWindow::openChatHexChat()
 {
      const QString _streamer = this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toString();
      const QString _status = this->ui->tableView->selectionModel()->selectedRows(1).at(0).data().toString();
-     const QString _text = this->ui->tableView->selectionModel()->selectedRows(4).at(0).data().toString();
 
      int ret = 0;
 
      if ( genericHelper::isHosting(_status) ) {
-         ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _text} );
+         QString _hostedfor = this->twitchChannels[_streamer]->getHostedChannel();
+         ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
      } else {
          ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
      }
@@ -749,12 +749,12 @@ void tpMainWindow::openChatHexChatBookmark()
 {
     const QString _streamer = this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toString();
     const QString _status = this->ui->tableViewBookmarks->selectionModel()->selectedRows(1).at(0).data().toString();
-    const QString _text = this->ui->tableViewBookmarks->selectionModel()->selectedRows(4).at(0).data().toString();
 
     int ret = 0;
 
     if ( genericHelper::isHosting(_status) ) {
-        ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _text} );
+        QString _hostedfor = this->twitchChannels[_streamer]->getHostedChannel();
+        ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
     } else {
         ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
     }

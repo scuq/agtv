@@ -140,7 +140,7 @@ bool TwitchChannel::updateChannelData(const QJsonObject channelObject) {
     }
 
     QString status = channelObject["status"].toString();
-    if(QString::compare(this->channelStatus, status, Qt::CaseSensitive) != 0) {
+    if(QString::compare(this->channelStatus, status, Qt::CaseSensitive) != 0 && ! this->isHosting) {
         this->channelStatus = status;
         dataChanged = true;
         genericHelper::log( this->channelName + QString(": ") + QString("Status changed"));
@@ -231,7 +231,7 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
         }
 
         if(this->isHosting && QString::compare(this->hostedChannel, this->channelStatus, Qt::CaseSensitive) != 0) {
-            this->channelStatus = this->hostedChannel;
+            this->channelStatus = QString("Hosting: ") + this->hostedChannel;
             dataChanged = true;
             onlineStatusChanged = true;
             genericHelper::log( this->channelName + QString(": ") + QString("Hosted channel changed"));
