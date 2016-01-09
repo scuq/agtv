@@ -52,11 +52,11 @@ find_package(Qt5MultimediaWidgets REQUIRED)
 
 set(LINK_TO_LIBS Qt5::Widgets Qt5::OpenGL Qt5::Network Qt5::Multimedia Qt5::MultimediaWidgets)
 
-find_package(VLCQt QUIET
-             PATHS ${VLC_QT_PATH} NO_DEFAULT_PATH
+find_package(VLCQt
+             PATHS ${VLC_QT_PATH}
              COMPONENTS Core Widgets)
 
-if(VLCQt_FOUND)
+if(VLCQt_FOUND AND (NOT NO_VLC_QT))
     message(STATUS "Compiling with VLC-Qt support")
     add_definitions(-DWINTERNALVLC)
     LIST(APPEND CPP_SOURCE_FILES dialogvideoplayer.cpp)
@@ -149,7 +149,11 @@ if(WIN32 AND APPLE)
     endforeach()
 endif(WIN32 AND APPLE)
 
-set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+if(NO_VLC_QT)
+    set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+else()
+    set(CPACK_PACKAGE_NAME ${PROJECT_NAME}-vlcqt)
+endif()
 set(CPACK_PACKAGE_VENDOR ${COMPANY})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${DESCRIPTION})
 set(CPACK_PACKAGE_VERSION ${AGTV_VERSION})
@@ -158,6 +162,28 @@ set(CPACK_PACKAGE_VERSION_MINOR ${AGTV_MINOR_VERSION})
 set(CPACK_PACKAGE_VERSION_PATCH ${AGTV_PATCH_VERSION})
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "agtv-cpack")
 set(CPACK_PACKAGE_CONTACT "scuq")
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.19)")
+
+if(CPACK_GENERATOR STREQUAL "DEB")
+    string(TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_PACKAGE_NAME_LOWERCASE)
+    find_program(DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
+    if(DPKG_PROGRAM)
+      execute_process(
+        COMMAND ${DPKG_PROGRAM} --print-architecture
+        OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+      set(CPACK_PACKAGE_FILE_NAME
+          "${CPACK_PACKAGE_NAME_LOWERCASE}_${AGTV_VERSION}-${AGTV_REVISION_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")   
+    else(DPKG_PROGRAM)
+      set(CPACK_PACKAGE_FILE_NAME
+          "${CPACK_PACKAGE_NAME_LOWERCASE}_${AGTV_VERSION}-${AGTV_REVISION_VERSION}_${CMAKE_SYSTEM_NAME}")
+    endif(DPKG_PROGRAM)
+
+    if(NOT NOT_VLC_QT)
+        SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, libvlc5 (>= 2.2)")
+    endif()
+endif()
  
 # This must always be last!
 include(CPack)

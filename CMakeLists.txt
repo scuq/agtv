@@ -10,6 +10,7 @@ set(DESCRIPTION "agtv - A desktop app for twitch.tv using VLC as player and Hexc
 set(AGTV_MAJOR_VERSION 0)
 set(AGTV_MINOR_VERSION 0)
 set(AGTV_PATCH_VERSION 0)
+set(AGTV_REVISION_VERSION 1)
 set(AGTV_VERSION
         ${AGTV_MAJOR_VERSION}.${AGTV_MINOR_VERSION}.${AGTV_PATCH_VERSION})
 
@@ -29,11 +30,11 @@ else(NOT QT_ROOT_PATH)
     message(STATUS "USing QT_ROOT_PATH = ${QT_ROOT_PATH}")
 endif(NOT QT_ROOT_PATH)
 
-if(NOT VLC_QT_PATH)
+if((NOT VLC_QT_PATH) AND (NOT NO_VLC_QT))
     # message(FATAL_ERROR "QT_ROOT_PATH not set. Use cmake -DQT_ROOT_PATH=PATH_TO_QT")
-else(NOT VLC_QT_PATH)
+else(NOT VLC_QT_PATH AND NOT NO_VLC_QT)
     message(STATUS "USing VLC_QT_PATH = ${VLC_QT_PATH}")
-endif(NOT VLC_QT_PATH)
+endif()
 
 if(MINGW)
     message(STATUS "Using MINGW")
