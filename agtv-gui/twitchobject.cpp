@@ -407,3 +407,37 @@ void TwitchObject::parseNetworkResponseStreamsForGame()
         reply->deleteLater();
     }
 }
+
+void TwitchObject::getChannelAccessToken(QString channel)
+{
+    this->getRequestChannelAccessToken("https://api.twitch.tv/api/channels/"+channel+"/access_token");
+}
+
+void TwitchObject::getRequestChannelAccessToken(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    QNetworkReply *reply = nwManager->get(req);
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseNetworkResponseChannelAccessToken()));
+}
+
+void TwitchObject::parseNetworkResponseChannelAccessToken()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            emit networkError( reply->errorString() );
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
+            return;
+        }
+
+        QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
+        emit twitchReadyChannelAccessToken( json_buffer );
+
+        reply->deleteLater();
+    }
+}

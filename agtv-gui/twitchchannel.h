@@ -1,6 +1,7 @@
 #ifndef TWITCHCHANNEL_H
 #define TWITCHCHANNEL_H
 
+#include <QByteArray>
 #include <QObject>
 #include <QString>
 #include <QJsonArray>
@@ -39,10 +40,13 @@ class TwitchChannel : public TwitchObject
         bool getIsPlaylist() const;
         bool getIsHosting() const;
         QString getHostedChannel() const;
+        QString getAccessToken() const;
 
         void on_timedUpdate();
 
-    private:
+        void requestPlaylist();
+        void requestHostedPlaylist();
+private:
         bool currentlyUpdating, currentlyUpdatingHost, currentlyUpdatingChannel;
 
         const QString channelName;
@@ -56,6 +60,8 @@ class TwitchChannel : public TwitchObject
         bool isPartner;
         ChannelOnlineStatus channelOnlineStatus;
 
+        QString accessToken;
+
         bool isHosting;
         bool isPlaylist;
 
@@ -67,14 +73,25 @@ class TwitchChannel : public TwitchObject
         void doChannelUpdate();
         void doHostUpdate();
 
-    private slots:
+        QString getPlayListUrl(QString channel, QString token, QString sig);
+        void setStreamUrl(QString url);
+        void downloadUrl(QUrl url);
+        QString buildPlaylistUrlFromJson(const QJsonDocument &jsonResponseBuffer);
+        QMap<QString, QString> parseM3U8Playlist(QString m3u8playlist);
+private slots:
         void updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer);
         void twitchNetworkError(const QString errorString);
         void updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer);
+        void updateFromJsonResponseAccessTokenReady(const QJsonDocument &jsonResponseBuffer);
 
-    signals:
+        void fileDownloaded();
+        void on_downloadedPlaylistReady(const QByteArray playlist);
+signals:
         void twitchChannelDataChanged(const bool onlineStatusChanged);
+        void TwitchChannelPlaylistUrlReady(const QString game, const QString url);
+        void twitchChannelQualityUrlsReady(const QString game, const QMap<QString, QString> qualityUrls);
+        void downloadedPlaylistReady(const QByteArray playlist);
 };
 
 #endif // TWITCHCHANNEL_H

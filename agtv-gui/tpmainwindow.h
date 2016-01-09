@@ -167,6 +167,8 @@ private slots:
 
     void startFromGBrowser(const QString stream);
 
+    void loadNew(const QString game, const QString url);
+    void loadQualityNew(const QString game, const QMap<QString, QString> qualityUrls);
 private:
     Ui::tpMainWindow *ui;
 
@@ -276,7 +278,7 @@ private:
 
     QString currArch;
 
-    TwitchApi *tw;
+    // TwitchApi *tw;
 
     TwitchUser *twitchUser;
 

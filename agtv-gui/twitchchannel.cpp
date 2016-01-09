@@ -1,3 +1,5 @@
+#include <QRegularExpression>
+
 #include "twitchchannel.h"
 
 #include "generichelper.h"
@@ -19,8 +21,11 @@ TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QS
     QObject::connect(this, SIGNAL(twitchReadyStream(const QJsonDocument)), this, SLOT(updateFromJsonResponseStream(const QJsonDocument)));
     QObject::connect(this, SIGNAL(twitchReadyHost(const QJsonDocument)), this, SLOT(updateFromJsonResponseHost(const QJsonDocument)));
     QObject::connect(this, SIGNAL(twitchReadyChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseChannel(const QJsonDocument)));
+    QObject::connect(this, SIGNAL(twitchReadyChannelAccessToken(const QJsonDocument)), this, SLOT(updateFromJsonResponseAccessTokenReady(const QJsonDocument)));
 
     QObject::connect(this, SIGNAL(networkError(QString)), this, SLOT(twitchNetworkError(QString)));
+
+    QObject::connect(this, SIGNAL(downloadedPlaylistReady(const QByteArray)), this, SLOT(on_downloadedPlaylistReady(const QByteArray)));
 
     this->getChannel(this->channelName);
     this->currentlyUpdatingChannel = true;
@@ -41,6 +46,11 @@ void TwitchChannel::twitchNetworkError(const QString errorString)
 void TwitchChannel::on_timedUpdate() {
     this->doStreamUpdate();
     this->doHostUpdate();
+}
+
+QString TwitchChannel::getAccessToken() const
+{
+    return accessToken;
 }
 
 void TwitchChannel::doStreamUpdate() {
@@ -272,4 +282,128 @@ void TwitchChannel::updateFromJsonResponseChannel(const QJsonDocument &jsonRespo
         emit twitchChannelDataChanged(false);
 
     this->currentlyUpdatingChannel = false;
+}
+
+QString TwitchChannel::buildPlaylistUrlFromJson(const QJsonDocument &jsonResponseBuffer)
+{
+    QString _pl = "";
+
+    QJsonObject jsonObject = jsonResponseBuffer.object();
+
+    if ( (!jsonObject["token"].isNull()) &&
+          (!jsonObject["sig"].isNull()) ) {
+        QString channel = "";
+
+        QListIterator<QString> itr (jsonObject["token"].toString().split(","));
+
+        while (itr.hasNext()) {
+            QString current = itr.next();
+
+            if ( current.contains("channel") ) {
+                if ( current.count(":") > 0) {
+                    channel = QString(current.split(":")[1]).replace("\"","");
+                }
+            }
+        }
+
+        if (channel != "") {
+            _pl = this->getPlayListUrl(channel,QUrl::toPercentEncoding(jsonObject["token"].toString()).replace("%7B","{").replace("%7D","}").replace("%3A",":").replace("%2C",",").replace("%5B","[").replace("%5D","]"),jsonObject["sig"].toString());
+            return _pl;
+        } else {
+            return QString();
+        }
+    }
+    return QString();
+}
+
+void TwitchChannel::updateFromJsonResponseAccessTokenReady(const QJsonDocument &jsonResponseBuffer)
+{
+    QString _pl = this->buildPlaylistUrlFromJson(jsonResponseBuffer);
+    if (! genericHelper::getStreamQuality()) {
+        TwitchChannelPlaylistUrlReady(this->channelGame, _pl);
+    } else {
+        QUrl streamUrl( _pl );
+        this->downloadUrl(streamUrl);
+    }
+}
+
+QString TwitchChannel::getPlayListUrl(QString channel, QString token, QString sig)
+{
+    return "http://usher.justin.tv/api/channel/hls/"+channel+".m3u8?token="+token+"&sig="+sig+"&allow_audio_only=true&allow_source=true&type=any&p="+QString::number(QDateTime::currentMSecsSinceEpoch());
+}
+
+void TwitchChannel::requestPlaylist()
+{
+    this->getChannelAccessToken(this->getChannelName());
+}
+
+void TwitchChannel::requestHostedPlaylist()
+{
+    this->getChannelAccessToken(this->getHostedChannel());
+}
+
+void TwitchChannel::downloadUrl(QUrl url)
+{
+    QNetworkRequest req (url);
+
+    req.setRawHeader("Accept", "application/vnd.apple.mpegurl");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    QNetworkReply *reply = nwManager->get(req);
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(fileDownloaded()));
+}
+
+void TwitchChannel::fileDownloaded()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            emit networkError( reply->errorString() );
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
+            return;
+        }
+
+        QByteArray m_DownloadedData = reply->readAll();
+
+        emit downloadedPlaylistReady( m_DownloadedData );
+
+        reply->deleteLater();
+    }
+}
+
+void TwitchChannel::on_downloadedPlaylistReady(const QByteArray playlist)
+{
+    QMap<QString, QString> videofiles = this->parseM3U8Playlist(playlist);
+
+    emit twitchChannelQualityUrlsReady(this->channelGame, videofiles);
+}
+
+QMap<QString, QString> TwitchChannel::parseM3U8Playlist(QString m3u8playlist)
+{
+    QStringList m3u8playlistlines = m3u8playlist.split("\n");
+    QMap<QString, QString> map;
+    QRegularExpression requality("VIDEO=([^s]+)");
+
+    QString quality;
+
+    QStringListIterator it(m3u8playlistlines);
+
+    QString string;
+
+    for(int l=0; l<m3u8playlistlines.size(); ++l) {
+        string = m3u8playlistlines.at(l);
+        if ( string.startsWith("#EXT-X-STREAM-INF:PROGRAM-ID") ) {
+            QRegularExpressionMatch match = requality.match(string);
+            if (match.hasMatch()) {
+                quality = match.captured(1).replace("\"","");
+                if(QString::compare(quality, "chunked") == 0)
+                    quality = "source";
+                map[quality] = m3u8playlistlines.at(l+1);
+            } else {
+                qDebug() << "Could not extract quality from string:\n" << string;
+            }
+        }
+    }
+
+    return map;
 }

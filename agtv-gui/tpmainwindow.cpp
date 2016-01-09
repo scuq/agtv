@@ -69,7 +69,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     diaShowLogFile = new DialogShowLogFile(this);
 
     // init twitch api object
-    tw = new TwitchApi(this, genericHelper::getOAuthAccessToken());
+    // tw = new TwitchApi(this, genericHelper::getOAuthAccessToken());
 
     twitchUserLocal = new TwitchUserLocal(this,this->updateInterval);
     
@@ -105,13 +105,13 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     twitchUserLocal->loadBookmarks();
 
-    QObject::connect(tw, SIGNAL(twitchReadyChannelAccessToken(const QJsonDocument)), this, SLOT(onChannelAccessTokenReady(const QJsonDocument)));
+    //QObject::connect(tw, SIGNAL(twitchReadyChannelAccessToken(const QJsonDocument)), this, SLOT(onChannelAccessTokenReady(const QJsonDocument)));
     //QObject::connect(tw, SIGNAL(twitchReadyFollows(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollows(const QJsonDocument)));
 
     //QObject::connect(tw, SIGNAL(twitchReadyFollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseFollow(const QJsonDocument)));
     //QObject::connect(tw, SIGNAL(twitchReadyUnfollow(const QJsonDocument)), this, SLOT(updateFromJsonResponseUnfollow(const QJsonDocument)));
 
-    QObject::connect(tw, SIGNAL(networkError(QString)), this, SLOT(twitchApiNetworkError(QString)));
+    // QObject::connect(tw, SIGNAL(networkError(QString)), this, SLOT(twitchApiNetworkError(QString)));
 
     QObject::connect(this, SIGNAL(setStreamTitle(QString,QString)), diaLaunch, SLOT(setStreamTitle(QString,QString)));
     QObject::connect(this, SIGNAL(setStreamUrl(QString)), diaLaunch, SLOT(setStreamUrl(QString)));
@@ -285,21 +285,15 @@ bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString 
 
 void tpMainWindow::startFromGBrowser(const QString stream)
 {
-    QString _streamer;
-
-   _streamer = stream;
-
-    tw->getChannelAccessToken(_streamer);
-
-    prepareDiaLauncher();
-
-    emit setStreamTitle( _streamer, "" );
-    QString logoUrl;
-    TwitchChannel *channel = twitchChannels[_streamer];
+    TwitchChannel *channel = twitchChannels[stream];
     if(channel != 0) {
-        logoUrl = channel->getChannelLogoUrl();
+        channel->requestPlaylist();
+
+        prepareDiaLauncher();
+
+        emit setStreamTitle(stream, "" );
+        emit setStreamLogoUrl(channel->getChannelLogoUrl());
     }
-    emit setStreamLogoUrl(logoUrl);
 }
 
 void tpMainWindow::saveSortModes()
@@ -947,37 +941,41 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
 
 void tpMainWindow::onChannelAccessTokenReady(const QJsonDocument &jsonResponseBuffer)
 {
-    QString _pl = "";
+//    QString _pl = "";
 
-    QJsonObject jsonObject = jsonResponseBuffer.object();
+//    QJsonObject jsonObject = jsonResponseBuffer.object();
 
-    if ( (!jsonObject["token"].isNull()) &&
-          (!jsonObject["sig"].isNull()) ) {
-        QString channel = "";
+//    if ( (!jsonObject["token"].isNull()) &&
+//          (!jsonObject["sig"].isNull()) ) {
+//        QString channel = "";
 
-        QListIterator<QString> itr (jsonObject["token"].toString().split(","));
+//        QListIterator<QString> itr (jsonObject["token"].toString().split(","));
 
-        while (itr.hasNext()) {
-            QString current = itr.next();
+//        while (itr.hasNext()) {
+//            QString current = itr.next();
 
-            if ( current.contains("channel") ) {
-                if ( current.count(":") > 0) {
-                    channel = QString(current.split(":")[1]).replace("\"","");
-                }
-            }
-        }
+//            if ( current.contains("channel") ) {
+//                if ( current.count(":") > 0) {
+//                    channel = QString(current.split(":")[1]).replace("\"","");
+//                }
+//            }
+//        }
 
 
-        if (channel != "") {
-            _pl = tw->getPlayListUrl(channel,QUrl::toPercentEncoding(jsonObject["token"].toString()).replace("%7B","{").replace("%7D","}").replace("%3A",":").replace("%2C",",").replace("%5B","[").replace("%5D","]"),jsonObject["sig"].toString());
-            if (! genericHelper::getStreamQuality()) {
-                emit setStreamUrl( _pl );
-            } else {
-                QUrl streamUrl( _pl );
-                m_m3u8playlist->downloadUrl(streamUrl);
-            }
-        }
-    }
+//        if (channel != "") {
+//            _pl = tw->getPlayListUrl(channel,QUrl::toPercentEncoding(jsonObject["token"].toString()).replace("%7B","{").replace("%7D","}").replace("%3A",":").replace("%2C",",").replace("%5B","[").replace("%5D","]"),jsonObject["sig"].toString());
+//            if (! genericHelper::getStreamQuality()) {
+//                emit setStreamUrl( _pl );
+//            } else {
+//                QUrl streamUrl( _pl );
+//                m_m3u8playlist->downloadUrl(streamUrl);
+//            }
+//        }
+//    }
+}
+
+void tpMainWindow::loadNew(const QString game, const QString url) {
+    emit setStreamUrl(url);
 }
 
 void tpMainWindow::loadQuality()
@@ -989,6 +987,11 @@ void tpMainWindow::loadQuality()
     QMap<QString, QString> videofiles = this->parseM3U8Playlist(downloadedtext);
 
     emit setStreamUrlWithQuality(videofiles);
+}
+
+void tpMainWindow::loadQualityNew(const QString game, const QMap<QString, QString> qualityUrls)
+{
+    emit setStreamUrlWithQuality(qualityUrls);
 }
 
 QMap<QString, QString> tpMainWindow::parseM3U8Playlist(QString m3u8playlist)
@@ -1081,19 +1084,18 @@ void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonRespon
 
 void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
 {
-
     this->twitchChannels = twitchUser->getFollowedChannels();
 
     QMap<QString, TwitchChannel*>::iterator i = this->twitchChannels.begin();
 
     int y = 0;
     while (i != this->twitchChannels.end()) {
-
-        //qDebug() << i.key();
-
         TwitchChannel *twitchChannel = i.value();
         QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
-        //qDebug() << twitchChannel->getChannelName();
+        QObject::connect(twitchChannel, SIGNAL(TwitchChannelPlaylistUrlReady(const QString, const QString)),
+                         this, SLOT(loadNew(const QString, const QString)));
+        QObject::connect(twitchChannel, SIGNAL(twitchChannelQualityUrlsReady(const QString, const QMap<QString, QString>)),
+                         this, SLOT(loadQualityNew(const QString, const QMap<QString, QString>)));
 
         if (this->stmodel->findItems(twitchChannel->getChannelName(), Qt::MatchExactly,0).length() <= 0) {
 
@@ -1122,22 +1124,20 @@ void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
 
 void tpMainWindow::onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged)
 {
-
     QStringList _twitchChannelList;
    
     this->twitchChannelsBookmarks = twitchUserLocal->getBookmarkedChannels();
 
     QMap<QString, TwitchChannel*>::iterator i = this->twitchChannelsBookmarks.begin();
 
-   
     int y = 0;
     while (i != this->twitchChannelsBookmarks.end()) {
-        
-        
-
         TwitchChannel *twitchChannel = i.value();
         QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
-
+        QObject::connect(twitchChannel, SIGNAL(TwitchChannelPlaylistUrlReady(const QString, const QString)),
+                         this, SLOT(loadNew(const QString, const QString)));
+        QObject::connect(twitchChannel, SIGNAL(twitchChannelQualityUrlsReady(const QString, const QMap<QString, QString>)),
+                         this, SLOT(loadQualityNew(const QString, const QMap<QString, QString>)));
 
             _twitchChannelList << twitchChannel->getChannelName();
 
@@ -1484,34 +1484,30 @@ void tpMainWindow::on_tableView_activated(const QModelIndex &index)
 
     if (genericHelper::isOnline(_status)) {
         if (launchBookmarkEnabled == true) {
-            tw->getChannelAccessToken(_streamer);
-
-            prepareDiaLauncher();
-
-            emit setStreamTitle( _streamer, "" );
-            QString logoUrl;
             TwitchChannel *channel = twitchChannels[_streamer];
             if(channel != 0) {
-                logoUrl = channel->getChannelLogoUrl();
+                channel->requestPlaylist();
+
+                prepareDiaLauncher();
+
+                emit setStreamTitle( _streamer, "" );
+                emit setStreamLogoUrl(channel->getChannelLogoUrl());
             }
-            emit setStreamLogoUrl(logoUrl);
         }
     }
 
     if (genericHelper::isHosting(_status)) {
         if (launchBookmarkEnabled == true) {
             QString _hostedStreamer = this->twitchChannels[_streamer]->getHostedChannel();
-            tw->getChannelAccessToken(_hostedStreamer);
-
-            prepareDiaLauncher();
-
-            emit setStreamTitle( _streamer + "\n\nhosting\n\n" + _hostedStreamer, "" );
-            QString logoUrl;
             TwitchChannel *channel = twitchChannels[_streamer];
             if(channel != 0) {
-                logoUrl = channel->getChannelLogoUrl();
+                channel->requestHostedPlaylist();
+
+                prepareDiaLauncher();
+
+                emit setStreamTitle( _streamer, "" );
+                emit setStreamLogoUrl(channel->getChannelLogoUrl());
             }
-            emit setStreamLogoUrl(logoUrl);
         }
     }
 }
@@ -1526,34 +1522,30 @@ void tpMainWindow::on_tableViewBookmarks_activated(const QModelIndex &index)
 
     if (genericHelper::isOnline(_status)) {
         if (launchBookmarkEnabled == true) {
-            tw->getChannelAccessToken(_streamer);
-
-            prepareDiaLauncher();
-
-            emit setStreamTitle( _streamer, "" );
-            QString logoUrl;
             TwitchChannel *channel = twitchChannels[_streamer];
             if(channel != 0) {
-                logoUrl = channel->getChannelLogoUrl();
+                channel->requestPlaylist();
+
+                prepareDiaLauncher();
+
+                emit setStreamTitle( _streamer, "" );
+                emit setStreamLogoUrl(channel->getChannelLogoUrl());
             }
-            emit setStreamLogoUrl(logoUrl);
         }
     }
 
     if (genericHelper::isHosting(_status)) {
         if (launchBookmarkEnabled == true) {
             QString _hostedStreamer = this->twitchChannels[_streamer]->getHostedChannel();
-            tw->getChannelAccessToken(_hostedStreamer);
-
-            prepareDiaLauncher();
-
-            emit setStreamTitle( _streamer + "\n\nhosting\n\n" + _hostedStreamer, "" );
-            QString logoUrl;
             TwitchChannel *channel = twitchChannels[_streamer];
             if(channel != 0) {
-                logoUrl = channel->getChannelLogoUrl();
+                channel->requestHostedPlaylist();
+
+                prepareDiaLauncher();
+
+                emit setStreamTitle( _streamer, "" );
+                emit setStreamLogoUrl(channel->getChannelLogoUrl());
             }
-            emit setStreamLogoUrl(logoUrl);
         }
     }
 }

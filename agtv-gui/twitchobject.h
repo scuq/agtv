@@ -76,6 +76,8 @@ class TwitchObject : public QObject
         void getTopGames(int offset, int limit);
         void getStreamsForGame(const QString game);
 
+        void getChannelAccessToken(QString channel);
+
 public slots:
         virtual void on_timedUpdate() = 0;
 
@@ -101,6 +103,7 @@ public slots:
         void getRequestClientId(const QString &urlString);
         void getRequestTopGames(const QString &urlString);
         void getRequestStreamsForGame(const QString &urlString);
+        void getRequestChannelAccessToken(const QString &urlString);
 
         qint64 getPendingReplyCount();
 
@@ -112,8 +115,9 @@ private slots:
         void parseTwitchNetworkResponseClientId();
         void parseNetworkResponseTopGames();
         void parseNetworkResponseStreamsForGame();
+        void parseNetworkResponseChannelAccessToken();
 
-    signals:
+signals:
         void networkError( QString errmessage );
         void twitchNetworkErrorUserFollowedChannels( QString errmessage );
         void twitchNetworkErrorUserFollowChannel( QString errmessage );
@@ -129,6 +133,7 @@ private slots:
         void twitchReadyUserAuthenticationStatus( const QJsonDocument &twitchAsJSON );
         void twitchReadyTopGames( const QJsonDocument &twitchAsJSON );
         void twitchReadyStreamsForGame( const QJsonDocument &twitchAsJSON );
+        void twitchReadyChannelAccessToken( const QJsonDocument &twitchAsJSON );
 
         void twitchDataChanged();
 };
