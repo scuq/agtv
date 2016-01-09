@@ -202,7 +202,7 @@ void TwitchUser::updateFromJsonResponseUserAuthenticationStatus(const QJsonDocum
 
 void TwitchUser::onAuthCheckSuccessfull()
 {
-    this->getUserFollowedChannels(this->userName);
+    // this->getUserFollowedChannels(this->userName);
 }
 
 void TwitchUser::validateNewAuthToken(QString newOAuthToken)
