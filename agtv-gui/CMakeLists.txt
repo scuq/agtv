@@ -24,6 +24,7 @@ set(CPP_SOURCE_FILES
     twitchobject.cpp
     logger.cpp
     twitchchannel.cpp
+    twitchgamebrowser.cpp
     twitchuser.cpp
     twitchuserlocal.cpp
     agtv.qrc

@@ -337,3 +337,73 @@ void TwitchObject::parseTwitchNetworkResponseClientId()
         reply->deleteLater();
     }    
 }
+
+void TwitchObject::getTopGames(int offset=0, int limit=10)
+{
+    // https://github.com/justintv/Twitch-API/blob/master/v3_resources/games.md
+    this->getRequestTopGames("https://api.twitch.tv/kraken/games/top?limit="+QString::number(limit,'f',0)+"&offset="+QString::number(offset,'f',0));
+}
+
+void TwitchObject::getRequestTopGames(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    QNetworkReply *reply = nwManager->get(req);
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseNetworkResponseTopGames()));
+}
+
+void TwitchObject::parseNetworkResponseTopGames()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            emit networkError( reply->errorString() );
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
+            return;
+        }
+
+        QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
+        emit twitchReadyTopGames( json_buffer );
+
+        reply->deleteLater();
+    }
+}
+
+void TwitchObject::getStreamsForGame(const QString game)
+{
+    // https://github.com/justintv/Twitch-API/blob/master/v3_resources/games.md
+    this->getRequestStreamsForGame("https://api.twitch.tv/kraken/streams/?game=" + game);
+}
+
+void TwitchObject::getRequestStreamsForGame(const QString &urlString)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    QNetworkReply *reply = nwManager->get(req);
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseNetworkResponseStreamsForGame()));
+}
+
+void TwitchObject::parseNetworkResponseStreamsForGame()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            emit networkError( reply->errorString() );
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
+            return;
+        }
+
+        QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
+        emit twitchReadyStreamsForGame( json_buffer );
+
+        reply->deleteLater();
+    }
+}

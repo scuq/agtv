@@ -2,26 +2,10 @@
 #define DIALOGGAMEBROWSER_H
 
 #include <QDialog>
-#include <QClipboard>
-#include <QCloseEvent>
-#include <QComboBox>
-#include <QDesktopWidget>
-#include <QInputDialog>
-#include <QMainWindow>
 #include <QStandardItemModel>
-#include <QSystemTrayIcon>
-#include <QtCore/QJsonDocument>
-#include <QtCore/QJsonArray>
-#include <QtCore/QJsonObject>
-#include <QtCore/QJsonValue>
-#include <QTableView>
-#include <QTreeWidgetItem>
-#include <QThread>
 
 #include "advqsortfilterproxylistmodel.h"
-#include "agtvdefaultitemdelegate.h"
-#include "twitchapi.h"
-#include "htmldelegate.h"
+#include "twitchgamebrowser.h"
 
 namespace Ui {
 class DialogGameBrowser;
@@ -31,43 +15,35 @@ class DialogGameBrowser : public QDialog
 {
     Q_OBJECT
 
-public:
-    explicit DialogGameBrowser(QWidget *parent = 0);
-    ~DialogGameBrowser();
+    public:
+        explicit DialogGameBrowser(QWidget *parent = 0);
+        ~DialogGameBrowser();
 
-    void showEvent(QShowEvent *e);
+        void showEvent(QShowEvent *e);
 
-private slots:
-    void updateFromJsonResponseTopGames(const QJsonDocument &jsonResponseBuffer);
-    void updateFromJsonResponseStreamsForGame(const QJsonDocument &jsonResponseBuffer);
+    private slots:
+        void updateStreamsForGame(const QList<TwitchGameBrowser::Stream> streams);
+        void on_pushButtonClose_clicked();
+        void on_tableViewTopGames_activated(const QModelIndex &index);
+        void onTableViewGamesScrolled(int);
+        void on_tableViewGame_activated(const QModelIndex &index);
+        void on_lineEditFilterGames_textChanged(const QString &arg1);
+        void updateTopGames();
 
-    void on_pushButtonClose_clicked();
+    signals:
+        void startStream( const QString streamer );
 
-    void on_tableViewTopGames_activated(const QModelIndex &index);
+    private:
+        Ui::DialogGameBrowser *ui;
 
-    void onTableViewGamesScrolled(int);
+        TwitchGameBrowser *gameBrowser;
 
-    void on_tableViewGame_activated(const QModelIndex &index);
+        QStandardItemModel *stmodelTopGames;
+        AdvQSortFilterProxyListModel *stproxymodelTopGames;
+        QStandardItemModel *stmodelGame;
+        AdvQSortFilterProxyListModel *stproxymodelGame;
 
-    void on_lineEditFilterGames_textChanged(const QString &arg1);
-
-signals:
-    void startStream( const QString streamer );
-
-private:
-    Ui::DialogGameBrowser *ui;
-
-    TwitchApi *tw;
-
-    QStandardItemModel *stmodelTopGames;
-    AdvQSortFilterProxyListModel *stproxymodelTopGames;
-   //  AgtvDefaultItemDelegate *agtvDefItemDelegate;
-    HTMLDelegate *htmlDelegate;
-
-    QStandardItemModel *stmodelGame;
-    AdvQSortFilterProxyListModel *stproxymodelGame;
-
-    int offset;
+        void setupModels();
 };
 
 #endif // DIALOGGAMEBROWSER_H

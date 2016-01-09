@@ -73,9 +73,10 @@ class TwitchObject : public QObject
         
         void setUserAgentStr(QString useragent);
        
+        void getTopGames(int offset, int limit);
+        void getStreamsForGame(const QString game);
 
-
-    public slots:
+public slots:
         virtual void on_timedUpdate() = 0;
 
     protected:
@@ -98,15 +99,19 @@ class TwitchObject : public QObject
         void putRequestUser(const QString &urlString, QString callingFuncName);
         void delRequestUser(const QString &urlString, QString callingFuncName);
         void getRequestClientId(const QString &urlString);
+        void getRequestTopGames(const QString &urlString);
+        void getRequestStreamsForGame(const QString &urlString);
+
         qint64 getPendingReplyCount();
 
-    private slots:
+private slots:
         void parseTwitchNetworkResponseStream();
         void parseTwitchNetworkResponseChannel();
         void parseTwitchNetworkResponseHost();
         void parseTwitchNetworkResponseUser();
         void parseTwitchNetworkResponseClientId();
-        
+        void parseNetworkResponseTopGames();
+        void parseNetworkResponseStreamsForGame();
 
     signals:
         void networkError( QString errmessage );
@@ -115,7 +120,6 @@ class TwitchObject : public QObject
         void twitchNetworkErrorUserUnfollowChannel( QString errmessage );
         void twitchNetworkErrorUserAuthenticationStatus( QString errmessage );
         
-
         void twitchReadyStream( const QJsonDocument &twitchAsJSON );
         void twitchReadyChannel( const QJsonDocument &twitchAsJSON );
         void twitchReadyHost( const QJsonDocument &twitchAsJSON );
@@ -123,6 +127,8 @@ class TwitchObject : public QObject
         void twitchReadyUserFollowChannel( const QJsonDocument &twitchAsJSON );
         void twitchReadyUserUnfollowChannel( const QJsonDocument &twitchAsJSON );
         void twitchReadyUserAuthenticationStatus( const QJsonDocument &twitchAsJSON );
+        void twitchReadyTopGames( const QJsonDocument &twitchAsJSON );
+        void twitchReadyStreamsForGame( const QJsonDocument &twitchAsJSON );
 
         void twitchDataChanged();
 };

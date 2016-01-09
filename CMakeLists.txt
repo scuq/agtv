@@ -30,6 +30,13 @@ else(NOT QT_ROOT_PATH)
     message(STATUS "USing QT_ROOT_PATH = ${QT_ROOT_PATH}")
 endif(NOT QT_ROOT_PATH)
 
+if(NOT SSL_DIR)
+    message(STATUS "SSL_DIR not set. Use cmake -DSSL_DIR=PATH_TO_OPENSSL")
+    message(STATUS "Trying to use system SSL")
+else(NOT SSL_DIR)
+    message(STATUS "USing SSL_DIR = ${SSL_DIR}")
+endif(NOT SSL_DIR)
+
 if((NOT VLC_QT_PATH) AND (NOT NO_VLC_QT))
     # message(FATAL_ERROR "QT_ROOT_PATH not set. Use cmake -DQT_ROOT_PATH=PATH_TO_QT")
 else(NOT VLC_QT_PATH AND NOT NO_VLC_QT)
