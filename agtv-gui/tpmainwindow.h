@@ -54,9 +54,6 @@ public:
     ~tpMainWindow();
 
 private slots:
-
-    void startM3u8Player(QString m3u8playlist);
-
     void updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer);
 
     void onTwitchFollowedChannelsDataChanged(const bool &dataChanged);
@@ -153,8 +150,6 @@ private slots:
 
     void on_settingsSaved();
 
-    void loadQuality();
-
     void copyUrl();
 
     void on_actionShow_Game_Browser_triggered();
@@ -185,8 +180,6 @@ private:
 
     QStandardItemModel *stmodelbookmarks;
     AdvQSortFilterProxyModel *stproxymodelbookmarks;
-
-    FileDownloader *m_m3u8playlist;
 
     QPixmap offline;
     QPixmap online;

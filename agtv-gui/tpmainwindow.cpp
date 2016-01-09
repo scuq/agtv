@@ -176,9 +176,6 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     ui->tableView->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
     ui->tableViewBookmarks->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
 
-    m_m3u8playlist = new FileDownloader(this);
-    connect(this->m_m3u8playlist, SIGNAL (downloaded()), this, SLOT (loadQuality()));
-
     if(! genericHelper::getFitAllContentToWindow()) {
         QTimer::singleShot(0, this, SLOT(restoreTableViewsManual()));
     }
@@ -906,55 +903,9 @@ void tpMainWindow::loadNew(const QString game, const QString url) {
     emit setStreamUrl(url);
 }
 
-void tpMainWindow::loadQuality()
-{
-    QPixmap buttonImage;
-    QString downloadedtext = m_m3u8playlist->downloadedData();
-    QStringList streams = downloadedtext.split("\n");
-
-    QMap<QString, QString> videofiles = this->parseM3U8Playlist(downloadedtext);
-
-    emit setStreamUrlWithQuality(videofiles);
-}
-
 void tpMainWindow::loadQualityNew(const QString game, const QMap<QString, QString> qualityUrls)
 {
     emit setStreamUrlWithQuality(qualityUrls);
-}
-
-QMap<QString, QString> tpMainWindow::parseM3U8Playlist(QString m3u8playlist)
-{
-    QStringList m3u8playlistlines = m3u8playlist.split("\n");
-    QMap<QString, QString> map;
-    QRegularExpression requality("VIDEO=([^s]+)");
-
-    QString quality;
-
-    QStringListIterator it(m3u8playlistlines);
-
-    QString string;
-
-    for(int l=0; l<m3u8playlistlines.size(); ++l) {
-        string = m3u8playlistlines.at(l);
-        if ( string.startsWith("#EXT-X-STREAM-INF:PROGRAM-ID") ) {
-            QRegularExpressionMatch match = requality.match(string);
-            if (match.hasMatch()) {
-                quality = match.captured(1).replace("\"","");
-                if(QString::compare(quality, "chunked") == 0)
-                    quality = "source";
-                map[quality] = m3u8playlistlines.at(l+1);
-            } else {
-                qDebug() << "Could not extract quality from string:\n" << string;
-            }
-        }
-    }
-
-    return map;
-}
-
-void tpMainWindow::startM3u8Player(QString m3u8playlist)
-{
-
 }
 
 void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer)
