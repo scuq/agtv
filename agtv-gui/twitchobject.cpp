@@ -59,7 +59,7 @@ void TwitchObject::parseTwitchNetworkResponseStream()
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
             return;
         }
 
@@ -115,7 +115,7 @@ void TwitchObject::parseTwitchNetworkResponseChannel()
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
             return;
         }
 
@@ -254,7 +254,7 @@ void TwitchObject::parseTwitchNetworkResponseHost()
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
             return;
         }
 
@@ -287,7 +287,7 @@ void TwitchObject::parseTwitchNetworkResponseUser()
                 emit twitchNetworkErrorUserAuthenticationStatus( reply->errorString() );
             }
                        
-            genericHelper::log( QString(__func__) + "(" + callingFuncName + ")" + QString(": ") + reply->errorString());
+            genericHelper::log( QString(Q_FUNC_INFO) + "(" + callingFuncName + ")" + QString(": ") + reply->errorString());
             
             reply->abort();
             reply->deleteLater();
@@ -308,13 +308,13 @@ void TwitchObject::parseTwitchNetworkResponseUser()
             emit twitchReadyUserAuthenticationStatus( json_buffer );
         }
 
-        genericHelper::log( QString(__func__) + QString(": Success"));
+        genericHelper::log( QString(Q_FUNC_INFO) + QString(": Success"));
         
         reply->deleteLater();
         netReplies.remove(reply);
         
     } else {
-        genericHelper::log( QString(__func__) + QString(": ") + "reply is NULL");
+        genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + "reply is NULL");
     }
     qDebug() << "Pending Replys: "  << this->getPendingReplyCount();
     
@@ -328,7 +328,7 @@ void TwitchObject::parseTwitchNetworkResponseClientId()
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            genericHelper::log( QString(__func__) + QString(": ") + reply->errorString());
+            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
             return;
         }
 
