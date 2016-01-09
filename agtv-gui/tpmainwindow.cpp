@@ -1500,7 +1500,7 @@ void tpMainWindow::on_tableView_activated(const QModelIndex &index)
 
     if (genericHelper::isHosting(_status)) {
         if (launchBookmarkEnabled == true) {
-            QString _hostedStreamer = this->stproxymodel->data(index.sibling(index.row(),4),0).toString();
+            QString _hostedStreamer = this->twitchChannels[_streamer]->getHostedChannel();
             tw->getChannelAccessToken(_hostedStreamer);
 
             prepareDiaLauncher();
@@ -1542,7 +1542,7 @@ void tpMainWindow::on_tableViewBookmarks_activated(const QModelIndex &index)
 
     if (genericHelper::isHosting(_status)) {
         if (launchBookmarkEnabled == true) {
-            QString _hostedStreamer = this->stproxymodelbookmarks->data(index.sibling(index.row(),4),0).toString();
+            QString _hostedStreamer = this->twitchChannels[_streamer]->getHostedChannel();
             tw->getChannelAccessToken(_hostedStreamer);
 
             prepareDiaLauncher();

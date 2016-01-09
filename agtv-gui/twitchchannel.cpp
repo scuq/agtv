@@ -231,7 +231,7 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
         }
 
         if(this->isHosting && QString::compare(this->hostedChannel, this->channelStatus, Qt::CaseSensitive) != 0) {
-            this->channelStatus = QString("Hosting: ") + this->hostedChannel;
+            this->channelStatus = QString("Hosting ") + this->hostedChannel;
             dataChanged = true;
             onlineStatusChanged = true;
             genericHelper::log( this->channelName + QString(": ") + QString("Hosted channel changed"));
