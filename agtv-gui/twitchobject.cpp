@@ -5,10 +5,19 @@
 TwitchObject::TwitchObject(QObject *parent, QString token, const qint64 defaultTimerInterval)
     : oAuthToken(token)
 {
-    nwManager = new QNetworkAccessManager();
+    nwManager = new QNetworkAccessManager(this);
+
+    this->setupSignalMappers();
 
     this->refreshTimerInterval = defaultTimerInterval;
     this->refreshTimer = new QTimer(this);
+}
+
+void TwitchObject::setupSignalMappers()
+{
+    channelAccessTokenSignalMapper = new QSignalMapper(this);
+    connect(channelAccessTokenSignalMapper, SIGNAL(mapped(QString)),
+            this, SLOT(parseNetworkResponseChannelAccessToken(QString)));
 }
 
 void TwitchObject::setupTimer()
@@ -19,8 +28,9 @@ void TwitchObject::setupTimer()
 
 void TwitchObject::setInterval(qint64 msec)
 {
+    this->refreshTimerInterval = msec;
+
     if(this->refreshTimer->timerId() != -1) {
-        this->refreshTimerInterval = msec;
         this->refreshTimer->start(msec);
     }
 }
@@ -410,10 +420,10 @@ void TwitchObject::parseNetworkResponseStreamsForGame()
 
 void TwitchObject::getChannelAccessToken(QString channel)
 {
-    this->getRequestChannelAccessToken("https://api.twitch.tv/api/channels/"+channel+"/access_token");
+    this->getRequestChannelAccessToken("https://api.twitch.tv/api/channels/"+channel+"/access_token", channel);
 }
 
-void TwitchObject::getRequestChannelAccessToken(const QString &urlString)
+void TwitchObject::getRequestChannelAccessToken(const QString &urlString, const QString channel)
 {
     QUrl url ( urlString );
 
@@ -422,12 +432,16 @@ void TwitchObject::getRequestChannelAccessToken(const QString &urlString)
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
     QNetworkReply *reply = nwManager->get(req);
-    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseNetworkResponseChannelAccessToken()));
+    tokenReplies[channel] = reply;
+
+    channelAccessTokenSignalMapper->setMapping(reply, channel);
+    connect(reply, SIGNAL(finished()),
+            channelAccessTokenSignalMapper, SLOT(map()));
 }
 
-void TwitchObject::parseNetworkResponseChannelAccessToken()
+void TwitchObject::parseNetworkResponseChannelAccessToken(const QString channel)
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    QNetworkReply *reply = tokenReplies.take(channel);
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
@@ -436,7 +450,7 @@ void TwitchObject::parseNetworkResponseChannelAccessToken()
         }
 
         QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
-        emit twitchReadyChannelAccessToken( json_buffer );
+        emit twitchReadyChannelAccessToken( channel, json_buffer );
 
         reply->deleteLater();
     }

@@ -83,7 +83,7 @@ private slots:
         void twitchNetworkError(const QString errorString);
         void updateFromJsonResponseHost(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseChannel(const QJsonDocument &jsonResponseBuffer);
-        void updateFromJsonResponseAccessTokenReady(const QJsonDocument &jsonResponseBuffer);
+        void updateFromJsonResponseAccessTokenReady(const QString &_channel, const QJsonDocument &jsonResponseBuffer);
 
         void fileDownloaded();
         void on_downloadedPlaylistReady(const QByteArray playlist);

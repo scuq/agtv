@@ -21,7 +21,7 @@ TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QS
     QObject::connect(this, SIGNAL(twitchReadyStream(const QJsonDocument)), this, SLOT(updateFromJsonResponseStream(const QJsonDocument)));
     QObject::connect(this, SIGNAL(twitchReadyHost(const QJsonDocument)), this, SLOT(updateFromJsonResponseHost(const QJsonDocument)));
     QObject::connect(this, SIGNAL(twitchReadyChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseChannel(const QJsonDocument)));
-    QObject::connect(this, SIGNAL(twitchReadyChannelAccessToken(const QJsonDocument)), this, SLOT(updateFromJsonResponseAccessTokenReady(const QJsonDocument)));
+    QObject::connect(this, SIGNAL(twitchReadyChannelAccessToken(const QString, const QJsonDocument)), this, SLOT(updateFromJsonResponseAccessTokenReady(const QString, const QJsonDocument)));
 
     QObject::connect(this, SIGNAL(networkError(QString)), this, SLOT(twitchNetworkError(QString)));
 
@@ -319,7 +319,7 @@ QString TwitchChannel::buildPlaylistUrlFromJson(const QJsonDocument &jsonRespons
     return QString();
 }
 
-void TwitchChannel::updateFromJsonResponseAccessTokenReady(const QJsonDocument &jsonResponseBuffer)
+void TwitchChannel::updateFromJsonResponseAccessTokenReady(const QString &_channel, const QJsonDocument &jsonResponseBuffer)
 {
     QString _pl = this->buildPlaylistUrlFromJson(jsonResponseBuffer);
     if (! genericHelper::getStreamQuality()) {

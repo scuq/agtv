@@ -22,7 +22,7 @@ class TwitchObject : public QObject
     public:
         QNetworkAccessManager *nwManager;
 
-        TwitchObject(QObject *parent, QString token, const qint64 defaultTimerInterval);
+        TwitchObject(QObject *parent = 0, QString token = QString(), const qint64 defaultTimerInterval = 5000);
 
         //! Set the time interval
         /*!
@@ -94,6 +94,12 @@ public slots:
         
         QMap<QNetworkReply*, QString> netReplies;
 
+        QMap<QString, QNetworkReply*> tokenReplies;
+
+        QSignalMapper *channelAccessTokenSignalMapper;
+
+        void setupSignalMappers();
+
         void getRequestStream(const QString &urlString);
         void getRequestChannel(const QString &urlString);
         void getRequestHost(const QString &urlString);
@@ -103,7 +109,7 @@ public slots:
         void getRequestClientId(const QString &urlString);
         void getRequestTopGames(const QString &urlString);
         void getRequestStreamsForGame(const QString &urlString);
-        void getRequestChannelAccessToken(const QString &urlString);
+        void getRequestChannelAccessToken(const QString &urlString, const QString channel);
 
         qint64 getPendingReplyCount();
 
@@ -115,7 +121,7 @@ private slots:
         void parseTwitchNetworkResponseClientId();
         void parseNetworkResponseTopGames();
         void parseNetworkResponseStreamsForGame();
-        void parseNetworkResponseChannelAccessToken();
+        void parseNetworkResponseChannelAccessToken(const QString channel);
 
 signals:
         void networkError( QString errmessage );
@@ -133,7 +139,7 @@ signals:
         void twitchReadyUserAuthenticationStatus( const QJsonDocument &twitchAsJSON );
         void twitchReadyTopGames( const QJsonDocument &twitchAsJSON );
         void twitchReadyStreamsForGame( const QJsonDocument &twitchAsJSON );
-        void twitchReadyChannelAccessToken( const QJsonDocument &twitchAsJSON );
+        void twitchReadyChannelAccessToken( const QString channel, const QJsonDocument &twitchAsJSON );
 
         void twitchDataChanged();
 };
