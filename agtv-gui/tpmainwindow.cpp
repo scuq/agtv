@@ -785,9 +785,15 @@ void tpMainWindow::executeInternalPlayer(QString player, QString url, QString ch
     diaVideoPlayers.push_back(new DialogVideoPlayer);
     diaVideoPlayers.last()->initVLC();
 
-    diaVideoPlayers.last()->setTitle(channel);
-    diaVideoPlayers.last()->openUrl(url);
-    diaVideoPlayers.last()->show();
+    if(diaVideoPlayers.last()->isInit()) {
+        diaVideoPlayers.last()->setTitle(channel);
+        diaVideoPlayers.last()->openUrl(url);
+        diaVideoPlayers.last()->show();
+    } else {
+        QMessageBox::critical(this, genericHelper::getAppName(),
+                                       tr("Error initializing internal VLC player! Maybe missing VLC plugins.\nTry switching to external VLC player in options."),
+                                       QMessageBox::Ok);
+    }
 }
 #endif
 

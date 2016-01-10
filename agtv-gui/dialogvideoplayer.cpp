@@ -20,6 +20,8 @@ DialogVideoPlayer::DialogVideoPlayer(QWidget *parent) :
     setWindowFlags( flags );
 
     restoreGeometry(genericHelper::getGeometry("videodialog").toByteArray());
+
+    initialized = false;
 }
 
 DialogVideoPlayer::~DialogVideoPlayer()
@@ -34,30 +36,41 @@ void DialogVideoPlayer::initVLC()
 
     genericHelper::log("DialogVideoPlayer: Using VLC args = " + args.join(" "));
 
-   _instance = new VlcInstance(args, this);
-   if(&_instance == 0) {
-       genericHelper::log("DialogVideoPlayer: Error creating VLC instance!");
-       return;
-   }
-    _player = new VlcMediaPlayer(_instance);
-    if(&_player == 0) {
-        genericHelper::log("DialogVideoPlayer: Error creating VLC player!");
+    _instance = new VlcInstance(args, this);
+    qDebug() << _instance->status();
+    if(_instance->status() == false) {
+        genericHelper::log("DialogVideoPlayer: Error creating VlcInstance!");
+        this->initialized = false;
         return;
+    } else {
+        this->initialized = true;
+    }
+    _player = new VlcMediaPlayer(_instance);
+    if(_player == 0) {
+        genericHelper::log("DialogVideoPlayer: Error creating VlcMediaPlayer!");
+        this->initialized = false;
+        return;
+    } else {
+        this->initialized = true;
     }
     _player->setVideoWidget(this->ui->video);
     _vlcAudio = _player->audio();
 
     int volume = _vlcAudio->volume();
     if(volume == 0) {
-         this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card-off.png"));
+        this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card-off.png"));
     } else {
-         this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card.png"));
+        this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card.png"));
     }
     this->ui->horizontalSliderVolume->setValue(volume);
 
     QObject::connect(_player, SIGNAL(playing()), this, SLOT(onStarted()));
     QObject::connect(_player, SIGNAL(stopped()), this, SLOT(onStopped()));
     QObject::connect(_player, SIGNAL(paused()), this, SLOT(onPaused()));
+}
+
+bool DialogVideoPlayer::isInit() {
+    return this->initialized;
 }
 
 void DialogVideoPlayer::openLocal(QString file)
@@ -206,9 +219,9 @@ void DialogVideoPlayer::on_horizontalSliderVolume_valueChanged(int value)
 {
     _vlcAudio->setVolume(value);
     if(value == 0) {
-         this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card-off.png"));
+        this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card-off.png"));
     } else {
-         this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card.png"));
+        this->ui->pushButtonMute->setIcon(QIcon(":/16x16/icons/16x16/audio-card.png"));
     }
 }
 

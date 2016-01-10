@@ -29,6 +29,8 @@ public:
     void openUrl(QString url);
 
     void setTitle(QString channel);
+    
+    bool isInit();
 
 private slots:
     void on_pushButtonClose_clicked();
@@ -61,6 +63,7 @@ private:
     };
 
     int oldVolume;
+    bool initialized;
 
     VlcInstance *_instance;
     VlcMedia *_media;
