@@ -420,7 +420,11 @@ void TwitchObject::parseNetworkResponseStreamsForGame()
 
 void TwitchObject::getChannelAccessToken(QString channel)
 {
-    this->getRequestChannelAccessToken("https://api.twitch.tv/api/channels/"+channel+"/access_token", channel);
+    if(! tokenReplies.contains(channel)) {
+        this->getRequestChannelAccessToken("https://api.twitch.tv/api/channels/"+channel+"/access_token", channel);
+    } else {
+        genericHelper::log( QString("ERROR: ") + QString(Q_FUNC_INFO) + QString(": getChannelAccessToken already running for channel ") + channel);
+    }
 }
 
 void TwitchObject::getRequestChannelAccessToken(const QString &urlString, const QString channel)
@@ -445,7 +449,7 @@ void TwitchObject::parseNetworkResponseChannelAccessToken(const QString channel)
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
             emit networkError( reply->errorString() );
-            genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
+            genericHelper::log( QString("ERROR: ") + QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
             return;
         }
 
@@ -453,5 +457,7 @@ void TwitchObject::parseNetworkResponseChannelAccessToken(const QString channel)
         emit twitchReadyChannelAccessToken( channel, json_buffer );
 
         reply->deleteLater();
+    } else {
+        genericHelper::log( QString(Q_FUNC_INFO) + QString(": Cannot retrieve reply for channel ") + channel);
     }
 }
