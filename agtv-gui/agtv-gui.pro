@@ -18,8 +18,11 @@ VERSION = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}.$${VERSION_BUILD
 DEFINES += VERSION=\\\"$$VERSION\\\"
 DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
 
+DEFINES += IRC_SHARED
+
 DEPLOYMENT = no
-CONFIG += winternalvlc
+#CONFIG += winternalvlc
+CONFIG += internalirc
 
 BUILDBASE = ../
 
@@ -44,6 +47,8 @@ include(project/macosx.pri)
 include(project/win32.pri)
 
 include(project/vlcqt.pri)
+
+include(project/libcommuni.pri)
 
 QT       += core gui network multimedia multimediawidgets
 
@@ -75,7 +80,9 @@ SOURCES +=  main.cpp\
             twitchchannel.cpp \
             twitchuser.cpp \
             twitchuserlocal.cpp \
-            twitchgamebrowser.cpp
+            twitchgamebrowser.cpp \
+            ircclient.cpp \
+            ircmessageformatter.cpp
 
 HEADERS  += tpmainwindow.h \
             generichelper.h \
@@ -100,7 +107,9 @@ HEADERS  += tpmainwindow.h \
             version.h \
             twitchuser.h \
             twitchuserlocal.h \
-            twitchgamebrowser.h
+            twitchgamebrowser.h \
+            ircclient.h \
+            ircmessageformatter.h
 
 FORMS    += tpmainwindow.ui \
             dialogoauthsetup.ui \

@@ -11,6 +11,9 @@
 #ifdef WINTERNALVLC
 #include "dialogvideoplayer.h"
 #endif
+#ifdef INTERNALIRC
+#include "ircclient.h"
+#endif
 #include "dialoggamebrowser.h"
 
 #include "agtvdefaultitemdelegate.h"
@@ -203,6 +206,11 @@ private:
 #ifdef WINTERNALVLC
     // DialogVideoPlayer *diaVideoPlayer;
     QVector<DialogVideoPlayer *> diaVideoPlayers;
+#endif
+    
+#ifdef INTERNALIRC
+    // DialogVideoPlayer *diaVideoPlayer;
+    IrcClient *ircc;
 #endif
 
     QVector<QString> followerToRemove;

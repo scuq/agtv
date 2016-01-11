@@ -37,6 +37,7 @@ void DialogVideoPlayer::initVLC()
     genericHelper::log("DialogVideoPlayer: Using VLC args = " + args.join(" "));
 
     _instance = new VlcInstance(args, this);
+    
     qDebug() << _instance->status();
     if(_instance->status() == false) {
         genericHelper::log("DialogVideoPlayer: Error creating VlcInstance!");

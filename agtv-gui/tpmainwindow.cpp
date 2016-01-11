@@ -1195,12 +1195,24 @@ void tpMainWindow::on_actionTwitch_Browser_triggered()
 
 void tpMainWindow::on_actionHexChat_triggered()
 {
+    
+#ifdef INTERNALIRC
+    //diaVideoPlayer = new DialogVideoPlayer;
+    //diaVideoPlayer->initVLC();
+    qDebug() << "internalirc";
+    ircc = new IrcClient(this);
+    ircc->resize(800, 480);
+    ircc->show();
+
+#else
     int ret = genericHelper::executeAddonHexchat(genericHelper::getFollows());
     if (ret != 0) {
         QMessageBox::critical(this, genericHelper::getAppName(),
                                        tr("Can't find HexChat, please check options."),
                                        QMessageBox::Ok);
     }
+    
+#endif
 }
 
 void tpMainWindow::trayIconClicked(QSystemTrayIcon::ActivationReason reason)

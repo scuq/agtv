@@ -3,6 +3,7 @@ message("setting paths and settings for $${DEVELOPER}}")
 SSL_DIR = "C:/OpenSSL-Win32/"
 BUILDBASE = z:/build/agtv/
 VLC_QT_PATH = "Z:\VLC-Qt"
+LIBCOMMUNI_PATH = "Z:\libcommuni"
 
 linux {
  BUILDBASE = /home/scuq/build/
