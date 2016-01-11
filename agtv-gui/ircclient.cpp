@@ -39,7 +39,7 @@
 IrcClient::IrcClient(QWidget* parent, const QString SERVER, const QString USERNAME, const QString PASSWORD) : QSplitter(parent)
 {
     
-    qputenv("IRC_DEBUG", "1");
+    qputenv("IRC_DEBUG", "0");
     
     this->SERVER = SERVER;
     this->USERNAME = USERNAME;
@@ -163,6 +163,7 @@ void IrcClient::onBufferAdded(IrcBuffer* buffer)
     // create a sorted model for buffer users
     IrcUserModel* userModel = new IrcUserModel(buffer);
     userModel->setSortMethod(Irc::SortByTitle);
+   
     userModels.insert(buffer, userModel);
 
     // activate the new buffer
@@ -220,9 +221,42 @@ static void appendHtml(QTextDocument* document, const QString& html)
 
 void IrcClient::receiveMessage(IrcMessage* message)
 {
+     
+    
+    
     IrcBuffer* buffer = qobject_cast<IrcBuffer*>(sender());
     if (!buffer)
         buffer = bufferList->currentIndex().data(Irc::BufferRole).value<IrcBuffer*>();
+    
+    IrcNumericMessage* numericmessage = qobject_cast<IrcNumericMessage*>(message);
+       
+    if (numericmessage) {
+       if (numericmessage->command().toInt() == 353) {
+           
+           
+          if (numericmessage->parameters().length() == 4) {
+
+              QStringList _users;
+              _users = QString(numericmessage->parameters().at(3)).split(" ");
+              
+            
+              QListIterator<QString> itr (_users);        
+              
+              while (itr.hasNext()) {                    
+                 QString current = itr.next();
+                 qDebug() << current;
+                 //qDebug() << userModels.value(buffer);
+                 
+              
+              }
+              
+          }
+              
+
+
+           
+       }
+    }
 
     QTextDocument* document = documents.value(buffer);
     if (document) {
