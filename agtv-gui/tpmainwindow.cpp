@@ -1200,7 +1200,10 @@ void tpMainWindow::on_actionHexChat_triggered()
     //diaVideoPlayer = new DialogVideoPlayer;
     //diaVideoPlayer->initVLC();
     qDebug() << "internalirc";
-    ircc = new IrcClient(this);
+    ircc = new IrcClient();
+    
+   // ircc->setServer("irc.twitch.tv");
+    ircc->connectAndJoin(genericHelper::getFollows());
     ircc->resize(800, 480);
     ircc->show();
 

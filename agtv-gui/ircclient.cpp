@@ -31,11 +31,15 @@
 #include <IrcBufferModel>
 #include <IrcCommandParser>
 
-static const char* CHANNEL = "#communi";
-static const char* SERVER = "irc.freenode.net";
+//static const char* CHANNEL = "#communi";
+//static const char* SERVER = "irc.freenode.net";
 
-IrcClient::IrcClient(QWidget* parent) : QSplitter(parent)
+IrcClient::IrcClient(QWidget* parent, const QString SERVER) : QSplitter(parent)
 {
+    
+   
+    this->SERVER = SERVER;
+    
     createParser();
     createConnection();
     createCompleter();
@@ -43,13 +47,20 @@ IrcClient::IrcClient(QWidget* parent) : QSplitter(parent)
     createLayout();
     createBufferList();
 
-    // queue a command to automatically join the channel when connected
-    connection->sendCommand(IrcCommand::createJoin(CHANNEL));
-    connection->open();
+
 
     textEdit->append(IrcMessageFormatter::formatMessage(tr("! Welcome to the Communi %1 example client.").arg(IRC_VERSION_STR)));
     textEdit->append(IrcMessageFormatter::formatMessage(tr("! This example connects %1 and joins %2.").arg(SERVER, CHANNEL)));
     textEdit->append(IrcMessageFormatter::formatMessage(tr("! PS. Available commands: JOIN, ME, NICK, PART")));
+}
+
+
+void IrcClient::connectAndJoin(QStringList channels)
+{
+    
+    // queue a command to automatically join the channel when connected
+    connection->sendCommand(IrcCommand::createJoin(channels));
+    connection->open();
 }
 
 IrcClient::~IrcClient()
@@ -314,7 +325,7 @@ void IrcClient::createConnection()
 
     qsrand(QTime::currentTime().msec());
 
-    connection->setHost(SERVER);
+    connection->setHost(this->SERVER);
     connection->setUserName("communi");
     connection->setNickName(tr("Client%1").arg(qrand() % 9999));
     connection->setRealName(tr("Communi %1 example client").arg(IRC_VERSION_STR));

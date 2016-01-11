@@ -32,7 +32,8 @@ class IrcClient : public QSplitter
     Q_OBJECT
 
 public:
-    IrcClient(QWidget* parent = 0);
+    IrcClient(QWidget* parent = 0, const QString SERVER = "irc.twitch.tv");
+    void connectAndJoin(QStringList channels);
     ~IrcClient();
 
 private slots:
@@ -61,6 +62,11 @@ private:
     void createUserList();
     void createBufferList();
     void createConnection();
+    
+    const char* CHANNEL = "#agtv";
+    QString SERVER;
+
+
 
     QLineEdit* lineEdit;
     QTextEdit* textEdit;
