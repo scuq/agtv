@@ -186,7 +186,11 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     //diaVideoPlayer = new DialogVideoPlayer;
     //diaVideoPlayer->initVLC();
 #endif
-
+    
+#ifdef INTERNALIRC
+    ircc = new IrcClient(0,"irc.twitch.tv",genericHelper::getUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
+#endif
+    
     clipboard = QApplication::clipboard();
 
     diaTopGameBrowser = new DialogGameBrowser;
@@ -689,9 +693,24 @@ void tpMainWindow::openChatHexChat()
 
      if ( genericHelper::isHosting(_status) ) {
          QString _hostedfor = this->twitchChannels[_streamer]->getHostedChannel();
-         ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
+         
+#ifdef INTERNALIRC   
+            ircc->connectAndJoin(QStringList{_streamer, _hostedfor});
+            ircc->resize(800, 480);
+            ircc->show();
+#else
+            ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
+#endif
+         
      } else {
+         
+#ifdef INTERNALIRC            
+         ircc->connectAndJoin(QStringList{_streamer});
+         ircc->resize(800, 480);
+         ircc->show();         
+#else
          ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
+#endif
      }
 
      if (ret != 0) {
@@ -709,9 +728,21 @@ void tpMainWindow::openChatHexChatBookmark()
 
     if ( genericHelper::isHosting(_status) ) {
         QString _hostedfor = this->twitchChannels[_streamer]->getHostedChannel();
+#ifdef INTERNALIRC   
+        ircc->connectAndJoin(QStringList{_streamer, _hostedfor});
+        ircc->resize(800, 480);
+        ircc->show();          
+#else
         ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
+#endif
     } else {
+#ifdef INTERNALIRC   
+        ircc->connectAndJoin(QStringList{_streamer});
+        ircc->resize(800, 480);
+        ircc->show();    
+#else
         ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
+#endif        
     }
 
     if (ret != 0) {
@@ -1196,14 +1227,10 @@ void tpMainWindow::on_actionTwitch_Browser_triggered()
 void tpMainWindow::on_actionHexChat_triggered()
 {
     
-#ifdef INTERNALIRC
-    qDebug() << "internalirc";
-    ircc = new IrcClient(0,"irc.twitch.tv",genericHelper::getUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
-    
+#ifdef INTERNALIRC   
     ircc->connectAndJoin(twitchUser->getFollowedChannelsList());
     ircc->resize(800, 480);
     ircc->show();
-
 #else
     int ret = genericHelper::executeAddonHexchat(genericHelper::getFollows());
     if (ret != 0) {

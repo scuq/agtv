@@ -31,13 +31,15 @@
 #include <IrcBufferModel>
 #include <IrcCommandParser>
 
+ 
+
 //static const char* CHANNEL = "#communi";
 //static const char* SERVER = "irc.freenode.net";
 
 IrcClient::IrcClient(QWidget* parent, const QString SERVER, const QString USERNAME, const QString PASSWORD) : QSplitter(parent)
 {
     
-   
+   qputenv("IRC_DEBUG", "1");
     this->SERVER = SERVER;
     this->USERNAME = USERNAME;
     this->PASSWORD = PASSWORD;
@@ -51,7 +53,7 @@ IrcClient::IrcClient(QWidget* parent, const QString SERVER, const QString USERNA
     createLayout();
     createBufferList();
 
-
+    connection->open();
 
     textEdit->append(IrcMessageFormatter::formatMessage(tr("! Welcome to the Communi %1 example client.").arg(IRC_VERSION_STR)));
     textEdit->append(IrcMessageFormatter::formatMessage(tr("! This example connects %1 and joins %2.").arg(SERVER, CHANNEL)));
@@ -62,10 +64,26 @@ IrcClient::IrcClient(QWidget* parent, const QString SERVER, const QString USERNA
 void IrcClient::connectAndJoin(QStringList channels)
 {
     
-    // queue a command to automatically join the channel when connected
-    connection->sendCommand(IrcCommand::createJoin(channels));
-    qDebug() << channels;
-    connection->open();
+    
+    QStringList ircChannels;
+    
+    QListIterator<QString> itr (channels);        
+    
+    while (itr.hasNext()) {                    
+       QString current = itr.next();
+       ircChannels << current.prepend("#");
+    
+    }
+    
+    
+    
+    connection->sendCommand(IrcCommand::createJoin(ircChannels));
+    
+    
+
+ qDebug() << channels;
+    qDebug() << ircChannels;
+    
     
 }
 
@@ -80,7 +98,7 @@ IrcClient::~IrcClient()
 void IrcClient::onConnected()
 {
     textEdit->append(IrcMessageFormatter::formatMessage("! Connected to %1.").arg(SERVER));
-    textEdit->append(IrcMessageFormatter::formatMessage("! Joining %1...").arg(CHANNEL));
+    //textEdit->append(IrcMessageFormatter::formatMessage("! Joining %1...").arg(CHANNEL));
 }
 
 void IrcClient::onConnecting()
@@ -330,11 +348,18 @@ void IrcClient::createConnection()
     connect(connection, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
 
     qsrand(QTime::currentTime().msec());
-
+    
     connection->setHost(this->SERVER);
+    connection->setPort(6667);
     connection->setUserName(this->USERNAME);
     connection->setPassword(this->PASSWORD);
     
     connection->setNickName(this->NICKNAME);
     connection->setRealName(this->REALNAME);
+    
+    //connection->sendCommand(IrcCommand::createCapability("REQ", QStringList{"twitch.tv/membership"}));
+    connection->sendRaw("CAP REQ :twitch.tv/membership");
+    
+    
+    
 }
