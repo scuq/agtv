@@ -1197,13 +1197,10 @@ void tpMainWindow::on_actionHexChat_triggered()
 {
     
 #ifdef INTERNALIRC
-    //diaVideoPlayer = new DialogVideoPlayer;
-    //diaVideoPlayer->initVLC();
     qDebug() << "internalirc";
-    ircc = new IrcClient();
+    ircc = new IrcClient(0,"irc.twitch.tv",genericHelper::getUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
     
-   // ircc->setServer("irc.twitch.tv");
-    ircc->connectAndJoin(genericHelper::getFollows());
+    ircc->connectAndJoin(twitchUser->getFollowedChannelsList());
     ircc->resize(800, 480);
     ircc->show();
 

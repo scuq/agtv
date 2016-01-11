@@ -25,6 +25,7 @@ class TwitchUser : public TwitchObject
         };
 
         QMap<QString, TwitchChannel*> getFollowedChannels();
+        QStringList getFollowedChannelsList();
         void on_timedUpdate();
         
         void followChannel(QString channelName);
@@ -40,6 +41,7 @@ class TwitchUser : public TwitchObject
        
         QString userName;
         QMap<QString, TwitchChannel*> followedChannels;
+        QStringList followedChannelsList;
         
         void setAuthenticationStatus(AuthenticationStatus newStatus);
 

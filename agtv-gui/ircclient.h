@@ -32,7 +32,7 @@ class IrcClient : public QSplitter
     Q_OBJECT
 
 public:
-    IrcClient(QWidget* parent = 0, const QString SERVER = "irc.twitch.tv");
+    IrcClient(QWidget* parent = 0, const QString SERVER = "irc.twitch.tv", const QString USERNAME="", const QString PASSWORD="");
     void connectAndJoin(QStringList channels);
     ~IrcClient();
 
@@ -65,6 +65,10 @@ private:
     
     const char* CHANNEL = "#agtv";
     QString SERVER;
+    QString USERNAME;
+    QString PASSWORD;
+    QString NICKNAME;
+    QString REALNAME;
 
 
 

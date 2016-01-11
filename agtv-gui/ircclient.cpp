@@ -34,11 +34,15 @@
 //static const char* CHANNEL = "#communi";
 //static const char* SERVER = "irc.freenode.net";
 
-IrcClient::IrcClient(QWidget* parent, const QString SERVER) : QSplitter(parent)
+IrcClient::IrcClient(QWidget* parent, const QString SERVER, const QString USERNAME, const QString PASSWORD) : QSplitter(parent)
 {
     
    
     this->SERVER = SERVER;
+    this->USERNAME = USERNAME;
+    this->PASSWORD = PASSWORD;
+    this->NICKNAME = USERNAME;
+    this->REALNAME = USERNAME;
     
     createParser();
     createConnection();
@@ -60,7 +64,9 @@ void IrcClient::connectAndJoin(QStringList channels)
     
     // queue a command to automatically join the channel when connected
     connection->sendCommand(IrcCommand::createJoin(channels));
+    qDebug() << channels;
     connection->open();
+    
 }
 
 IrcClient::~IrcClient()
@@ -326,7 +332,9 @@ void IrcClient::createConnection()
     qsrand(QTime::currentTime().msec());
 
     connection->setHost(this->SERVER);
-    connection->setUserName("communi");
-    connection->setNickName(tr("Client%1").arg(qrand() % 9999));
-    connection->setRealName(tr("Communi %1 example client").arg(IRC_VERSION_STR));
+    connection->setUserName(this->USERNAME);
+    connection->setPassword(this->PASSWORD);
+    
+    connection->setNickName(this->NICKNAME);
+    connection->setRealName(this->REALNAME);
 }

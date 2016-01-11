@@ -46,6 +46,11 @@ QMap<QString, TwitchChannel *> TwitchUser::getFollowedChannels()
     return this->followedChannels;
 }
 
+QStringList TwitchUser::getFollowedChannelsList()
+{
+    return this->followedChannelsList;
+}
+
 void TwitchUser::on_timedUpdate()
 {
     return;
@@ -128,6 +133,7 @@ void TwitchUser::updateFromJsonResponseUserFollowedChannels(const QJsonDocument 
                     if(!this->followedChannels.contains(channelName)) {
                         TwitchChannel *twitchChannel = new TwitchChannel(this, this->getOAuthToken(), channelName, this->getRefreshTimerInterval());
                         this->followedChannels[channelName] = twitchChannel;
+                        this->followedChannelsList.append(channelName);
                         this->followedChannelsDataChanged = true;
                     }
                 }
