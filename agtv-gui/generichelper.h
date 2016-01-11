@@ -153,6 +153,9 @@ public:
     static QString extractStreamNameFromURL(QString _url);
     static QString streamURLParser(QString _stream);
 
+    static bool getInternalChat();
+    static void setInternalChat(const bool internalchat);
+
 signals:
 
 public slots:

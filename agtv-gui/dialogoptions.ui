@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>488</width>
-    <height>442</height>
+    <height>452</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,24 +28,10 @@
    <item row="7" column="1">
     <widget class="QSpinBox" name="spinBoxPollInterval"/>
    </item>
-   <item row="24" column="0">
+   <item row="26" column="0">
     <widget class="QLabel" name="label_13">
      <property name="text">
       <string>Enable quality selection (experimental)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Clear Logfile on start</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_12">
-     <property name="text">
-      <string>Fit all Table Content to Window</string>
      </property>
     </widget>
    </item>
@@ -56,6 +42,13 @@
      </property>
     </widget>
    </item>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Clear Logfile on start</string>
+     </property>
+    </widget>
+   </item>
    <item row="18" column="0">
     <widget class="QLabel" name="label_7">
      <property name="text">
@@ -63,7 +56,14 @@
      </property>
     </widget>
    </item>
-   <item row="25" column="1">
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_12">
+     <property name="text">
+      <string>Fit all Table Content to Window</string>
+     </property>
+    </widget>
+   </item>
+   <item row="27" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="pushButtonOk">
@@ -81,7 +81,7 @@
      </item>
     </layout>
    </item>
-   <item row="22" column="1">
+   <item row="24" column="1">
     <widget class="QCheckBox" name="checkBoxStreamPositioning">
      <property name="text">
       <string/>
@@ -133,7 +133,7 @@
      </property>
     </widget>
    </item>
-   <item row="20" column="1">
+   <item row="22" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QLineEdit" name="hexchatPathEdit"/>
@@ -153,20 +153,6 @@
      </item>
     </layout>
    </item>
-   <item row="19" column="0" colspan="2">
-    <widget class="Line" name="line_4">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="11" column="0">
-    <widget class="QLabel" name="label_6">
-     <property name="text">
-      <string>Chat Autojoin Bookmarked</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="1">
     <widget class="QCheckBox" name="checkBoxUpdateCheck">
      <property name="text">
@@ -177,10 +163,24 @@
      </property>
     </widget>
    </item>
-   <item row="20" column="0">
+   <item row="22" column="0">
     <widget class="QLabel" name="label_11">
      <property name="text">
       <string>HexChat Executable</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Chat Autojoin Bookmarked</string>
+     </property>
+    </widget>
+   </item>
+   <item row="19" column="0" colspan="2">
+    <widget class="Line" name="line_4">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -191,22 +191,8 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Stream online notification</string>
-     </property>
-    </widget>
-   </item>
    <item row="17" column="0" colspan="2">
     <widget class="Line" name="line_5">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="21" column="0" colspan="2">
-    <widget class="Line" name="line_6">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -226,7 +212,35 @@
      </property>
     </widget>
    </item>
-   <item row="22" column="0">
+   <item row="23" column="0" colspan="2">
+    <widget class="Line" name="line_6">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Stream online notification</string>
+     </property>
+    </widget>
+   </item>
+   <item row="26" column="1">
+    <widget class="QCheckBox" name="checkBoxStreamQuality">
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0" colspan="2">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="24" column="0">
     <widget class="QLabel" name="label_8">
      <property name="text">
       <string>Enable stream positioning</string>
@@ -240,13 +254,6 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="2">
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="1">
     <widget class="QCheckBox" name="checkBoxCloseToTray">
      <property name="text">
@@ -254,13 +261,6 @@
      </property>
      <property name="checked">
       <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="24" column="1">
-    <widget class="QCheckBox" name="checkBoxStreamQuality">
-     <property name="text">
-      <string/>
      </property>
     </widget>
    </item>
@@ -306,7 +306,7 @@
      </item>
     </layout>
    </item>
-   <item row="25" column="0">
+   <item row="27" column="0">
     <spacer name="horizontalSpacer">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -329,6 +329,13 @@
      </property>
     </widget>
    </item>
+   <item row="14" column="0">
+    <widget class="QLabel" name="label_14">
+     <property name="text">
+      <string>Use Internal VLC</string>
+     </property>
+    </widget>
+   </item>
    <item row="14" column="1">
     <widget class="QCheckBox" name="checkBoxInternalVLC">
      <property name="text">
@@ -336,10 +343,17 @@
      </property>
     </widget>
    </item>
-   <item row="14" column="0">
-    <widget class="QLabel" name="label_14">
+   <item row="21" column="0">
+    <widget class="QLabel" name="label_internalChat">
      <property name="text">
-      <string>Use Internal VLC</string>
+      <string>Use Internal Chat</string>
+     </property>
+    </widget>
+   </item>
+   <item row="21" column="1">
+    <widget class="QCheckBox" name="checkBoxInternalChat">
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>

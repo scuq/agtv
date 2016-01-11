@@ -34,6 +34,8 @@ private slots:
 
     void on_checkBoxInternalVLC_toggled(bool checked);
 
+    void on_checkBoxInternalChat_toggled(bool checked);
+
 private:
     Ui::DialogOptions *ui;
         bool dialogShown;

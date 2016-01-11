@@ -1113,6 +1113,19 @@ void genericHelper::setInternalVLC(const bool internalvlc)
     settings.sync();
 }
 
+bool genericHelper::getInternalChat()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    return settings.value("internal_chat", "0").toBool();
+}
+
+void genericHelper::setInternalChat(const bool internalchat)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("internal_chat",  internalchat);
+    settings.sync();
+}
+
 QString genericHelper::extractStreamNameFromURL(QString _url)
 {
     QRegExp re("\\/([^\\/]*)$");

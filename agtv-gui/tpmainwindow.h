@@ -282,6 +282,7 @@ private:
     QMap<QString, TwitchChannel*> twitchChannels;
     QMap<QString, TwitchChannel*> twitchChannelsBookmarks;
 
+    void openHexchat();
 public slots:
     void executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
 

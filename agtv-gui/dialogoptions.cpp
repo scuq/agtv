@@ -53,11 +53,21 @@ void DialogOptions::refreshUiData()
     this->ui->label_14->setHidden(true);
     this->ui->checkBoxInternalVLC->setHidden(true);
 
+    this->ui->label_internalChat->setHidden(true);
+    this->ui->checkBoxInternalChat->setHidden(true);
+
 #ifdef WINTERNALVLC
     this->ui->checkBoxInternalVLC->setHidden(false);
     this->ui->label_14->setHidden(false);
     this->ui->checkBoxInternalVLC->setChecked(genericHelper::getInternalVLC());
     this->on_checkBoxInternalVLC_toggled(genericHelper::getInternalVLC());
+#endif
+
+#ifdef INTERNALIRC
+    this->ui->checkBoxInternalChat->setHidden(false);
+    this->ui->label_internalChat->setHidden(false);
+    this->ui->checkBoxInternalChat->setChecked(genericHelper::getInternalChat());
+    this->on_checkBoxInternalChat_toggled(genericHelper::getInternalChat());
 #endif
 
     restoreGeometry(genericHelper::getGeometry("options").toByteArray());
@@ -125,6 +135,10 @@ void DialogOptions::on_pushButtonOk_clicked()
     genericHelper::setInternalVLC(this->ui->checkBoxInternalVLC->isChecked());
 #endif
 
+#ifdef INTERNALIRC
+    genericHelper::setInternalChat(this->ui->checkBoxInternalChat->isChecked());
+#endif
+
     this->hide();
     genericHelper::saveGeometry("options",saveGeometry());
 
@@ -170,4 +184,10 @@ void DialogOptions::on_checkBoxInternalVLC_toggled(bool checked)
         this->ui->checkBoxStreamQuality->setEnabled(true);
         this->ui->checkBoxStreamPositioning->setEnabled(true);
     }
+}
+
+void DialogOptions::on_checkBoxInternalChat_toggled(bool checked)
+{
+    this->ui->hexchatPathEdit->setEnabled(!checked);
+    this->ui->hexchatPathSelectButton->setEnabled(!checked);
 }

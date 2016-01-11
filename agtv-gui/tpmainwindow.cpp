@@ -188,7 +188,11 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 #endif
     
 #ifdef INTERNALIRC
-    ircc = new IrcClient(0,"irc.twitch.tv",genericHelper::getUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
+    if(genericHelper::getInternalChat()) {
+        ircc = new IrcClient(0,"irc.twitch.tv",genericHelper::getUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
+    } else {
+        ircc = 0;
+    }
 #endif
     
     clipboard = QApplication::clipboard();
@@ -336,6 +340,19 @@ void tpMainWindow::on_settingsSaved()
 
         restoreTableViewsManual();
     }
+
+#ifdef INTERNALIRC
+    if(genericHelper::getInternalChat()) {
+        if(ircc == 0) {
+            ircc = new IrcClient(0,"irc.twitch.tv",genericHelper::getUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
+        }
+    } else {
+        if(ircc != 0) {
+            ircc->deleteLater();
+            ircc = 0;
+        }
+    }
+#endif
 }
 
 void tpMainWindow::fitTableViewToContent(QTableView *tableView)
@@ -544,10 +561,10 @@ void tpMainWindow::createActions()
     connect(open_in_browser, SIGNAL(triggered()), this, SLOT(openStreamBrowser()));
 
 
-    open_in_hexchat = new QAction(tr("Open in &HexChat"), this);
+    open_in_hexchat = new QAction(tr("Open &Chat"), this);
     connect(open_in_hexchat, SIGNAL(triggered()), this, SLOT(openChatHexChat()));
 
-    open_in_hexchat_bookmark = new QAction(tr("Open in &HexChat"), this);
+    open_in_hexchat_bookmark = new QAction(tr("Open &Chat"), this);
     connect(open_in_hexchat_bookmark, SIGNAL(triggered()), this, SLOT(openChatHexChatBookmark()));
 
 
@@ -694,20 +711,26 @@ void tpMainWindow::openChatHexChat()
      if ( genericHelper::isHosting(_status) ) {
          QString _hostedfor = this->twitchChannels[_streamer]->getHostedChannel();
          
-#ifdef INTERNALIRC   
+#ifdef INTERNALIRC
+         if(genericHelper::getInternalChat()) {
             ircc->connectAndJoin(QStringList{_streamer, _hostedfor});
             ircc->resize(800, 480);
             ircc->show();
+         } else {
+             ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
+         }
 #else
             ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
 #endif
-         
-     } else {
-         
-#ifdef INTERNALIRC            
-         ircc->connectAndJoin(QStringList{_streamer});
-         ircc->resize(800, 480);
-         ircc->show();         
+     } else { // genericHelper::isHosting(_status)
+#ifdef INTERNALIRC
+         if(genericHelper::getInternalChat()) {
+             ircc->connectAndJoin(QStringList{_streamer});
+             ircc->resize(800, 480);
+             ircc->show();
+         } else {
+             ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
+         }
 #else
          ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
 #endif
@@ -728,18 +751,26 @@ void tpMainWindow::openChatHexChatBookmark()
 
     if ( genericHelper::isHosting(_status) ) {
         QString _hostedfor = this->twitchChannels[_streamer]->getHostedChannel();
-#ifdef INTERNALIRC   
-        ircc->connectAndJoin(QStringList{_streamer, _hostedfor});
-        ircc->resize(800, 480);
-        ircc->show();          
+#ifdef INTERNALIRC
+        if(genericHelper::getInternalChat()) {
+            ircc->connectAndJoin(QStringList{_streamer, _hostedfor});
+            ircc->resize(800, 480);
+            ircc->show();
+        } else {
+            ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
+        }
 #else
         ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
 #endif
     } else {
-#ifdef INTERNALIRC   
-        ircc->connectAndJoin(QStringList{_streamer});
-        ircc->resize(800, 480);
-        ircc->show();    
+#ifdef INTERNALIRC
+        if(genericHelper::getInternalChat()) {
+            ircc->connectAndJoin(QStringList{_streamer});
+            ircc->resize(800, 480);
+            ircc->show();
+        } else {
+            ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
+        }
 #else
         ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
 #endif        
@@ -1224,21 +1255,27 @@ void tpMainWindow::on_actionTwitch_Browser_triggered()
     QDesktopServices::openUrl(QUrl(link));
 }
 
-void tpMainWindow::on_actionHexChat_triggered()
-{
-    
-#ifdef INTERNALIRC   
-    ircc->connectAndJoin(twitchUser->getFollowedChannelsList());
-    ircc->resize(800, 480);
-    ircc->show();
-#else
+void tpMainWindow::openHexchat() {
     int ret = genericHelper::executeAddonHexchat(genericHelper::getFollows());
     if (ret != 0) {
         QMessageBox::critical(this, genericHelper::getAppName(),
                                        tr("Can't find HexChat, please check options."),
                                        QMessageBox::Ok);
     }
-    
+}
+
+void tpMainWindow::on_actionHexChat_triggered()
+{
+#ifdef INTERNALIRC   
+    if(genericHelper::getInternalChat()) {
+        ircc->connectAndJoin(twitchUser->getFollowedChannelsList());
+        ircc->resize(800, 480);
+        ircc->show();
+    } else {
+        this->openHexchat();
+    }
+#else
+        this->openHexchat();
 #endif
 }
 

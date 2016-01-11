@@ -80,9 +80,7 @@ SOURCES +=  main.cpp\
             twitchchannel.cpp \
             twitchuser.cpp \
             twitchuserlocal.cpp \
-            twitchgamebrowser.cpp \
-            ircclient.cpp \
-            ircmessageformatter.cpp
+            twitchgamebrowser.cpp
 
 HEADERS  += tpmainwindow.h \
             generichelper.h \
@@ -107,9 +105,7 @@ HEADERS  += tpmainwindow.h \
             version.h \
             twitchuser.h \
             twitchuserlocal.h \
-            twitchgamebrowser.h \
-            ircclient.h \
-            ircmessageformatter.h
+            twitchgamebrowser.h
 
 FORMS    += tpmainwindow.ui \
             dialogoauthsetup.ui \

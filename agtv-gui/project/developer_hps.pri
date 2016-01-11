@@ -1,7 +1,10 @@
 message("setting paths and settings for $${DEVELOPER}}")
 
+CONFIG += winternalvlc
+
 win32 {
     VLC_QT_PATH = "E:\Qt\VLC-Qt_1.0.0_win32_mingw"
+    LIBCOMMUNI_PATH = "E:\libcommuni"
 }
 
 macx {
