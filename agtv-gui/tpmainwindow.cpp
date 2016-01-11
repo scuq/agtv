@@ -1308,10 +1308,14 @@ void tpMainWindow::on_actionQuit_triggered()
 void tpMainWindow::on_actionCredits_triggered()
 {
     QMessageBox::about(this, tr("Credits"), tr(""
-                            "Icons made by <a href=http://www.freepik.com title=Freepik>Freepik</a> from <a href=http://www.flaticon.com title=Flaticon>www.flaticon.com</a></br>"
+                            "Icons made by <a href=http://www.freepik.com title=Freepik>Freepik</a> from <a href=http://www.flaticon.com title=Flaticon>www.flaticon.com</a><br>"
 #ifdef WINTERNALVLC
-                            "VLC-Qt made by <a href=http://vlc-qt.tano.si title=Tadej Novak>Tadej Novak</a></br>"
+                            "VLC-Qt made by <a href=http://vlc-qt.tano.si title=Tadej Novak>Tadej Novak</a><br>"
 #endif
+#ifdef INTERNALIRC
+                            "libcommuni made by <a href=http://communi.github.io/ title=J-P Nurmi>J-P Nurmi</a>"
+#endif                                               
+                                               
                                                ""));
 }
 

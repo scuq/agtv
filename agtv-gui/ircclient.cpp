@@ -39,7 +39,8 @@
 IrcClient::IrcClient(QWidget* parent, const QString SERVER, const QString USERNAME, const QString PASSWORD) : QSplitter(parent)
 {
     
-   qputenv("IRC_DEBUG", "1");
+    qputenv("IRC_DEBUG", "1");
+    
     this->SERVER = SERVER;
     this->USERNAME = USERNAME;
     this->PASSWORD = PASSWORD;
@@ -78,12 +79,7 @@ void IrcClient::connectAndJoin(QStringList channels)
     
     
     connection->sendCommand(IrcCommand::createJoin(ircChannels));
-    
-    
 
- qDebug() << channels;
-    qDebug() << ircChannels;
-    
     
 }
 
@@ -242,7 +238,7 @@ void IrcClient::receiveMessage(IrcMessage* message)
 
 void IrcClient::createLayout()
 {
-    setWindowTitle(tr("Communi %1 example client").arg(IRC_VERSION_STR));
+    setWindowTitle(tr("%1 chat client").arg(SETTINGS_PRODUCT));
 
     // a read-only text editor for showing the messages
     textEdit = new QTextEdit(this);
