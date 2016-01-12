@@ -45,6 +45,19 @@ int genericHelper::getUpdateInterval()
     return _interval.toInt();
 }
 
+int genericHelper::getUpdateIntervalMsec()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+
+    QString _interval = "5";
+
+    if (settings.value("update_interval", "12").toString().length() > 1) {
+        _interval = settings.value("update_interval", "").toString();
+    }
+
+    return _interval.toInt()*1000;
+}
+
 void genericHelper::setViewerStreamsMute(QStringList mutes)
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());

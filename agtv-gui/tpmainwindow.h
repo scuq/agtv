@@ -1,6 +1,12 @@
 #ifndef TPMAINWINDOW_H
 #define TPMAINWINDOW_H
 
+#include <QClipboard>
+#include <QInputDialog>
+#include <QMainWindow>
+#include <QSystemTrayIcon>
+#include <QTableView>
+
 #include "generichelper.h"
 
 #include "dialogoauthsetup.h"
@@ -18,34 +24,13 @@
 
 #include "agtvdefaultitemdelegate.h"
 #include "advqsortfilterproxymodel.h"
-#include "filedownloader.h"
-#include "imageloader.h"
-#include "processlauncher.h"
-#include "videoplayer.h"
-#include "twitchapi.h"
 #include "updatecheck.h"
 #include "twitchchannel.h"
 #include "twitchuser.h"
 #include "twitchuserlocal.h"
 
-#include <QClipboard>
-#include <QCloseEvent>
-#include <QComboBox>
-#include <QDesktopWidget>
-#include <QInputDialog>
-#include <QMainWindow>
-#include <QStandardItemModel>
-#include <QSystemTrayIcon>
-#include <QtCore/QJsonDocument>
-#include <QtCore/QJsonArray>
-#include <QtCore/QJsonObject>
-#include <QtCore/QJsonValue>
-#include <QTableView>
-#include <QTreeWidgetItem>
-#include <QThread>
-
 namespace Ui {
-class tpMainWindow;
+    class tpMainWindow;
 }
 
 class tpMainWindow : public QMainWindow
@@ -57,10 +42,7 @@ public:
     ~tpMainWindow();
 
 private slots:
-    void updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer);
-
     void onTwitchFollowedChannelsDataChanged(const bool &dataChanged);
-
     void onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged);
 
     void updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer);
@@ -161,20 +143,15 @@ private slots:
 
     void loadNew(const QString game, const QString url);
     void loadQualityNew(const QString game, const QMap<QString, QString> qualityUrls);
+
 private:
     Ui::tpMainWindow *ui;
 
-    QString currentScreenResolution;
-    QString streamResolution;
-    QStringList viewerStreams;
     QString version;
-    int streamWidth;
-    int streamHeight;
+
     int xOffset;
     int yOffset;
     bool launchBookmarkEnabled;
-
-    VideoPlayer *playerq;
 
     AgtvDefaultItemDelegate *AgtvDefItemDelegate;
 
@@ -183,16 +160,6 @@ private:
 
     QStandardItemModel *stmodelbookmarks;
     AdvQSortFilterProxyModel *stproxymodelbookmarks;
-
-    QPixmap offline;
-    QPixmap online;
-
-    bool showOfflineStreamers;
-
-    //QTimer *refreshTimer;
-    int updateInterval;
-
-    QMap<QString, QString> parseM3U8Playlist(QString m3u8playlist);
 
     dialogOauthSetup *diaOauthSetup;
     DialogPositioner *diaPositioner;
@@ -204,18 +171,15 @@ private:
     QClipboard *clipboard;
 
 #ifdef WINTERNALVLC
-    // DialogVideoPlayer *diaVideoPlayer;
     QVector<DialogVideoPlayer *> diaVideoPlayers;
 #endif
     
 #ifdef INTERNALIRC
-    // DialogVideoPlayer *diaVideoPlayer;
     IrcClient *ircc;
 #endif
 
     QVector<QString> followerToRemove;
 
-    QDesktopWidget *desktop;
     void updateCurrentScreenData();
     void disableInput();
     void enableInput();
@@ -254,7 +218,6 @@ private:
     void setIcon(QString iconname = "agtv_32");
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
-    bool localTitleEdit;
 
     //tableview context meu
     QAction *open_in_browser;
@@ -274,33 +237,35 @@ private:
     QString currArch;
 
     TwitchUser *twitchUser;
-
     TwitchUserLocal *twitchUserLocal;
-
-    TwitchChannel *channel1;
-
     QMap<QString, TwitchChannel*> twitchChannels;
     QMap<QString, TwitchChannel*> twitchChannelsBookmarks;
 
     void openHexchat();
-public slots:
-    void executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
 
+    void setupModelsViews();
+    void setupTwitchApi();
+    void setupSignalsMain();
+    void setupTrayIcon();
+    void setupUpdateCheck();
+    void setupDialogs();
+    void setupSignalsTwitchApi();
+
+public slots:
     void twitchChannelDataChanged(const bool onlineStatusChanged);
 
+    void executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
 #ifdef WINTERNALVLC
     void executeInternalPlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
 #endif
+    void executeExternalPlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
 
 signals:
-
     void setStreamTitle(QString, QString);
     void setStreamUrl(QString);
     void setStreamLogoUrl(QString);
     void setStreamUrlWithQuality(QMap<QString, QString>);
     void authOk(bool);
-
-
 };
 
 #endif // TPMAINWINDOW_H

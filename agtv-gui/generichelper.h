@@ -89,6 +89,7 @@ public:
     static void setErrorTimestamp();
     static bool getEnoughTimeSinceLastErrorElapsed();
     static int getUpdateInterval();
+    static int getUpdateIntervalMsec();
     static void setUpdateInterval(int interval);
     static bool getClearLogOnStartup();
     static void setClearLogOnStartup(bool clearlog);

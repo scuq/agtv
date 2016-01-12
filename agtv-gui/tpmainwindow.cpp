@@ -4,12 +4,12 @@
 #define DEFSTATUSTIMEOUT 5000
 
 tpMainWindow::tpMainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::tpMainWindow)
+    QMainWindow(parent), ui(new Ui::tpMainWindow)
 {
     ui->setupUi(this);
 
     currArch = CURRARCH;
+    version = VERSION;
 
     // delete logfile if clear log on startup setting is true
     if (genericHelper::getClearLogOnStartup() == true) {
@@ -21,23 +21,123 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
     this->ui->tabWidget->setCurrentIndex(genericHelper::getSelectedTab());
 
-    uc = new updateCheck(this);
-
-    xOffset = 0;
-    yOffset = 0;
+    xOffset = 0; yOffset = 0;
 
     launchBookmarkEnabled = true;
 
-    version = VERSION;
-
-    AgtvDefItemDelegate =  new AgtvDefaultItemDelegate();
-
-    // ignore update intervals <9 seconds
-    if (genericHelper::getUpdateInterval() >= 5) {
-        this->updateInterval = genericHelper::getUpdateInterval() * 1000;
-    } else {
-        this->updateInterval = 5000;
+    // Set a minimum of 5 seconds for the update interval
+    if (genericHelper::getUpdateInterval() < 5) {
+        genericHelper::setUpdateInterval(5);
     }
+
+    this->setupModelsViews();
+    this->setupTwitchApi();
+    this->setupDialogs();
+    this->setupSignalsMain();
+    this->setupUpdateCheck();
+    this->setupTrayIcon();
+    this->setupSignalsTwitchApi();
+
+    QDesktopWidget *desktop = QApplication::desktop();
+    genericHelper::setPrimaryScreenWidth(desktop->screenGeometry(-1).width());
+
+#ifdef INTERNALIRC
+    if(genericHelper::getInternalChat()) {
+        ircc = new IrcClient(0,"irc.twitch.tv",genericHelper::getUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
+    } else {
+        ircc = 0;
+    }
+#endif
+    
+    clipboard = QApplication::clipboard();
+}
+
+void tpMainWindow::setupSignalsTwitchApi()
+{
+    QObject::connect(twitchUserLocal, SIGNAL(oAuthAccessTokenLoaded(QString)), diaOauthSetup, SLOT(setCurrentStoredAuthToken(QString)));
+    QObject::connect(diaOauthSetup, SIGNAL(saveAuthTokenRequested(QString)), twitchUserLocal, SLOT(onSaveOAuthAccessToken(QString)));
+    QObject::connect(twitchUser, SIGNAL(newUsernameDetected(QString)), twitchUserLocal, SLOT(onSaveUsername(QString)));
+
+    QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(const bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(const bool)));
+    QObject::connect(twitchUser, SIGNAL(twitchFollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
+    QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelSuccess(const QString)), this, SLOT(updateOnUnfollow(const QString)));
+    QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
+    QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
+    // QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
+    QObject::connect(twitchUser, SIGNAL(authCheckSuccessfull()), diaOauthSetup, SLOT(onAuthOk()));
+    QObject::connect(twitchUser, SIGNAL(authCheckFailed()), diaOauthSetup, SLOT(onAuthNok()));
+}
+
+void tpMainWindow::setupUpdateCheck()
+{
+    uc = new updateCheck(this);
+    QObject::connect(uc, SIGNAL(updateReady(const QString)), this, SLOT(on_updateNotify(const QString)));
+    if (genericHelper::getCheckUpdate() == true) {
+        uc->getCheck();
+    }
+}
+
+void tpMainWindow::setupTrayIcon()
+{
+    createActions();
+    createTrayIcon();
+    setIcon();
+    trayIcon->show();
+}
+
+void tpMainWindow::setupDialogs()
+{
+    diaOauthSetup = new dialogOauthSetup(this);
+    QObject::connect(diaOauthSetup, SIGNAL(onAuthorizeRequested()), this, SLOT(onBrowserAuthorizeRequested()));
+    QObject::connect(diaOauthSetup, SIGNAL(authTokenChanged(QString)), twitchUser, SLOT(validateNewAuthToken(QString)));
+    //QObject::connect(diaOauthSetup, SIGNAL(twitchAuthSetupChanged(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
+
+    diaPositioner = new DialogPositioner(this);
+
+    diaLaunch = new DialogLaunch(this);
+    QObject::connect(diaLaunch, SIGNAL(startStreamPlay(QString, QString, QString, int, int, int , int, bool, QString)), this, SLOT(executePlayer(QString, QString, QString, int, int, int , int, bool, QString)));
+
+    diaOptions = new DialogOptions(this);
+    QObject::connect(this->diaOptions, SIGNAL(settingsSaved()), this, SLOT(on_settingsSaved()));
+
+    diaShowLogFile = new DialogShowLogFile(this);
+
+    diaTopGameBrowser = new DialogGameBrowser;
+    QObject::connect(diaTopGameBrowser, SIGNAL(startStream(const QString)), this, SLOT(startFromGBrowser(const QString)));
+}
+
+void tpMainWindow::setupSignalsMain()
+{
+    QObject::connect(this, SIGNAL(setStreamTitle(QString,QString)), diaLaunch, SLOT(setStreamTitle(QString,QString)));
+    QObject::connect(this, SIGNAL(setStreamUrl(QString)), diaLaunch, SLOT(setStreamUrl(QString)));
+    QObject::connect(this, SIGNAL(setStreamLogoUrl(QString)), diaLaunch, SLOT(setStreamLogoUrl(QString)));
+    QObject::connect(this, SIGNAL(setStreamUrlWithQuality(QMap<QString, QString>)), diaLaunch, SLOT(setStreamUrlWithQuality(QMap<QString, QString>)));
+    QObject::connect(this->ui->lineEditFilter, SIGNAL(textChanged(QString)), this->stproxymodel, SLOT(setFilterRegExp(QString)));
+    QObject::connect(this->ui->lineEditFilterBookmark, SIGNAL(textChanged(QString)), this->stproxymodelbookmarks, SLOT(setFilterRegExp(QString)));
+    QObject::connect(this->ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(on_tabChanged(const int)));
+}
+
+void tpMainWindow::setupTwitchApi()
+{
+    twitchUserLocal = new TwitchUserLocal(this, genericHelper::getUpdateIntervalMsec());
+
+    twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(), genericHelper::getUpdateIntervalMsec());
+
+    QObject::connect(twitchUser, SIGNAL(twitchNeedsOAuthSetup()), this, SLOT(on_actionSetup_Twitch_Auth_triggered()));
+
+    twitchUser->checkAuthenticationSetup();
+
+    twitchUserLocal->getStoredOAuthAccessToken();
+    twitchUserLocal->loadBookmarks();
+
+    if (!twitchUserLocal->isUserSetupOk()) {
+        this->disableInput();
+    }
+}
+
+void tpMainWindow::setupModelsViews()
+{
+    AgtvDefItemDelegate =  new AgtvDefaultItemDelegate();
 
     QStringList horzHeaders = { "Name", "Status", "#V",
                                 "Game", "Status Message"};
@@ -62,103 +162,6 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     this->ui->tableViewBookmarks->setItemDelegate(AgtvDefItemDelegate);
     this->ui->tableViewBookmarks->setModel(stproxymodelbookmarks);
 
-    diaOauthSetup = new dialogOauthSetup(this);
-    diaPositioner = new DialogPositioner(this);
-    diaLaunch = new DialogLaunch(this);
-    diaOptions = new DialogOptions(this);
-    diaShowLogFile = new DialogShowLogFile(this);
-
-    twitchUserLocal = new TwitchUserLocal(this,this->updateInterval);
-    
-    twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(),this->updateInterval);
-    
-    
-        
-    QObject::connect(twitchUser, SIGNAL(twitchNeedsOAuthSetup()), this, SLOT(on_actionSetup_Twitch_Auth_triggered()));
-    
-    twitchUser->checkAuthenticationSetup();
-      
-     QObject::connect(twitchUserLocal, SIGNAL(oAuthAccessTokenLoaded(QString)), diaOauthSetup, SLOT(setCurrentStoredAuthToken(QString)));
-     QObject::connect(diaOauthSetup, SIGNAL(saveAuthTokenRequested(QString)), twitchUserLocal, SLOT(onSaveOAuthAccessToken(QString)));
-     QObject::connect(twitchUser, SIGNAL(newUsernameDetected(QString)), twitchUserLocal, SLOT(onSaveUsername(QString)));    
-   
-    
-    twitchUserLocal->getStoredOAuthAccessToken();
-
-    QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(const bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(const bool)));
-
-    QObject::connect(twitchUser, SIGNAL(twitchFollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
-
-    QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelSuccess(const QString)), this, SLOT(updateOnUnfollow(const QString)));
-
-    QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
-
-
-
-    QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
-   // QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
- 
-    
-
-    twitchUserLocal->loadBookmarks();
-
-    QObject::connect(this, SIGNAL(setStreamTitle(QString,QString)), diaLaunch, SLOT(setStreamTitle(QString,QString)));
-    QObject::connect(this, SIGNAL(setStreamUrl(QString)), diaLaunch, SLOT(setStreamUrl(QString)));
-    QObject::connect(this, SIGNAL(setStreamLogoUrl(QString)), diaLaunch, SLOT(setStreamLogoUrl(QString)));
-    QObject::connect(diaLaunch, SIGNAL(startStreamPlay(QString, QString, QString, int, int, int , int, bool, QString)), this, SLOT(executePlayer(QString, QString, QString, int, int, int , int, bool, QString)));
-
-    QObject::connect(this->diaOptions, SIGNAL(settingsSaved()), this, SLOT(on_settingsSaved()));
-
-    QObject::connect(this, SIGNAL(setStreamUrlWithQuality(QMap<QString, QString>)), diaLaunch, SLOT(setStreamUrlWithQuality(QMap<QString, QString>)));
-
-    //QObject::connect(diaOauthSetup, SIGNAL(twitchAuthSetupChanged(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
-    QObject::connect(diaOauthSetup, SIGNAL(onAuthorizeRequested()), this, SLOT(onBrowserAuthorizeRequested()));
-    QObject::connect(diaOauthSetup, SIGNAL(authTokenChanged(QString)), twitchUser, SLOT(validateNewAuthToken(QString)));
-   
-    
-    QObject::connect(twitchUser, SIGNAL(authCheckSuccessfull()), diaOauthSetup, SLOT(onAuthOk()));
-    QObject::connect(twitchUser, SIGNAL(authCheckFailed()), diaOauthSetup, SLOT(onAuthNok()));
-    
-
-    QObject::connect(this->ui->lineEditFilter, SIGNAL(textChanged(QString)), this->stproxymodel, SLOT(setFilterRegExp(QString)));
-    QObject::connect(this->ui->lineEditFilterBookmark, SIGNAL(textChanged(QString)), this->stproxymodelbookmarks, SLOT(setFilterRegExp(QString)));
-
-    QObject::connect(uc, SIGNAL(updateReady(const QString)), this, SLOT(on_updateNotify(const QString)));
-
-    QObject::connect(this->ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(on_tabChanged(const int)));
-
-
-    if (genericHelper::getCheckUpdate() == true) {
-        uc->getCheck();
-    }
-
-    // init QPixmaps for ok, not ok icons
-    //offline = QPixmap(":images/offline.png");
-    //online = QPixmap(":images/online.png");
-
-    desktop = QApplication::desktop();
-
-    genericHelper::setPrimaryScreenWidth(desktop->screenGeometry(-1).width());
-
-    // init qtimer, set update interval and connect the timeout singal of qtimer to the updateFormFieldsSlot of this form
-    //refreshTimer = new QTimer(this);
-    //refreshTimer->setInterval(updateInterval);
-    //QObject::connect(refreshTimer, SIGNAL(timeout()), this, SLOT(on_loadData()));
-    //refreshTimer->start(updateInterval);
-
-    // some stuff needed for the tray icon
-    createActions();
-    createTrayIcon();
-    setIcon();
-    trayIcon->show();
-
-    showOfflineStreamers = true;
-
-    if (!twitchUserLocal->isUserSetupOk()) {
-        this->disableInput();
-    }
-
-
     if (genericHelper::getShowOfflineStreamers() == true) {
         this->stproxymodel->setShowOffline(true);
         this->stproxymodelbookmarks->setShowOffline(true);
@@ -181,25 +184,6 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     }
 
     QTimer::singleShot(0, this, SLOT(restoreSortModes()));
-
-#ifdef WINTERNALVLC
-    //diaVideoPlayer = new DialogVideoPlayer;
-    //diaVideoPlayer->initVLC();
-#endif
-    
-#ifdef INTERNALIRC
-    if(genericHelper::getInternalChat()) {
-        ircc = new IrcClient(0,"irc.twitch.tv",genericHelper::getUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
-    } else {
-        ircc = 0;
-    }
-#endif
-    
-    clipboard = QApplication::clipboard();
-
-    diaTopGameBrowser = new DialogGameBrowser;
-
-    QObject::connect(diaTopGameBrowser, SIGNAL(startStream(const QString)), this, SLOT(startFromGBrowser(const QString)));
 }
 
 void tpMainWindow::twitchChannelDataChanged(const bool onlineStatusChanged)
@@ -859,25 +843,8 @@ void tpMainWindow::executeInternalPlayer(QString player, QString url, QString ch
 }
 #endif
 
-void tpMainWindow::executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute, QString quality)
+void tpMainWindow::executeExternalPlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute, QString quality)
 {
-
-
-//    playerq = new VideoPlayer();
-//    playerq->resize(320, 240);
-//    playerq->show();
-//    playerq->setStreamUrl(url);
-//    return;
-
-
-
-#ifdef WINTERNALVLC
-    if( genericHelper::getInternalVLC() ) {
-        this->executeInternalPlayer(player, url, channel, streamWidth, streamHeight, xOffset, yOffset, mute, quality);
-        return;
-    }
-#endif
-
     QString qresBin = "";
     QString playerBin = "";
     QString playerarg = "";
@@ -898,11 +865,6 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
         args << "--volume=0";
     }
 
-
-    //url.append("'");
-    //url.prepend("'");
-
-
     args << url;
     qresBin = QCoreApplication::applicationFilePath().replace(genericHelper::getAppName()+".exe","qres.exe");
 
@@ -916,22 +878,21 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
     QFile qresBinFile( qresBin );
 
     if(! playerBinFile.exists()) {
-            QMessageBox::critical(this, genericHelper::getAppName(),
-                                           tr("Can't find VLC, please check options."),
-                                           QMessageBox::Ok);
+        QMessageBox::critical(this, genericHelper::getAppName(),
+                                       tr("Can't find VLC, please check options."),
+                                       QMessageBox::Ok);
         return ;
     }
 
     if(! qresBinFile.exists() && genericHelper::getStreamPositioning() ) {
-            QMessageBox::critical(this, genericHelper::getAppName(),
-                                           tr("Can't find qres, please check options."),
-                                           QMessageBox::Ok);
+        QMessageBox::critical(this, genericHelper::getAppName(),
+                                       tr("Can't find qres, please check options."),
+                                       QMessageBox::Ok);
         return ;
     }
 
     if (genericHelper::getStreamPositioning() == true) {
-        if( (qresBinFile.exists()) && (playerBinFile.exists()) )
-        {
+        if( (qresBinFile.exists()) && (playerBinFile.exists()) ) {
             processLauncher *processL = new processLauncher();
             processL->setProgramStr("\""+qresBin+"\"");
             processL->setArgs(qresargs);
@@ -942,9 +903,7 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
             processLaunchThread->start();
         }
     } else {
-        if( playerBinFile.exists() )
-
-        {
+        if( playerBinFile.exists() ) {
             processLauncher *processL = new processLauncher();
 
             processL->setProgramStr("\""+playerBin+"\"");
@@ -954,17 +913,26 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
 
             processL->moveToThread(processLaunchThread);
 
-
-
             // connect the thread start started signal to the process slot of the riftLogWatcher class
             QObject::connect(processLaunchThread, SIGNAL(started()), processL, SLOT(launch()));
-
             processLaunchThread->start();
         }
     }
 
     //genericHelper::log("player or qres binary not found, not starting: "+qresBin+" "+qresargs.join(" "));
     this->playerThreads.append(processLaunchThread);
+}
+
+void tpMainWindow::executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute, QString quality)
+{
+#ifdef WINTERNALVLC
+    if( genericHelper::getInternalVLC() ) {
+        this->executeInternalPlayer(player, url, channel, streamWidth, streamHeight, xOffset, yOffset, mute, quality);
+        return;
+    }
+#endif
+
+    this->executeExternalPlayer(player, url, channel, streamWidth, streamHeight, xOffset, yOffset, mute, quality);
 }
 
 void tpMainWindow::loadNew(const QString game, const QString url) {
@@ -974,59 +942,6 @@ void tpMainWindow::loadNew(const QString game, const QString url) {
 void tpMainWindow::loadQualityNew(const QString game, const QMap<QString, QString> qualityUrls)
 {
     emit setStreamUrlWithQuality(qualityUrls);
-}
-
-void tpMainWindow::updateFromJsonResponseFollows(const QJsonDocument &jsonResponseBuffer)
-{
-    /*
-    QJsonObject jsonObject = jsonResponseBuffer.object();
-
-    for(QJsonObject::const_iterator iter = jsonObject.begin(); iter != jsonObject.end(); ++iter)  {
-        if (iter.key() == "follows")
-        {
-            for (int i = 0; i <= iter.value().toArray().size(); i++)
-            {
-                QJsonValue _val = iter.value().toArray().at(i);
-
-                QString channelName = _val.toObject()["channel"].toObject()["name"].toString();
-
-                if(!this->twitchChannels.contains(channelName)) {
-                    genericHelper::log(QString(__func__) + QString(" Adding TwitchChannel instance for channel ") + channelName);
-                    genericHelper::log(QString(__func__) + QString(" TODO: NEEDS DELETE HANDLING"));
-                    TwitchChannel *twitchChannel = new TwitchChannel(this, genericHelper::getOAuthAccessToken(), channelName, this->updateInterval);
-                    this->twitchChannels[channelName] = twitchChannel;
-                    QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
-                }
-
-                QString channelname = _val.toObject()["channel"].toObject()["name"].toString();
-
-                if (this->stmodel->findItems(channelname, Qt::MatchExactly,0).length() <= 0) {
-
-                    if (channelname.length() > 0) {
-
-                        QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(channelname));
-                        stmodel->setItem(i, 0, qsitem0);
-                        QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
-                        stmodel->setItem(i, 1, qsitem1);
-                        QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
-                        stmodel->setItem(i, 2, qsitem2);
-                        QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
-                        stmodel->setItem(i, 3, qsitem3);
-                        QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(_val.toObject()["channel"].toObject()["status"].toString()));
-                        stmodel->setItem(i, 4, qsitem4);
-
-                        genericHelper::addFollow(channelname);
-                    }
-                }
-            }
-        }
-
-    }
-
-    fitTableViewToContent(this->ui->tableView);
-
-    //this->statusBar()->showMessage("Following ("+QString::number(this->ui->treeWidget->topLevelItemCount())+")  Bookmarked ("+QString::number(this->ui->treeWidgetBookmarks->topLevelItemCount())+")");
-    */
 }
 
 void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
@@ -1058,8 +973,6 @@ void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
                 stmodel->setItem(y, 3, qsitem3);
                 QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelTitle()));
                 stmodel->setItem(y, 4, qsitem4);
-
-
             }
         }
 
