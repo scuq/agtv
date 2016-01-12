@@ -36,8 +36,6 @@ void TwitchUserLocal::loadBookmarks()
     emit twitchBookmarkedChannelsDataChanged(this->bookmarkedChannelsDataChanged);
     
     this->bookmarkedChannelsDataChanged = false;
-
-    
 }
 
 QString TwitchUserLocal::getStoredOAuthAccessToken(QString company, QString app)

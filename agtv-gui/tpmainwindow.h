@@ -141,9 +141,6 @@ private slots:
 
     void startFromGBrowser(const QString stream);
 
-    void loadNew(const QString game, const QString url);
-    void loadQualityNew(const QString game, const QMap<QString, QString> qualityUrls);
-
 private:
     Ui::tpMainWindow *ui;
 
@@ -189,7 +186,7 @@ private:
     void disableDelete();
     void loadData();
 
-    void prepareDiaLauncher();
+    void prepareDiaLauncher(QString _streamer, QString _logoUrl);
 
     bool bunchUpdateStreamDataName(const QString &name, const QString &status,
                                    const QString &viewers);
@@ -261,10 +258,6 @@ public slots:
     void executeExternalPlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
 
 signals:
-    void setStreamTitle(QString, QString);
-    void setStreamUrl(QString);
-    void setStreamLogoUrl(QString);
-    void setStreamUrlWithQuality(QMap<QString, QString>);
     void authOk(bool);
 };
 

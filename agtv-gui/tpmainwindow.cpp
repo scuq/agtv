@@ -38,6 +38,14 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     this->setupTrayIcon();
     this->setupSignalsTwitchApi();
 
+    twitchUser->checkAuthenticationSetup();
+
+    twitchUserLocal->getStoredOAuthAccessToken();
+    twitchUserLocal->loadBookmarks();
+    if (!twitchUserLocal->isUserSetupOk()) {
+        this->disableInput();
+    }
+
     QDesktopWidget *desktop = QApplication::desktop();
     genericHelper::setPrimaryScreenWidth(desktop->screenGeometry(-1).width());
 
@@ -58,11 +66,6 @@ void tpMainWindow::setupSignalsTwitchApi()
     QObject::connect(diaOauthSetup, SIGNAL(saveAuthTokenRequested(QString)), twitchUserLocal, SLOT(onSaveOAuthAccessToken(QString)));
     QObject::connect(twitchUser, SIGNAL(newUsernameDetected(QString)), twitchUserLocal, SLOT(onSaveUsername(QString)));
 
-    QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(const bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(const bool)));
-    QObject::connect(twitchUser, SIGNAL(twitchFollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
-    QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelSuccess(const QString)), this, SLOT(updateOnUnfollow(const QString)));
-    QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
-    QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
     // QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
     QObject::connect(twitchUser, SIGNAL(authCheckSuccessfull()), diaOauthSetup, SLOT(onAuthOk()));
     QObject::connect(twitchUser, SIGNAL(authCheckFailed()), diaOauthSetup, SLOT(onAuthNok()));
@@ -108,10 +111,6 @@ void tpMainWindow::setupDialogs()
 
 void tpMainWindow::setupSignalsMain()
 {
-    QObject::connect(this, SIGNAL(setStreamTitle(QString,QString)), diaLaunch, SLOT(setStreamTitle(QString,QString)));
-    QObject::connect(this, SIGNAL(setStreamUrl(QString)), diaLaunch, SLOT(setStreamUrl(QString)));
-    QObject::connect(this, SIGNAL(setStreamLogoUrl(QString)), diaLaunch, SLOT(setStreamLogoUrl(QString)));
-    QObject::connect(this, SIGNAL(setStreamUrlWithQuality(QMap<QString, QString>)), diaLaunch, SLOT(setStreamUrlWithQuality(QMap<QString, QString>)));
     QObject::connect(this->ui->lineEditFilter, SIGNAL(textChanged(QString)), this->stproxymodel, SLOT(setFilterRegExp(QString)));
     QObject::connect(this->ui->lineEditFilterBookmark, SIGNAL(textChanged(QString)), this->stproxymodelbookmarks, SLOT(setFilterRegExp(QString)));
     QObject::connect(this->ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(on_tabChanged(const int)));
@@ -120,19 +119,14 @@ void tpMainWindow::setupSignalsMain()
 void tpMainWindow::setupTwitchApi()
 {
     twitchUserLocal = new TwitchUserLocal(this, genericHelper::getUpdateIntervalMsec());
+    QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
 
     twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(), genericHelper::getUpdateIntervalMsec());
-
     QObject::connect(twitchUser, SIGNAL(twitchNeedsOAuthSetup()), this, SLOT(on_actionSetup_Twitch_Auth_triggered()));
-
-    twitchUser->checkAuthenticationSetup();
-
-    twitchUserLocal->getStoredOAuthAccessToken();
-    twitchUserLocal->loadBookmarks();
-
-    if (!twitchUserLocal->isUserSetupOk()) {
-        this->disableInput();
-    }
+    QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(const bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(const bool)));
+    QObject::connect(twitchUser, SIGNAL(twitchFollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
+    QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelSuccess(const QString)), this, SLOT(updateOnUnfollow(const QString)));
+    QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
 }
 
 void tpMainWindow::setupModelsViews()
@@ -264,10 +258,7 @@ void tpMainWindow::startFromGBrowser(const QString stream)
     if(channel != 0) {
         channel->requestPlaylist();
 
-        prepareDiaLauncher();
-
-        emit setStreamTitle(stream, "" );
-        emit setStreamLogoUrl(channel->getChannelLogoUrl());
+        prepareDiaLauncher(stream, channel->getChannelLogoUrl());
     }
 }
 
@@ -935,15 +926,6 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
     this->executeExternalPlayer(player, url, channel, streamWidth, streamHeight, xOffset, yOffset, mute, quality);
 }
 
-void tpMainWindow::loadNew(const QString game, const QString url) {
-    emit setStreamUrl(url);
-}
-
-void tpMainWindow::loadQualityNew(const QString game, const QMap<QString, QString> qualityUrls)
-{
-    emit setStreamUrlWithQuality(qualityUrls);
-}
-
 void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
 {
     this->twitchChannels = twitchUser->getFollowedChannels();
@@ -955,9 +937,9 @@ void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
         TwitchChannel *twitchChannel = i.value();
         QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
         QObject::connect(twitchChannel, SIGNAL(TwitchChannelPlaylistUrlReady(const QString, const QString)),
-                         this, SLOT(loadNew(const QString, const QString)));
+                         this->diaLaunch, SLOT(setStreamUrl(const QString, const QString)));
         QObject::connect(twitchChannel, SIGNAL(twitchChannelQualityUrlsReady(const QString, const QMap<QString, QString>)),
-                         this, SLOT(loadQualityNew(const QString, const QMap<QString, QString>)));
+                         this->diaLaunch, SLOT(setStreamUrlWithQuality(const QString, const QMap<QString, QString>)));
 
         if (this->stmodel->findItems(twitchChannel->getChannelName(), Qt::MatchExactly,0).length() <= 0) {
 
@@ -995,9 +977,9 @@ void tpMainWindow::onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged
         TwitchChannel *twitchChannel = i.value();
         QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
         QObject::connect(twitchChannel, SIGNAL(TwitchChannelPlaylistUrlReady(const QString, const QString)),
-                         this, SLOT(loadNew(const QString, const QString)));
+                         this->diaLaunch, SLOT(setStreamUrl(const QString, const QString)));
         QObject::connect(twitchChannel, SIGNAL(twitchChannelQualityUrlsReady(const QString, const QMap<QString, QString>)),
-                         this, SLOT(loadQualityNew(const QString, const QMap<QString, QString>)));
+                         this->diaLaunch, SLOT(setStreamUrlWithQuality(const QString, const QMap<QString, QString>)));
 
             _twitchChannelList << twitchChannel->getChannelName();
 
@@ -1341,91 +1323,61 @@ void tpMainWindow::on_tableView_customContextMenuRequested(const QPoint &pos)
     }
 }
 
-void tpMainWindow::prepareDiaLauncher()
+void tpMainWindow::prepareDiaLauncher(QString _streamer, QString _logoUrl)
 {
     if (this->diaLaunch->getDialogShown() == true) {
         this->diaLaunch->close();
+        this->diaLaunch->prepareStream(_streamer, _logoUrl);
         this->diaLaunch->show();
     } else {
         this->diaLaunch->show();
         this->diaLaunch->setDialogShown();
+        this->diaLaunch->prepareStream(_streamer, _logoUrl);
     }
 }
 
 void tpMainWindow::on_tableView_activated(const QModelIndex &index)
 {
-    QString _streamer;
-    QString _status;
+    QString _streamer = this->stproxymodel->data(index.sibling(index.row(),0),0).toString();
 
-   _status = this->stproxymodel->data(index.sibling(index.row(),1),0).toString();
-   _streamer = this->stproxymodel->data(index.sibling(index.row(),0),0).toString();
-
-    if (genericHelper::isOnline(_status)) {
-        if (launchBookmarkEnabled == true) {
-            TwitchChannel *channel = twitchChannels[_streamer];
-            if(channel != 0) {
+    TwitchChannel *channel = twitchChannels[_streamer];
+    if(channel != 0) {
+        switch(channel->getChannelOnlineStatus()) {
+            case TwitchChannel::ChannelOnlineStatus::online:
                 channel->requestPlaylist();
-
-                prepareDiaLauncher();
-
-                emit setStreamTitle( _streamer, "" );
-                emit setStreamLogoUrl(channel->getChannelLogoUrl());
-            }
-        }
-    }
-
-    if (genericHelper::isHosting(_status)) {
-        if (launchBookmarkEnabled == true) {
-            QString _hostedStreamer = this->twitchChannels[_streamer]->getHostedChannel();
-            TwitchChannel *channel = twitchChannels[_streamer];
-            if(channel != 0) {
+                prepareDiaLauncher(_streamer, channel->getChannelLogoUrl());
+                break;
+            case TwitchChannel::ChannelOnlineStatus::hosting:
                 channel->requestHostedPlaylist();
-
-                prepareDiaLauncher();
-
-                emit setStreamTitle( _streamer, "" );
-                emit setStreamLogoUrl(channel->getChannelLogoUrl());
-            }
+                prepareDiaLauncher(_streamer + QString(" is hosting ") + channel->getHostedChannel(), channel->getChannelLogoUrl());
+                break;
+            case TwitchChannel::ChannelOnlineStatus::playlist:
+            default:
+                break;
         }
     }
 }
 
 void tpMainWindow::on_tableViewBookmarks_activated(const QModelIndex &index)
 {
-    QString _streamer;
-    QString _status;
+   QString _streamer = this->stproxymodelbookmarks->data(index.sibling(index.row(),0),0).toString();
 
-   _status = this->stproxymodelbookmarks->data(index.sibling(index.row(),1),0).toString();
-   _streamer = this->stproxymodelbookmarks->data(index.sibling(index.row(),0),0).toString();
-
-    if (genericHelper::isOnline(_status)) {
-        if (launchBookmarkEnabled == true) {
-            TwitchChannel *channel = twitchChannels[_streamer];
-            if(channel != 0) {
-                channel->requestPlaylist();
-
-                prepareDiaLauncher();
-
-                emit setStreamTitle( _streamer, "" );
-                emit setStreamLogoUrl(channel->getChannelLogoUrl());
-            }
-        }
-    }
-
-    if (genericHelper::isHosting(_status)) {
-        if (launchBookmarkEnabled == true) {
-            QString _hostedStreamer = this->twitchChannels[_streamer]->getHostedChannel();
-            TwitchChannel *channel = twitchChannels[_streamer];
-            if(channel != 0) {
-                channel->requestHostedPlaylist();
-
-                prepareDiaLauncher();
-
-                emit setStreamTitle( _streamer, "" );
-                emit setStreamLogoUrl(channel->getChannelLogoUrl());
-            }
-        }
-    }
+   TwitchChannel *channel = twitchChannels[_streamer];
+   if(channel != 0) {
+       switch(channel->getChannelOnlineStatus()) {
+           case TwitchChannel::ChannelOnlineStatus::online:
+               channel->requestPlaylist();
+               prepareDiaLauncher(_streamer, channel->getChannelLogoUrl());
+               break;
+           case TwitchChannel::ChannelOnlineStatus::hosting:
+               channel->requestHostedPlaylist();
+               prepareDiaLauncher(_streamer + QString(" is hosting ") + channel->getHostedChannel(), channel->getChannelLogoUrl());
+               break;
+           case TwitchChannel::ChannelOnlineStatus::playlist:
+           default:
+               break;
+       }
+   }
 }
 
 void tpMainWindow::on_tableViewBookmarks_customContextMenuRequested(const QPoint &pos)

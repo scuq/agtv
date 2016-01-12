@@ -25,13 +25,11 @@ void DialogLaunch::setDialogShown()
 {
     dialogShown = true;
     this->refreshUiData();
-
-
 }
 
 bool DialogLaunch::getDialogShown()
 {
-     this->refreshUiData();
+    this->refreshUiData();
     return dialogShown;
 }
 
@@ -66,7 +64,7 @@ void DialogLaunch::setStreamTitle(QString streamtitle, QString position)
     this->ui->labelStream->setText(streamtitle);
 }
 
-void DialogLaunch::setStreamUrl(const QString _streamurl)
+void DialogLaunch::setStreamUrl(const QString _game, const QString _streamurl)
 {
     this->streamurl = _streamurl;
 
@@ -74,7 +72,7 @@ void DialogLaunch::setStreamUrl(const QString _streamurl)
     this->ui->pushButtonStart->setText("Start");
 }
 
-void DialogLaunch::setStreamUrlWithQuality(const QMap<QString, QString> _streamurlqualitymap)
+void DialogLaunch::setStreamUrlWithQuality(const QString _game, const QMap<QString, QString> _streamurlqualitymap)
 {
     this->streamurlqualitymap = _streamurlqualitymap;
 
@@ -104,7 +102,6 @@ void DialogLaunch::setStreamLogoUrl(QString streamlogourl)
 
 void DialogLaunch::loadPositions()
 {
-
     this->ui->comboBoxPosSelect->clear();
     QHash<QString, QString> poss;
     poss = genericHelper::getPositions();
@@ -113,8 +110,6 @@ void DialogLaunch::loadPositions()
     } else {
         this->ui->comboBoxPosSelect->addItems(poss.keys());
     }
-
-
 }
 
 void DialogLaunch::on_pushButtonStart_clicked()
@@ -126,7 +121,6 @@ void DialogLaunch::on_pushButtonStart_clicked()
 
         QStringList _geo;
         _geo = geo.split(",");
-
 
         x = QString(_geo[0]).toInt();
         y = QString(_geo[1]).toInt();
@@ -156,5 +150,13 @@ void DialogLaunch::loadStreamLogoImage()
       this->ui->labelStreamLogo->setPixmap(streamLogoImage.scaled(128,128));
     } else {
         genericHelper::log("height is 0, stream logo image not set.");
+    }
+}
+
+void DialogLaunch::prepareStream(const QString _title, const QString _logoUrl)
+{
+    this->setStreamTitle(_title, QString());
+    if(_logoUrl.length()>0) {
+        this->setStreamLogoUrl(_logoUrl);
     }
 }
