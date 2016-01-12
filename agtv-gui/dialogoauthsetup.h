@@ -11,7 +11,6 @@
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonValue>
 #include "generichelper.h"
-#include "twitchapi.h"
 #include "imageloader.h"
 
 namespace Ui {

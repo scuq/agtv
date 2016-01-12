@@ -16,12 +16,9 @@ set(CPP_SOURCE_FILES
     dialogshowlogfile.cpp
     filedownloader.cpp
     agtvdefaultitemdelegate.cpp
-    videoplayer.cpp
     dialoggamebrowser.cpp
-    htmldelegate.cpp
     advqsortfilterproxylistmodel.cpp
     twitchobject.cpp
-    logger.cpp
     twitchchannel.cpp
     twitchgamebrowser.cpp
     twitchuser.cpp

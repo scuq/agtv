@@ -72,10 +72,8 @@ SOURCES +=  main.cpp\
             filedownloader.cpp \
             agtvdefaultitemdelegate.cpp \
             dialoggamebrowser.cpp \
-            htmldelegate.cpp \
             advqsortfilterproxylistmodel.cpp \
             twitchobject.cpp \
-            logger.cpp \
             twitchchannel.cpp \
             twitchuser.cpp \
             twitchuserlocal.cpp \
@@ -95,10 +93,8 @@ HEADERS  += tpmainwindow.h \
             filedownloader.h \
             agtvdefaultitemdelegate.h \
             dialoggamebrowser.h \
-            htmldelegate.h \
             advqsortfilterproxylistmodel.h \
             twitchobject.h \
-            logger.h \
             twitchchannel.h \
             version.h \
             twitchuser.h \
@@ -111,7 +107,6 @@ FORMS    += tpmainwindow.ui \
             dialoglaunch.ui \
             dialogoptions.ui \
             dialogshowlogfile.ui \
-            dialogqmediaplayer.ui \
             dialoggamebrowser.ui
 
 RESOURCES += \
