@@ -43,7 +43,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
     twitchUserLocal->getStoredOAuthAccessToken();
     twitchUserLocal->loadBookmarks();
     if (!twitchUserLocal->isUserSetupOk()) {
-        this->disableInput();
+        this->setEnableInput(false);
     }
 
     QDesktopWidget *desktop = QApplication::desktop();
@@ -349,64 +349,24 @@ void tpMainWindow::on_tabChanged(const int tabid)
     }
 }
 
-void tpMainWindow::disableInput()
-{
-
-    //refreshTimer->stop();
-
-    genericHelper::setClearLogOnStartup(true);
-    genericHelper::setCheckUpdate(true);
-
-
-
-    QList<QWidget*> widgets = this->findChildren<QWidget*>();
-
-
-                foreach (QWidget *widget, widgets)
-                {
-
-                    if (
-                    (widget->objectName() != "mainToolBar") &&
-                    (widget->objectName() != "menuBar") &&
-                    (widget->objectName() != "menuFile") &&
-                    (widget->objectName() != "pushButtonAuthorizeOnTwitch") &&
-                    (widget->objectName() != "lineEditOAuthToken") &&
-                    (widget->objectName() != "pushButtonTestOAuth") &&
-                    (widget->objectName() != "pushButtonREvoke") &&
-                    (widget->objectName() != "pushButtonSave") &&
-                    (widget->objectName() != "dialogOauthSetup")
-                    )
-                    {
-
-                    widget->setEnabled(false);
-                    }
-                }
-}
-
-void tpMainWindow::enableInput()
+void tpMainWindow::setEnableInput(bool enabled)
 {
     QList<QWidget*> widgets = this->findChildren<QWidget*>();
 
-
-                foreach (QWidget *widget, widgets)
-                {
-
-                    if (
-                    (widget->objectName() != "mainToolBar") &&
-                    (widget->objectName() != "menuBar") &&
-                    (widget->objectName() != "menuFile") &&
-                    (widget->objectName() != "pushButtonAuthorizeOnTwitch") &&
-                    (widget->objectName() != "lineEditOAuthToken") &&
-                    (widget->objectName() != "pushButtonTestOAuth") &&
-                    (widget->objectName() != "pushButtonREvoke") &&
-                    (widget->objectName() != "pushButtonSave") &&
-                    (widget->objectName() != "dialogOauthSetup")
-                    )
-                    {
-
-                    widget->setEnabled(true);
-                    }
-                }
+    foreach (QWidget *widget, widgets) {
+        if (    (widget->objectName() != "mainToolBar") &&
+                (widget->objectName() != "menuBar") &&
+                (widget->objectName() != "menuFile") &&
+                (widget->objectName() != "pushButtonAuthorizeOnTwitch") &&
+                (widget->objectName() != "lineEditOAuthToken") &&
+                (widget->objectName() != "pushButtonTestOAuth") &&
+                (widget->objectName() != "pushButtonREvoke") &&
+                (widget->objectName() != "pushButtonSave") &&
+                (widget->objectName() != "dialogOauthSetup")
+        ) {
+            widget->setEnabled(enabled);
+        }
+    }
 }
 
 void tpMainWindow::loadBookmarks()

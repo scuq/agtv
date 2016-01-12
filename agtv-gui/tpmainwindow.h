@@ -178,10 +178,9 @@ private:
     QVector<QString> followerToRemove;
 
     void updateCurrentScreenData();
-    void disableInput();
-    void enableInput();
     void loadBookmarks();
     void saveBookmarks();
+    void setEnableInput(bool enabled);
     void enableDelete();
     void disableDelete();
     void loadData();
