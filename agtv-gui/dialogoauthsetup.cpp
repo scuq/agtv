@@ -9,6 +9,7 @@ dialogOauthSetup::dialogOauthSetup(QWidget *parent) :
      
     this->ui->pushButtonSave->setEnabled(false);
     
+    
 }
 
 
@@ -42,8 +43,11 @@ bool dialogOauthSetup::getDialogShown()
 
 void dialogOauthSetup::setCurrentStoredAuthToken(QString currentStoredAuthToken)
 {
-   
+   if ((currentStoredAuthToken == "<NONE>") || (currentStoredAuthToken == "") ) {
+       this->ui->lineEditOAuthToken->setPlaceholderText("<< Paste token HERE >>");
+   } else {   
     this->ui->lineEditOAuthToken->setText(currentStoredAuthToken);
+   }
 }
 
 void dialogOauthSetup::on_pushButtonAuthorizeOnTwitch_clicked()
@@ -74,4 +78,13 @@ void dialogOauthSetup::on_pushButtonSave_clicked()
 {
     emit saveAuthTokenRequested(this->ui->lineEditOAuthToken->text());  
     this->hide();    
+}
+
+void dialogOauthSetup::on_lineEditOAuthToken_textChanged(const QString &arg1)
+{
+    if (arg1.length() > 8) {
+        this->ui->pushButtonVerify->setEnabled(true);
+    } else {
+        this->ui->pushButtonVerify->setEnabled(false);
+    }
 }
