@@ -44,7 +44,7 @@
       <string/>
      </property>
      <property name="text">
-      <string>&lt;&lt; Paste token HERE &gt;&gt;</string>
+      <string/>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
