@@ -28,6 +28,7 @@
 #include "twitchchannel.h"
 #include "twitchuser.h"
 #include "twitchuserlocal.h"
+#include "twitchchannelmodel.h"
 
 namespace Ui {
     class tpMainWindow;
@@ -152,10 +153,10 @@ private:
 
     AgtvDefaultItemDelegate *AgtvDefItemDelegate;
 
-    QStandardItemModel *stmodel;
+    TwitchChannelModel *stmodel;
     AdvQSortFilterProxyModel *stproxymodel;
 
-    QStandardItemModel *stmodelbookmarks;
+    TwitchChannelModel *stmodelbookmarks;
     AdvQSortFilterProxyModel *stproxymodelbookmarks;
 
     dialogOauthSetup *diaOauthSetup;
@@ -234,8 +235,6 @@ private:
 
     TwitchUser *twitchUser;
     TwitchUserLocal *twitchUserLocal;
-    QMap<QString, TwitchChannel*> twitchChannels;
-    QMap<QString, TwitchChannel*> twitchChannelsBookmarks;
 
     void openHexchat();
 
@@ -248,8 +247,6 @@ private:
     void setupSignalsTwitchApi();
 
 public slots:
-    void twitchChannelDataChanged(const bool onlineStatusChanged);
-
     void executePlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
 #ifdef WINTERNALVLC
     void executeInternalPlayer(QString player, QString url, QString channel, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");

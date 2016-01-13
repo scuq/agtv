@@ -23,6 +23,7 @@ set(CPP_SOURCE_FILES
     twitchgamebrowser.cpp
     twitchuser.cpp
     twitchuserlocal.cpp
+    twitchchannelmodel.cpp
     agtv.qrc
     agtv_icon.rc
 )

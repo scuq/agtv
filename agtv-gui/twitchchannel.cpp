@@ -95,6 +95,29 @@ TwitchChannel::ChannelOnlineStatus TwitchChannel::getChannelOnlineStatus() const
     return channelOnlineStatus;
 }
 
+QString TwitchChannel::getChannelOnlineStatusString() const
+{
+    QString onlineStatus = "";
+    switch (this->getChannelOnlineStatus()) {
+        case TwitchChannel::ChannelOnlineStatus::online:
+            onlineStatus = "online";
+            break;
+        case TwitchChannel::ChannelOnlineStatus::offline:
+            onlineStatus = "offline";
+            break;
+        case TwitchChannel::ChannelOnlineStatus::playlist:
+            onlineStatus = "playlist";
+            break;
+        case TwitchChannel::ChannelOnlineStatus::hosting:
+            onlineStatus = "hosting";
+            break;
+        default:
+            onlineStatus = "unknown";
+    }
+
+    return onlineStatus;
+}
+
 QString TwitchChannel::getChannelName() const
 {
     return channelName;
@@ -118,6 +141,12 @@ QString TwitchChannel::getChannelUrl() const
 qint64 TwitchChannel::getChannelViewers() const
 {
     return channelViewers;
+}
+
+QString TwitchChannel::getChannelViewersString() const
+{
+    QString viewersString = QString::number(this->getChannelViewers(), 'f', 0);
+    return viewersString;
 }
 
 qint64 TwitchChannel::getChannelFollowers() const

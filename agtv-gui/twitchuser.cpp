@@ -132,6 +132,9 @@ void TwitchUser::updateFromJsonResponseUserFollowedChannels(const QJsonDocument 
                 if(channelName.length()>0) {
                     if(!this->followedChannels.contains(channelName)) {
                         TwitchChannel *twitchChannel = new TwitchChannel(this, this->getOAuthToken(), channelName, this->getRefreshTimerInterval());
+                        // STOPPING TIMER FOR NOW
+                        twitchChannel->stopUpdateTimer();
+                        // STOPPING TIMER FOR NOW
                         this->followedChannels[channelName] = twitchChannel;
                         this->followedChannelsList.append(channelName);
                         this->followedChannelsDataChanged = true;
@@ -154,6 +157,9 @@ void TwitchUser::updateFromJsonResponseUserFollowChannel(const QJsonDocument &js
         QString channelName = jsonObject["channel"].toObject()["name"].toString();
 
         TwitchChannel *twitchChannel = new TwitchChannel(this, this->getOAuthToken(), channelName, this->getRefreshTimerInterval());
+        // STOPPING TIMER FOR NOW
+        twitchChannel->stopUpdateTimer();
+        // STOPPING TIMER FOR NOW
         this->followedChannels[channelName] = twitchChannel;
 
         this->followedChannelsDataChanged = true;

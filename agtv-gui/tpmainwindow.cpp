@@ -136,8 +136,10 @@ void tpMainWindow::setupModelsViews()
     QStringList horzHeaders = { "Name", "Status", "#V",
                                 "Game", "Status Message"};
 
-    stmodel = new QStandardItemModel(0,5,this);
+    stmodel = new TwitchChannelModel(this, genericHelper::getUpdateIntervalMsec());
     stmodel->setHorizontalHeaderLabels(horzHeaders);
+    QObject::connect(stmodel, SIGNAL(notifyByTray(QString, QString)),
+                     this, SLOT(on_notifyByTray(QString, QString)));
     stproxymodel = new AdvQSortFilterProxyModel(this);
     stproxymodel->setSourceModel(stmodel);
     stproxymodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -146,7 +148,9 @@ void tpMainWindow::setupModelsViews()
     this->ui->tableView->setItemDelegate(AgtvDefItemDelegate);
     this->ui->tableView->setModel(stproxymodel);
 
-    stmodelbookmarks = new QStandardItemModel(0,5,this);
+    stmodelbookmarks = new TwitchChannelModel(this, genericHelper::getUpdateIntervalMsec());
+    QObject::connect(stmodelbookmarks, SIGNAL(notifyByTray(QString, QString)),
+                     this, SLOT(on_notifyByTray(QString, QString)));
     stmodelbookmarks->setHorizontalHeaderLabels(horzHeaders);
     stproxymodelbookmarks = new AdvQSortFilterProxyModel(this);
     stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
@@ -180,81 +184,9 @@ void tpMainWindow::setupModelsViews()
     QTimer::singleShot(0, this, SLOT(restoreSortModes()));
 }
 
-void tpMainWindow::twitchChannelDataChanged(const bool onlineStatusChanged)
-{
-    TwitchChannel *channel = qobject_cast<TwitchChannel *>(QObject::sender());
-    if(channel) {
-        QString onlineStatus = "";
-        switch (channel->getChannelOnlineStatus()) {
-            case TwitchChannel::ChannelOnlineStatus::online:
-                onlineStatus = "online";
-                break;
-            case TwitchChannel::ChannelOnlineStatus::offline:
-                onlineStatus = "offline";
-                break;
-            case TwitchChannel::ChannelOnlineStatus::playlist:
-                onlineStatus = "playlist";
-                break;
-            case TwitchChannel::ChannelOnlineStatus::hosting:
-                onlineStatus = "hosting";
-                break;
-            default:
-                onlineStatus = "unknown";
-        }
-
-        QString viewersString = QString::number(channel->getChannelViewers(), 'f', 0);
-
-        if(! bunchUpdateStreamDataName(channel->getChannelName(), onlineStatus, viewersString,
-                                       channel->getChannelGame(), channel->getChannelTitle()) ) {
-            genericHelper::log(QString(Q_FUNC_INFO) + ": Error updating model");
-        }
-
-        if(onlineStatusChanged && genericHelper::getStreamOnlineNotify()) {
-            emit( on_notifyByTray(channel->getChannelName() + " is now " + onlineStatus, channel->getChannelTitle()) );
-        }
-    }
-}
-
-bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString &onlineStatus,
-                                             const QString &viewers, const QString &game,
-                                             const QString &status)
-{
-    bool ret=true;
-    if(! stproxymodel->updateCol(0, name.toLower(), 1, onlineStatus) &&
-         ! stproxymodelbookmarks->updateCol(0, name.toLower(), 1, onlineStatus) )
-        ret=false;
-    if(! stproxymodel->updateCol(0, name.toLower(), 2, viewers) &&
-         ! stproxymodelbookmarks->updateCol(0, name.toLower(), 2, viewers) )
-        ret=false;
-    if(! stproxymodel->updateCol(0, name.toLower(), 3, game) &&
-         ! stproxymodelbookmarks->updateCol(0, name.toLower(), 3, game) )
-        ret=false;
-    if(! stproxymodel->updateCol(0, name.toLower(), 4, status) &&
-         ! stproxymodelbookmarks->updateCol(0, name.toLower(), 4, status) )
-        ret=false;
-
-    for(int i = 0; i<this->stmodelbookmarks->rowCount(); ++i) {
-        QModelIndex streamer_index = this->stmodelbookmarks->index(i,0);
-        QModelIndex online_index = this->stmodelbookmarks->index(i,1);
-        QModelIndex viewers_index = this->stmodelbookmarks->index(i,2);
-        QModelIndex status_index = this->stmodelbookmarks->index(i,4);
-
-        if ( this->stmodelbookmarks->itemData(streamer_index)[0].toString() == name )  {
-            this->stmodelbookmarks->setData(online_index, onlineStatus);
-            this->stmodelbookmarks->setData(status_index, status);
-            this->stmodelbookmarks->setData(viewers_index, viewers);
-        }
-    }
-
-    fitTableViewToContent(this->ui->tableView);
-    fitTableViewToContent(this->ui->tableViewBookmarks);
-
-    return ret;
-}
-
 void tpMainWindow::startFromGBrowser(const QString stream)
 {
-    TwitchChannel *channel = twitchChannels[stream];
+    TwitchChannel *channel = this->stmodel->getChannel(stream);
     if(channel != 0) {
         channel->requestPlaylist();
 
@@ -367,55 +299,6 @@ void tpMainWindow::setEnableInput(bool enabled)
             widget->setEnabled(enabled);
         }
     }
-}
-
-void tpMainWindow::loadBookmarks()
-{
-    /**
-
-    QStringList loadedbookmarks;
-    loadedbookmarks = genericHelper::getBookmarks();
-
-    QStringList currentbookmarks;
-
-    for( int row = 0; row < this->stmodelbookmarks->rowCount(); ++row )
-    {
-        currentbookmarks << this->stmodelbookmarks->item( row, 0 )->text();
-    }
-
-    QListIterator<QString> itr (loadedbookmarks);
-    int i = 0;
-    while (itr.hasNext()) {
-        QString current = itr.next();
-        if (currentbookmarks.count(current) <= 0) {
-            if(!this->twitchChannels.contains(current)) {
-                genericHelper::log(QString(__func__) + QString(" Adding TwitchChannel instance for channel ") + current);
-                genericHelper::log(QString(__func__) + QString(" TODO: NEEDS DELETE HANDLING"));
-                TwitchChannel *twitchChannel = new TwitchChannel(this, genericHelper::getOAuthAccessToken(), current, this->updateInterval);
-                this->twitchChannels[current] = twitchChannel;
-                QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
-            }
-
-            if (this->stmodelbookmarks->findItems(current,Qt::MatchExactly,0).length() <= 0) {
-                QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(current));
-                stmodelbookmarks->setItem(i, 0, qsitem0);
-                QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
-                stmodelbookmarks->setItem(i, 1, qsitem1);
-                QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
-                stmodelbookmarks->setItem(i, 2, qsitem2);
-                QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
-                stmodelbookmarks->setItem(i, 3, qsitem3);
-                QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(""));
-                stmodelbookmarks->setItem(i, 4, qsitem4);
-            }
-        }
-
-        ++i;
-    }
-
-    fitTableViewToContent(this->ui->tableViewBookmarks);
-
-    **/
 }
 
 void tpMainWindow::saveBookmarks()
@@ -644,7 +527,7 @@ void tpMainWindow::openChatHexChat()
      int ret = 0;
 
      if ( genericHelper::isHosting(_status) ) {
-         QString _hostedfor = this->twitchChannels[_streamer]->getHostedChannel();
+         QString _hostedfor = this->stmodel->getChannel(_streamer)->getHostedChannel();
          
 #ifdef INTERNALIRC
          if(genericHelper::getInternalChat()) {
@@ -685,7 +568,7 @@ void tpMainWindow::openChatHexChatBookmark()
     int ret = 0;
 
     if ( genericHelper::isHosting(_status) ) {
-        QString _hostedfor = this->twitchChannels[_streamer]->getHostedChannel();
+        QString _hostedfor = this->stmodelbookmarks->getChannel(_streamer)->getHostedChannel();
 #ifdef INTERNALIRC
         if(genericHelper::getInternalChat()) {
             ircc->connectAndJoin(QStringList{_streamer, _hostedfor});
@@ -720,18 +603,16 @@ void tpMainWindow::openChatHexChatBookmark()
 
 void tpMainWindow::addBookmarkHosted()
 {
-
        QString _channel;
        QString _hostedfor;
        _channel = this->ui->tableView->selectionModel()->selectedRows(0).at(0).data().toString();
-       _hostedfor = this->twitchChannels[_channel]->getHostedChannel();
+       _hostedfor = this->stmodel->getChannel(_channel)->getHostedChannel();
 
        if (twitchUserLocal->getBookmarks().count(_hostedfor) <= 0) {
            twitchUserLocal->addBookmark(_hostedfor);
        }
 
        this->ui->tabWidget->setCurrentIndex(1);
-
 }
 
 void tpMainWindow::deleteBookmark()
@@ -739,6 +620,7 @@ void tpMainWindow::deleteBookmark()
    const QString _streamer = this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toString();
 
    twitchUserLocal->deleteBookmark(_streamer);
+   this->stmodelbookmarks->removeChannel(_streamer);
 }
 
 void tpMainWindow::addBookmark()
@@ -888,105 +770,26 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
 
 void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
 {
-    this->twitchChannels = twitchUser->getFollowedChannels();
-
-    QMap<QString, TwitchChannel*>::iterator i = this->twitchChannels.begin();
-
-    int y = 0;
-    while (i != this->twitchChannels.end()) {
-        TwitchChannel *twitchChannel = i.value();
-        QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
-        QObject::connect(twitchChannel, SIGNAL(TwitchChannelPlaylistUrlReady(const QString, const QString)),
-                         this->diaLaunch, SLOT(setStreamUrl(const QString, const QString)));
-        QObject::connect(twitchChannel, SIGNAL(twitchChannelQualityUrlsReady(const QString, const QMap<QString, QString>)),
-                         this->diaLaunch, SLOT(setStreamUrlWithQuality(const QString, const QMap<QString, QString>)));
-
-        if (this->stmodel->findItems(twitchChannel->getChannelName(), Qt::MatchExactly,0).length() <= 0) {
-
-            if (twitchChannel->getChannelName().length() > 0) {
-
-                QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelName()));
-                stmodel->setItem(y, 0, qsitem0);
-                QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
-                stmodel->setItem(y, 1, qsitem1);
-                QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
-                stmodel->setItem(y, 2, qsitem2);
-                QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
-                stmodel->setItem(y, 3, qsitem3);
-                QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelTitle()));
-                stmodel->setItem(y, 4, qsitem4);
-            }
+    for(const auto& channel : twitchUser->getFollowedChannels()) {
+        if (channel->getChannelName().length() > 0) {
+            this->stmodel->addChannel(channel->getChannelName());
+            QObject::connect(this->stmodel->getChannel(channel->getChannelName()), SIGNAL(TwitchChannelPlaylistUrlReady(const QString, const QString)),
+                             this->diaLaunch, SLOT(setStreamUrl(const QString, const QString)));
+            QObject::connect(this->stmodel->getChannel(channel->getChannelName()), SIGNAL(twitchChannelQualityUrlsReady(const QString, const QMap<QString, QString>)),
+                             this->diaLaunch, SLOT(setStreamUrlWithQuality(const QString, const QMap<QString, QString>)));
         }
-
-        ++y;
-        ++i;
     }
-
 }
 
 void tpMainWindow::onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged)
 {
-    QStringList _twitchChannelList;
-   
-    this->twitchChannelsBookmarks = twitchUserLocal->getBookmarkedChannels();
-
-    QMap<QString, TwitchChannel*>::iterator i = this->twitchChannelsBookmarks.begin();
-
-    int y = 0;
-    while (i != this->twitchChannelsBookmarks.end()) {
-        TwitchChannel *twitchChannel = i.value();
-        QObject::connect(twitchChannel, SIGNAL(twitchChannelDataChanged(const bool)), this, SLOT(twitchChannelDataChanged(const bool)));
-        QObject::connect(twitchChannel, SIGNAL(TwitchChannelPlaylistUrlReady(const QString, const QString)),
+    for(const auto& channel : twitchUserLocal->getBookmarkedChannels()) {
+        this->stmodelbookmarks->addChannel(channel->getChannelName());
+        QObject::connect(this->stmodelbookmarks->getChannel(channel->getChannelName()), SIGNAL(TwitchChannelPlaylistUrlReady(const QString, const QString)),
                          this->diaLaunch, SLOT(setStreamUrl(const QString, const QString)));
-        QObject::connect(twitchChannel, SIGNAL(twitchChannelQualityUrlsReady(const QString, const QMap<QString, QString>)),
+        QObject::connect(this->stmodelbookmarks->getChannel(channel->getChannelName()), SIGNAL(twitchChannelQualityUrlsReady(const QString, const QMap<QString, QString>)),
                          this->diaLaunch, SLOT(setStreamUrlWithQuality(const QString, const QMap<QString, QString>)));
-
-            _twitchChannelList << twitchChannel->getChannelName();
-
-
-            if (this->stmodelbookmarks->findItems(twitchChannel->getChannelName(),Qt::MatchExactly,0).length() <= 0) {
-                QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelName()));
-                stmodelbookmarks->setItem(y, 0, qsitem0);
-                QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg("offline"));
-                stmodelbookmarks->setItem(y, 1, qsitem1);
-                QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(""));
-                stmodelbookmarks->setItem(y, 2, qsitem2);
-                QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(""));
-                stmodelbookmarks->setItem(y, 3, qsitem3);
-                QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(""));
-                stmodelbookmarks->setItem(y, 4, qsitem4);
-            } 
-        
-
-        ++y;
-        ++i;
     }
-    
-    for(int y = 0; y<this->stmodelbookmarks->rowCount(); ++y) {
-        QModelIndex streamer_index = this->stmodelbookmarks->index(y,0);
-
-
-        if ( _twitchChannelList.count(this->stmodelbookmarks->itemData(streamer_index)[0].toString()) <= 0 )  {
-            this->stmodelbookmarks->removeRow(streamer_index.row());
-            break;
-        }
-    }
-    
-
-
-}
-
-bool tpMainWindow::bunchUpdateStreamDataName(const QString &name, const QString &status,
-                                             const QString &viewers)
-{
-    bool ret=true;
-    if(! stproxymodel->updateCol(0, name.toLower(), 1, status) &&
-         stproxymodelbookmarks->updateCol(0, name.toLower(), 1, status) )
-        ret=false;
-    if(! stproxymodel->updateCol(0, name.toLower(), 2, viewers) &&
-         stproxymodelbookmarks->updateCol(0, name.toLower(), 2, viewers) )
-        ret=false;
-    return ret;
 }
 
 void tpMainWindow::updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer)
@@ -1147,7 +950,7 @@ void tpMainWindow::trayIconClicked(QSystemTrayIcon::ActivationReason reason)
 
 void tpMainWindow::on_notifyByTray(QString title, QString message)
 {
-    if( trayIcon->isVisible() ) {
+    if( trayIcon->isVisible() && genericHelper::getStreamOnlineNotify() ) {
         trayIcon->showMessage(title, message);
     }
 }
@@ -1300,7 +1103,7 @@ void tpMainWindow::on_tableView_activated(const QModelIndex &index)
 {
     QString _streamer = this->stproxymodel->data(index.sibling(index.row(),0),0).toString();
 
-    TwitchChannel *channel = twitchChannels[_streamer];
+    TwitchChannel *channel = this->stmodel->getChannel(_streamer);
     if(channel != 0) {
         switch(channel->getChannelOnlineStatus()) {
             case TwitchChannel::ChannelOnlineStatus::online:
@@ -1322,7 +1125,7 @@ void tpMainWindow::on_tableViewBookmarks_activated(const QModelIndex &index)
 {
    QString _streamer = this->stproxymodelbookmarks->data(index.sibling(index.row(),0),0).toString();
 
-   TwitchChannel *channel = twitchChannels[_streamer];
+   TwitchChannel *channel = this->stmodelbookmarks->getChannel(_streamer);
    if(channel != 0) {
        switch(channel->getChannelOnlineStatus()) {
            case TwitchChannel::ChannelOnlineStatus::online:

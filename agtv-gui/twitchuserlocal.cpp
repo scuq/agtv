@@ -26,6 +26,9 @@ void TwitchUserLocal::loadBookmarks()
         QString current = itr.next();
         if(!this->bookmarkedChannels.contains(current)) {
             TwitchChannel *twitchChannel = new TwitchChannel(this, "this->oAuthToken", current, this->getRefreshTimerInterval());
+            // STOPPING TIMER FOR NOW
+            twitchChannel->stopUpdateTimer();
+            // STOPPING TIMER FOR NOW
             this->bookmarkedChannels[current] = twitchChannel;
             
             this->bookmarkedChannelsDataChanged = true;

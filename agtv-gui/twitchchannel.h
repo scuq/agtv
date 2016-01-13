@@ -29,12 +29,14 @@ class TwitchChannel : public TwitchObject
         TwitchChannel(QObject *parent, const QString oAuthToken, const QString channel, const qint64 defaultTimerInterval = 1000);
 
         ChannelOnlineStatus getChannelOnlineStatus() const;
+        QString getChannelOnlineStatusString() const;
         QString getChannelName() const;
         QString getChannelTitle() const;
         QString getChannelGame() const;
         QString getChannelUrl() const;
         QString getChannelLogoUrl() const;
         qint64 getChannelViewers() const;
+        QString getChannelViewersString() const;
         qint64 getChannelFollowers() const;
         bool getIsPartner() const;
         bool getIsPlaylist() const;
