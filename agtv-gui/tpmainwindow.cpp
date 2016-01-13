@@ -133,7 +133,7 @@ void tpMainWindow::setupModelsViews()
 {
     AgtvDefItemDelegate =  new AgtvDefaultItemDelegate();
 
-    QStringList horzHeaders = { "Name", "Status", "#V",
+    QStringList horzHeaders = { "Name", "Status", "#V", "#F",
                                 "Game", "Status Message"};
 
     stmodel = new TwitchChannelModel(this, genericHelper::getUpdateIntervalMsec());
@@ -173,6 +173,12 @@ void tpMainWindow::setupModelsViews()
     this->stproxymodel->setShowApproximateViewerCount(genericHelper::getShowApproximateViewerCount());
     this->stproxymodelbookmarks->setShowApproximateViewerCount(genericHelper::getShowApproximateViewerCount());
     this->ui->actionShow_Approximate_Viewer_Count->setChecked(genericHelper::getShowApproximateViewerCount());
+
+    if(! genericHelper::getShowFollowerCount()) {
+        this->ui->tableView->hideColumn((qint64)TwitchChannelModel::ColumnIndex::followers);
+        this->ui->tableViewBookmarks->hideColumn((qint64)TwitchChannelModel::ColumnIndex::followers);
+    }
+    this->ui->actionShow_Follower_Count->setChecked(genericHelper::getShowFollowerCount());
 
     ui->tableView->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
     ui->tableViewBookmarks->horizontalHeader()->setStretchLastSection(genericHelper::getFitAllContentToWindow());
@@ -1036,6 +1042,8 @@ void tpMainWindow::on_actionShow_Approximate_Viewer_Count_toggled(bool arg1)
     stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
 }
 
+
+
 void tpMainWindow::on_Ready()
 {
     /*
@@ -1196,4 +1204,16 @@ void tpMainWindow::deleteFollowerFromList(QString _name)
 void tpMainWindow::on_actionShow_Game_Browser_triggered()
 {
     diaTopGameBrowser->show();
+}
+
+void tpMainWindow::on_actionShow_Follower_Count_triggered(bool arg1)
+{
+    genericHelper::setShowFollowerCount(arg1);
+    if(! genericHelper::getShowFollowerCount()) {
+        this->ui->tableView->hideColumn((qint64)TwitchChannelModel::ColumnIndex::followers);
+        this->ui->tableViewBookmarks->hideColumn((qint64)TwitchChannelModel::ColumnIndex::followers);
+    } else {
+        this->ui->tableView->showColumn((qint64)TwitchChannelModel::ColumnIndex::followers);
+        this->ui->tableViewBookmarks->showColumn((qint64)TwitchChannelModel::ColumnIndex::followers);
+    }
 }

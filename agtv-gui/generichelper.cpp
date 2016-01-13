@@ -244,6 +244,19 @@ void genericHelper::setShowApproximateViewerCount(const bool approxviewercount)
     settings.sync();
 }
 
+bool genericHelper::getShowFollowerCount()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    return settings.value("show_follower_count", false).toBool();
+}
+
+void genericHelper::setShowFollowerCount(const bool followercount)
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    settings.setValue("show_follower_count", followercount);
+    settings.sync();
+}
+
 QString genericHelper::getUpdateCheckUrl()
 {
     return "http://agtv.abyle.org/version/latest_"+genericHelper::getAppName();

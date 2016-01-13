@@ -16,16 +16,18 @@ void TwitchChannelModel::addChannel(const QString channel)
                              this, SLOT(twitchChannelDataChanged(const bool)));
             qint64 rows = this->rowCount();
 
-            QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelName()));
-            this->setItem(rows, 0, qsitem0);
-            QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelOnlineStatusString()));
-            this->setItem(rows, 1, qsitem1);
-            QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelViewers()));
-            this->setItem(rows, 2, qsitem2);
-            QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelGame()));
-            this->setItem(rows, 3, qsitem3);
-            QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(twitchChannel->getChannelTitle()));
-            this->setItem(rows, 4, qsitem4);
+            QStandardItem *qsitem0 = new QStandardItem(twitchChannel->getChannelName());
+            this->setItem(rows, (qint64)TwitchChannelModel::ColumnIndex::channelName, qsitem0);
+            QStandardItem *qsitem1 = new QStandardItem(twitchChannel->getChannelOnlineStatusString());
+            this->setItem(rows, (qint64)TwitchChannelModel::ColumnIndex::onlineStatus, qsitem1);
+            QStandardItem *qsitem2 = new QStandardItem(twitchChannel->getChannelViewers());
+            this->setItem(rows, (qint64)TwitchChannelModel::ColumnIndex::viewers, qsitem2);
+            QStandardItem *qsitem3 = new QStandardItem(twitchChannel->getChannelFollowers());
+            this->setItem(rows, (qint64)TwitchChannelModel::ColumnIndex::followers, qsitem3);
+            QStandardItem *qsitem4 = new QStandardItem(twitchChannel->getChannelGame());
+            this->setItem(rows, (qint64)TwitchChannelModel::ColumnIndex::game, qsitem4);
+            QStandardItem *qsitem5 = new QStandardItem(twitchChannel->getChannelTitle());
+            this->setItem(rows, (qint64)TwitchChannelModel::ColumnIndex::status, qsitem5);
         }
     }
 }
@@ -58,15 +60,17 @@ void TwitchChannelModel::twitchChannelDataChanged(const bool onlineStatusChanged
     TwitchChannel *channel = qobject_cast<TwitchChannel *>(QObject::sender());
     if(channel) {
         for(int i = 0; i<this->rowCount(); ++i) {
-            QModelIndex streamer_index = this->index(i,0);
-            QModelIndex online_index = this->index(i,1);
-            QModelIndex viewers_index = this->index(i,2);
-            QModelIndex game_index = this->index(i,3);
-            QModelIndex status_index = this->index(i,4);
+            QModelIndex streamer_index = this->index(i, (qint64)TwitchChannelModel::ColumnIndex::channelName);
+            QModelIndex online_index = this->index(i, (qint64)TwitchChannelModel::ColumnIndex::onlineStatus);
+            QModelIndex viewers_index = this->index(i, (qint64)TwitchChannelModel::ColumnIndex::viewers);
+            QModelIndex followers_index = this->index(i, (qint64)TwitchChannelModel::ColumnIndex::followers);
+            QModelIndex game_index = this->index(i, (qint64)TwitchChannelModel::ColumnIndex::game);
+            QModelIndex status_index = this->index(i, (qint64)TwitchChannelModel::ColumnIndex::status);
 
             if ( this->itemData(streamer_index)[0].toString() == channel->getChannelName() )  {
                 this->setData(online_index, channel->getChannelOnlineStatusString());
                 this->setData(viewers_index, channel->getChannelViewers());
+                this->setData(followers_index, channel->getChannelFollowers());
                 this->setData(game_index, channel->getChannelGame());
                 this->setData(status_index, channel->getChannelTitle());
             }
@@ -76,5 +80,4 @@ void TwitchChannelModel::twitchChannelDataChanged(const bool onlineStatusChanged
             emit( notifyByTray(channel->getChannelName() + " is now " + channel->getChannelOnlineStatusString(), channel->getChannelTitle()) );
         }
     }
-
 }

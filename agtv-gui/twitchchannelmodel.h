@@ -11,6 +11,15 @@ class TwitchChannelModel : public QStandardItemModel
     Q_OBJECT
 
 public:
+    enum class ColumnIndex {
+        channelName = 0,
+        onlineStatus = 1,
+        viewers = 2,
+        followers = 3,
+        game = 4,
+        status = 5
+    };
+
     TwitchChannelModel(QObject* parent = 0, const qint64 defaultTimerInterval = 1000);
 
     void addChannel(const QString channel);

@@ -287,6 +287,7 @@ selection-color: black;</string>
     <addaction name="actionRefresh"/>
     <addaction name="separator"/>
     <addaction name="actionShow_Approximate_Viewer_Count"/>
+    <addaction name="actionShow_Follower_Count"/>
     <addaction name="actionShow_Offline_Streamers"/>
     <addaction name="separator"/>
     <addaction name="actionFit_Columns_to_Content"/>
@@ -404,12 +405,20 @@ selection-color: black;</string>
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show Approximate Viewer Count</string>
+    <string>Show Approximate Counts</string>
    </property>
   </action>
   <action name="actionShow_Game_Browser">
    <property name="text">
     <string>Show Game Browser</string>
+   </property>
+  </action>
+  <action name="actionShow_Follower_Count">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Follower Count</string>
    </property>
   </action>
  </widget>

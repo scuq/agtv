@@ -157,6 +157,8 @@ public:
     static bool getInternalChat();
     static void setInternalChat(const bool internalchat);
 
+    static void setShowFollowerCount(const bool followercount);
+    static bool getShowFollowerCount();
 signals:
 
 public slots:

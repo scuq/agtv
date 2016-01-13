@@ -142,6 +142,8 @@ private slots:
 
     void startFromGBrowser(const QString stream);
 
+    void on_actionShow_Follower_Count_triggered(bool arg1);
+
 private:
     Ui::tpMainWindow *ui;
 

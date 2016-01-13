@@ -31,7 +31,7 @@ QVariant AdvQSortFilterProxyModel::data(const QModelIndex &index, int role) cons
 
     **/
 
-    if(role == Qt::DisplayRole && index.column() == 2 && showApproximateViewerCount) {
+    if(role == Qt::DisplayRole && (index.column() == 2 || index.column() == 3) && showApproximateViewerCount) {
         const int viewers = QSortFilterProxyModel::data(index, role).toInt();
         if (viewers > 1e6) {
             return QString::number(viewers / 1e6, 'f', 0) + "m";
