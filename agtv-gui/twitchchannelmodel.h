@@ -27,6 +27,9 @@ public:
 
     TwitchChannel* getChannel(const QString channel);
 
+    qint64 getUpdateInterval() const;
+    void setUpdateInterval(const qint64 &value);
+
 private slots:
     void twitchChannelDataChanged(const bool onlineStatusChanged);
 

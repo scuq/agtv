@@ -254,6 +254,13 @@ void tpMainWindow::on_settingsSaved()
         restoreTableViewsManual();
     }
 
+    // Set a minimum of 5 seconds for the update interval
+    if (genericHelper::getUpdateInterval() < 5) {
+        genericHelper::setUpdateInterval(5);
+    }
+    this->stmodel->setUpdateInterval(genericHelper::getUpdateIntervalMsec());
+    this->stmodelbookmarks->setUpdateInterval(genericHelper::getUpdateIntervalMsec());
+
 #ifdef INTERNALIRC
     if(genericHelper::getInternalChat()) {
         if(ircc == 0) {

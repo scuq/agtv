@@ -81,3 +81,16 @@ void TwitchChannelModel::twitchChannelDataChanged(const bool onlineStatusChanged
         }
     }
 }
+
+qint64 TwitchChannelModel::getUpdateInterval() const
+{
+    return updateInterval;
+}
+
+void TwitchChannelModel::setUpdateInterval(const qint64 &value)
+{
+    updateInterval = value;
+    for(auto channel : twitchChannels) {
+        channel->setInterval(updateInterval);
+    }
+}
