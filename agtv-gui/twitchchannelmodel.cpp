@@ -66,7 +66,7 @@ void TwitchChannelModel::twitchChannelDataChanged(const bool onlineStatusChanged
 
             if ( this->itemData(streamer_index)[0].toString() == channel->getChannelName() )  {
                 this->setData(online_index, channel->getChannelOnlineStatusString());
-                this->setData(viewers_index, channel->getChannelViewersString());
+                this->setData(viewers_index, channel->getChannelViewers());
                 this->setData(game_index, channel->getChannelGame());
                 this->setData(status_index, channel->getChannelTitle());
             }
