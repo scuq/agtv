@@ -6,8 +6,18 @@ TwitchChannelModel::TwitchChannelModel(QObject* parent, const qint64 defaultTime
     this->updateInterval = defaultTimerInterval;
 }
 
-void TwitchChannelModel::addChannel(const QString channel)
+QList<QString> TwitchChannelModel::getChannelList()
 {
+    QList<QString> channels;
+    for(auto channel : twitchChannels) {
+        channels.append(channel->getChannelName());
+    }
+    return channels;
+}
+
+bool TwitchChannelModel::addChannel(const QString channel)
+{
+    bool success = false;
     if(channel.length() > 0) {
         if( ! this->twitchChannels.contains(channel) ) {
             TwitchChannel *twitchChannel = new TwitchChannel(this, QString(""), channel, this->updateInterval);
@@ -28,8 +38,12 @@ void TwitchChannelModel::addChannel(const QString channel)
             this->setItem(rows, (qint64)TwitchChannelModel::ColumnIndex::game, qsitem4);
             QStandardItem *qsitem5 = new QStandardItem(twitchChannel->getChannelTitle());
             this->setItem(rows, (qint64)TwitchChannelModel::ColumnIndex::status, qsitem5);
+
+            success = true;
         }
     }
+
+    return success;
 }
 
 TwitchChannel* TwitchChannelModel::getChannel(const QString channel)

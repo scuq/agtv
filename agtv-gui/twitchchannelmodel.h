@@ -22,13 +22,15 @@ public:
 
     TwitchChannelModel(QObject* parent = 0, const qint64 defaultTimerInterval = 1000);
 
-    void addChannel(const QString channel);
+    bool addChannel(const QString channel);
     void removeChannel(const QString channel);
 
     TwitchChannel* getChannel(const QString channel);
 
     qint64 getUpdateInterval() const;
     void setUpdateInterval(const qint64 &value);
+
+    QList<QString> getChannelList();
 
 private slots:
     void twitchChannelDataChanged(const bool onlineStatusChanged);
