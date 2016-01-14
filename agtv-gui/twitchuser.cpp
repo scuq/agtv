@@ -35,7 +35,7 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
      // trigger auth status update
      this->getUserAuthenticationStatus();
 
-     // this->setupTimer();
+     this->setupTimer();
 
      this->getUserFollowedChannels(this->userName);
 
@@ -53,7 +53,7 @@ QStringList TwitchUser::getFollowedChannelsList()
 
 void TwitchUser::on_timedUpdate()
 {
-    return;
+    this->getUserFollowedChannels(this->userName);
 }
 
 void TwitchUser::followChannel(QString channelName)
@@ -178,8 +178,8 @@ void TwitchUser::updateFromJsonResponseUserUnfollowChannel(const QJsonDocument &
 
     if (jsonResponseBuffer.isEmpty()) {
         emit twitchUnfollowChannelSuccess("unfollow ok.");
+        emit twitchFollowedChannelsDataChanged(this->followedChannelsDataChanged);
     } else {
-
         emit twitchUnfollowChannelError("unfollow failed.");
     }
 }
