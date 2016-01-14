@@ -8,6 +8,8 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    genericHelper::log(QString("Starting AGTV..."));
+
     currArch = CURRARCH;
     version = VERSION;
 
@@ -121,7 +123,7 @@ void tpMainWindow::setupTwitchApi()
     twitchUserLocal = new TwitchUserLocal(this, genericHelper::getUpdateIntervalMsec());
     QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
 
-    twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(), genericHelper::getUpdateIntervalMsec());
+    twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(), 5*genericHelper::getUpdateIntervalMsec());
     QObject::connect(twitchUser, SIGNAL(twitchNeedsOAuthSetup()), this, SLOT(on_actionSetup_Twitch_Auth_triggered()));
     QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(const bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(const bool)));
     QObject::connect(twitchUser, SIGNAL(twitchFollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
@@ -260,6 +262,7 @@ void tpMainWindow::on_settingsSaved()
     }
     this->stmodel->setUpdateInterval(genericHelper::getUpdateIntervalMsec());
     this->stmodelbookmarks->setUpdateInterval(genericHelper::getUpdateIntervalMsec());
+    this->twitchUser->setInterval(5*genericHelper::getUpdateIntervalMsec());
 
 #ifdef INTERNALIRC
     if(genericHelper::getInternalChat()) {
@@ -783,13 +786,23 @@ void tpMainWindow::executePlayer(QString player, QString url, QString channel, i
 
 void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
 {
+    QList<QString> currFollowedList;
     for(const auto& channel : twitchUser->getFollowedChannels()) {
         if (channel->getChannelName().length() > 0) {
-            this->stmodel->addChannel(channel->getChannelName());
-            QObject::connect(this->stmodel->getChannel(channel->getChannelName()), SIGNAL(TwitchChannelPlaylistUrlReady(const QString, const QString)),
-                             this->diaLaunch, SLOT(setStreamUrl(const QString, const QString)));
-            QObject::connect(this->stmodel->getChannel(channel->getChannelName()), SIGNAL(twitchChannelQualityUrlsReady(const QString, const QMap<QString, QString>)),
-                             this->diaLaunch, SLOT(setStreamUrlWithQuality(const QString, const QMap<QString, QString>)));
+            if(this->stmodel->addChannel(channel->getChannelName())) {
+                QObject::connect(this->stmodel->getChannel(channel->getChannelName()), SIGNAL(TwitchChannelPlaylistUrlReady(const QString, const QString)),
+                                 this->diaLaunch, SLOT(setStreamUrl(const QString, const QString)));
+                QObject::connect(this->stmodel->getChannel(channel->getChannelName()), SIGNAL(twitchChannelQualityUrlsReady(const QString, const QMap<QString, QString>)),
+                                 this->diaLaunch, SLOT(setStreamUrlWithQuality(const QString, const QMap<QString, QString>)));
+            }
+            currFollowedList.append(channel->getChannelName());
+        }
+    }
+
+    QList<QString> storedFollowedList = this->stmodel->getChannelList();
+    for(auto channel : currFollowedList) {
+        if(!storedFollowedList.contains(channel)) {
+            this->stmodel->removeChannel(channel);
         }
     }
 }
