@@ -35,6 +35,11 @@ TwitchChannel::TwitchChannel(QObject *parent, const QString oAuthToken, const QS
     genericHelper::log( this->channelName + QString(": ") + QString("TwitchChannel setup and ready"));
 }
 
+TwitchChannel::~TwitchChannel()
+{
+    genericHelper::log( this->channelName + QString(": ") + QString("TwitchChannel destroyed"));
+}
+
 void TwitchChannel::twitchNetworkError(const QString errorString)
 {
     genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + errorString);
@@ -223,6 +228,22 @@ bool TwitchChannel::updateChannelData(const QJsonObject channelObject) {
     return dataChanged;
 }
 
+bool TwitchChannel::updateOnlineStatus(const TwitchChannel::ChannelOnlineStatus currentChannelOnlineStatus) {
+    bool statusChanged = false;
+    static TwitchChannel::ChannelOnlineStatus lastUpdateStatus;
+    if(this->channelOnlineStatus != currentChannelOnlineStatus) {
+        if(lastUpdateStatus == currentChannelOnlineStatus) {
+            this->channelOnlineStatus = currentChannelOnlineStatus;
+            statusChanged = true;
+            genericHelper::log( this->channelName + QString(": ") + QString("Online Status changed to " + this->getChannelOnlineStatusString()));
+        } else {
+            lastUpdateStatus = currentChannelOnlineStatus;
+        }
+    }
+
+    return statusChanged;
+}
+
 void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer)
 {
     bool dataChanged = false;
@@ -245,11 +266,9 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
 
         this->isPlaylist = streamValue.toObject()["is_playlist"].toBool();
         ChannelOnlineStatus currentChannelOnlineStatus = ( !this->isPlaylist ? ChannelOnlineStatus::online : ChannelOnlineStatus::playlist );
-        if(this->channelOnlineStatus != currentChannelOnlineStatus) {
-            this->channelOnlineStatus = currentChannelOnlineStatus;
+        if(this->updateOnlineStatus(currentChannelOnlineStatus)) {
             dataChanged = true;
             onlineStatusChanged = true;
-            genericHelper::log( this->channelName + QString(": ") + QString("Online Status changed to online"));
         }
     } else {
         // "stream": null -> object is offline
@@ -258,15 +277,16 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
         // and try to figure out if it is really offline or hosting
         ChannelOnlineStatus currentChannelOnlineStatus = ChannelOnlineStatus::offline;
         if(this->channelOnlineStatus != currentChannelOnlineStatus && !this->isHosting) {
-            this->channelOnlineStatus = currentChannelOnlineStatus;
-            dataChanged = true;
-            onlineStatusChanged = true;
-            genericHelper::log( this->channelName + QString(": ") + QString("Online Status changed to offline"));
+            if(this->updateOnlineStatus(currentChannelOnlineStatus)) {
+                dataChanged = true;
+                onlineStatusChanged = true;
+            }
         } else if(this->isHosting &&this->channelOnlineStatus != ChannelOnlineStatus::hosting ) {
-            this->channelOnlineStatus = ChannelOnlineStatus::hosting;
-            dataChanged = true;
-            onlineStatusChanged = true;
-            genericHelper::log( this->channelName + QString(": ") + QString("Online Status changed to hosting"));
+            currentChannelOnlineStatus = ChannelOnlineStatus::hosting;
+            if(this->updateOnlineStatus(currentChannelOnlineStatus)) {
+                dataChanged = true;
+                onlineStatusChanged = true;
+            }
         }
 
         if(this->isHosting) {
@@ -274,7 +294,6 @@ void TwitchChannel::updateFromJsonResponseStream(const QJsonDocument &jsonRespon
             if (QString::compare(hostedStatus, this->channelStatus, Qt::CaseSensitive) != 0) {
                 this->channelStatus = hostedStatus;
                 dataChanged = true;
-                onlineStatusChanged = true;
                 genericHelper::log( this->channelName + QString(": ") + QString("Hosted channel changed"));
             }
         }

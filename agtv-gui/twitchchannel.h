@@ -27,6 +27,7 @@ class TwitchChannel : public TwitchObject
         };
 
         TwitchChannel(QObject *parent, const QString oAuthToken, const QString channel, const qint64 defaultTimerInterval = 1000);
+        ~TwitchChannel();
 
         ChannelOnlineStatus getChannelOnlineStatus() const;
         QString getChannelOnlineStatusString() const;
@@ -80,6 +81,8 @@ private:
         void downloadUrl(QUrl url);
         QString buildPlaylistUrlFromJson(const QJsonDocument &jsonResponseBuffer);
         QMap<QString, QString> parseM3U8Playlist(QString m3u8playlist);
+        bool updateOnlineStatus(const ChannelOnlineStatus currentChannelOnlineStatus);
+
 private slots:
         void updateFromJsonResponseStream(const QJsonDocument &jsonResponseBuffer);
         void twitchNetworkError(const QString errorString);
