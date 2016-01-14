@@ -20,20 +20,20 @@ DialogGameBrowser::DialogGameBrowser(QWidget *parent) :
 
 void DialogGameBrowser::setupModels()
 {
-    QStringList horzHeaders = { "id", "Game", "Viewers", "Logo Small", "Logo Medium", "Logo Large" };
+    QStringList horzHeaders = {"id", "Game", "Viewers"};
 
-    stmodelTopGames = new QStandardItemModel(0,5,this);
+    stmodelTopGames = new QStandardItemModel(0,3,this);
     stmodelTopGames->setHorizontalHeaderLabels(horzHeaders);
     stproxymodelTopGames = new AdvQSortFilterProxyListModel(this);
     stproxymodelTopGames->setSourceModel(stmodelTopGames);
     stproxymodelTopGames->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
     this->ui->tableViewTopGames->setModel(stproxymodelTopGames);
-    this->ui->tableViewTopGames->hideColumn(0);
-    this->ui->tableViewTopGames->hideColumn(3);
-    this->ui->tableViewTopGames->hideColumn(4);
-    this->ui->tableViewTopGames->hideColumn(5);
+    // this->ui->tableViewTopGames->hideColumn(0);
     // this->ui->listViewTopGames->setModelColumn(1);
+
+    this->ui->tableViewTopGames->setSortingEnabled(true);
+    this->ui->tableViewTopGames->sortByColumn(2);
 
     horzHeaders = QStringList{ "Name", "Viewers", "Game", "Status Message"};
 
@@ -76,33 +76,29 @@ DialogGameBrowser::~DialogGameBrowser()
 void DialogGameBrowser::updateTopGames()
 {
     auto gameList = this->gameBrowser->getGameList();
+    qDebug() << gameList.size();
 
+    stmodelTopGames->setRowCount(gameList.size());
+
+    qint64 row=0;
     for(auto iter = gameList.begin(); iter != gameList.end(); ++iter)  {
-        QString gameid = iter->gameid;
-        QString gamename = iter->gamename;
-        QString viewers = iter->viewers;
-        QString logosmall = iter->logoSmall;
-        QString logomedium = iter->logoMedium;
-        QString logolarge = iter->logoLarge;
+        QString gameid = iter.value()->gameid;
+        QString gamename = iter.value()->gamename;
+        qint64 viewers = iter.value()->viewers;
 
-        if( this->stproxymodelTopGames->getColData(0,gameid,0).toString().isEmpty() ) {
-            QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(gameid));
-            QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg(gamename));
-            QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(viewers));
-            QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(logosmall));
-            QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(logomedium));
-            QStandardItem *qsitem5 = new QStandardItem(QString("%0").arg(logolarge));
-            QList<QStandardItem*> items = { qsitem0, qsitem1, qsitem2, qsitem3, qsitem4, qsitem5};
-            stmodelTopGames->appendRow(items);
-        } else {
-            // Update entry
-            stproxymodelTopGames->updateCol(0, gameid, 1, gamename);
-            stproxymodelTopGames->updateCol(0, gameid, 2, viewers);
-            stproxymodelTopGames->updateCol(0, gameid, 3, logosmall);
-            stproxymodelTopGames->updateCol(0, gameid, 4, logomedium);
-            stproxymodelTopGames->updateCol(0, gameid, 5, logolarge);
-        }
+        QStandardItem *qsitem0 = new QStandardItem(gameid);
+        stmodelTopGames->setItem(row, 0, qsitem0);
+        QStandardItem *qsitem1 = new QStandardItem(gamename);
+        qsitem1->setIcon(QIcon(iter.value()->logo));
+        stmodelTopGames->setItem(row, 1, qsitem1);
+        QStandardItem *qsitem2 = new QStandardItem(viewers);
+        stmodelTopGames->setItem(row, 2, qsitem2);
+        ++row;
     }
+
+    this->ui->tableViewTopGames->resizeColumnsToContents();
+    this->ui->tableViewTopGames->resizeRowsToContents();
+    this->ui->tableViewTopGames->sortByColumn(2);
 }
 
 void DialogGameBrowser::on_pushButtonClose_clicked()

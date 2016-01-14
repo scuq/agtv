@@ -6,6 +6,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QList>
+#include <QPixmap>
 
 #include "twitchobject.h"
 
@@ -23,10 +24,11 @@ class TwitchGameBrowser : public TwitchObject
         struct Game {
             QString gameid;
             QString gamename;
-            QString viewers;
+            qint64 viewers;
             QString logoSmall;
             QString logoMedium;
             QString logoLarge;
+            QPixmap logo;
         };
 
         struct Stream {
@@ -45,19 +47,26 @@ class TwitchGameBrowser : public TwitchObject
 
         qint64 getLimit() const;
 
-        QList<Game> getGameList() const;
+        QMap<QString, Game*> getGameList() const;
 
         void getGame(QString game);
 private:
         qint64 curroffset;
         qint64 limit;
-        QList<Game> gameList;
+        QMap<QString, Game*> games;
 
-    private slots:
+        QMap<QString, QNetworkReply*> logoReplies;
+        QSignalMapper *logoSignalMapper;
+
+        void setupLogoSignalMappers();
+        void getGameLogo(QString gamename);
+        void getRequestGameLogo(const QString &urlString, const QString game);
+private slots:
         void updateFromJsonResponseTopGames(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseStreamsForGame(const QJsonDocument &jsonResponseBuffer);
 
-    signals:
+        void parseNetworkResponseGameLogo(const QString gamename);
+signals:
         void twitchGameBrowserReadyTopGames();
         void twitchGameBrowserStreamsForGameReady(const QList<TwitchGameBrowser::Stream> streams);
 };
