@@ -21,6 +21,10 @@ void TwitchGameBrowser::setupLogoSignalMappers()
     logoSignalMapper = new QSignalMapper(this);
     connect(logoSignalMapper, SIGNAL(mapped(QString)),
             this, SLOT(parseNetworkResponseGameLogo(QString)));
+
+    streamLogoSignalMapper = new QSignalMapper(this);
+    connect(streamLogoSignalMapper, SIGNAL(mapped(QString)),
+            this, SLOT(parseNetworkResponseStreamLogo(QString)));
 }
 
 void TwitchGameBrowser::on_timedUpdate()
@@ -59,6 +63,20 @@ QMap<QString, TwitchGameBrowser::Game*> TwitchGameBrowser::getGameList() const
     return games;
 }
 
+void TwitchGameBrowser::parseTopObject(const QJsonObject &topObject, TwitchGameBrowser::Game *game)
+{
+    game->gameid = topObject["game"].toObject()["_id"].toInt();
+    game->gamename = topObject["game"].toObject()["name"].toString();
+    game->viewers = topObject["viewers"].toInt();
+    game->channels = topObject["channels"].toInt();
+    game->box_large_url = topObject["game"].toObject()["box"].toObject()["large"].toString();
+    game->box_medium_url = topObject["game"].toObject()["box"].toObject()["medium"].toString();
+    game->box_small_url = topObject["game"].toObject()["box"].toObject()["small"].toString();
+    game->logo_large_url = topObject["game"].toObject()["logo"].toObject()["large"].toString();
+    game->logo_medium_url = topObject["game"].toObject()["logo"].toObject()["medium"].toString();
+    game->logo_small_url = topObject["game"].toObject()["logo"].toObject()["small"].toString();
+}
+
 void TwitchGameBrowser::updateFromJsonResponseTopGames(const QJsonDocument &jsonResponseBuffer)
 {
     QJsonObject jsonObject = jsonResponseBuffer.object();
@@ -68,34 +86,20 @@ void TwitchGameBrowser::updateFromJsonResponseTopGames(const QJsonDocument &json
         auto topArray = topValue.toArray();
         for (auto iter = topArray.begin(); iter != topArray.end(); ++iter)
         {
-            QString gameid = QString::number(iter->toObject()["game"].toObject()["_id"].toInt(), 'f', 0);
-            QString gamename = iter->toObject()["game"].toObject()["name"].toString();
-            qint64 viewers = iter->toObject()["viewers"].toInt();
-            QString logoSmall = iter->toObject()["game"].toObject()["box"].toObject()["small"].toString();
-            QString logoMedium = iter->toObject()["game"].toObject()["box"].toObject()["medium"].toString();
-            QString logoLarge = iter->toObject()["game"].toObject()["box"].toObject()["large"].toString();
-
+            QJsonObject topObject = iter->toObject();
+            QString gamename = topObject["game"].toObject()["name"].toString();
             if(games.contains(gamename)) {
-                games[gamename]->gameid = gameid;
-                games[gamename]->gamename = gamename;
-                games[gamename]->viewers = viewers;
-                games[gamename]->logoSmall = logoSmall;
-                games[gamename]->logoMedium = logoMedium;
-                games[gamename]->logoLarge = logoLarge;
+                this->parseTopObject(topObject, games[gamename]);
             } else {
                 TwitchGameBrowser::Game *newGame = new TwitchGameBrowser::Game;
-                newGame->gameid = gameid;
-                newGame->gamename = gamename;
-                newGame->viewers = viewers;
-                newGame->logoSmall = logoSmall;
-                newGame->logoMedium = logoMedium;
-                newGame->logoLarge = logoLarge;
+                this->parseTopObject(topObject, newGame);
 
                 games[gamename] = newGame;
                 this->getGameLogo(gamename);
             }
         }
     }
+    emit twitchGameBrowserReadyTopGames();
 }
 
 void TwitchGameBrowser::updateFromJsonResponseStreamsForGame(const QJsonDocument &jsonResponseBuffer)
@@ -115,12 +119,15 @@ void TwitchGameBrowser::updateFromJsonResponseStreamsForGame(const QJsonDocument
             newStream.game  = iter->toObject()["channel"].toObject()["game"].toString();
             newStream.status  = iter->toObject()["channel"].toObject()["status"].toString();
             newStream.viewers = QString::number(iter->toObject()["viewers"].toInt(), 'f', 0);
+            newStream.logo_url  = iter->toObject()["preview"].toObject()["medium"].toString();
 
             streams.append(newStream);
+
+            this->getStreamLogo(newStream);
         }
     }
 
-    // emit twitchGameBrowserStreamsForGameReady(streams);
+    emit twitchGameBrowserStreamsForGameReady(streams);
 }
 
 void TwitchGameBrowser::getGameLogo(QString gamename)
@@ -129,7 +136,7 @@ void TwitchGameBrowser::getGameLogo(QString gamename)
         QString logoUrl = "";
         for(auto game : games) {
             if(QString::compare(game->gamename, gamename, Qt::CaseSensitive) == 0) {
-                logoUrl = game->logoLarge;
+                logoUrl = game->box_large_url;
                 break;
             }
         }
@@ -188,7 +195,68 @@ void TwitchGameBrowser::parseNetworkResponseGameLogo(const QString gamename)
     } else {
         genericHelper::log( QString(Q_FUNC_INFO) + QString(": Cannot retrieve reply for game ") + gamename);
     }
+    emit twitchGameBrowserLogoForGameReady(gamename);
+}
 
-    emit twitchGameBrowserReadyTopGames();
+void TwitchGameBrowser::getStreamLogo(const TwitchGameBrowser::Stream stream)
+{
+    if(! streamLogoReplies.contains(stream.streamer)) {
+        QString logoUrl = "";
+        logoUrl = stream.logo_url;
+        if(logoUrl.length() > 0) {
+            this->getRequestStreamLogo(logoUrl, stream.streamer);
+        }
+    } else {
+        genericHelper::log( QString("ERROR: ") + QString(Q_FUNC_INFO) + QString(": getStreamLogo already running for streamer ") + stream.streamer);
+    }
+}
+
+void TwitchGameBrowser::getRequestStreamLogo(const QString &urlString, const QString game)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+
+    QNetworkReply *reply = nwManager->get(req);
+    streamLogoReplies[game] = reply;
+    // qDebug() << urlString;
+
+    streamLogoSignalMapper->setMapping(reply, game);
+    connect(reply, SIGNAL(finished()),
+            streamLogoSignalMapper, SLOT(map()));
+}
+
+void TwitchGameBrowser::parseNetworkResponseStreamLogo(const QString gamename)
+{
+    QNetworkReply *reply = streamLogoReplies.take(gamename);
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            emit networkError( reply->errorString() );
+            genericHelper::log( QString("ERROR: ") + QString(Q_FUNC_INFO) + QString(": ") + reply->errorString());
+            return;
+        }
+
+        QPixmap logoImage;
+        logoImage.loadFromData(reply->readAll());
+
+        genericHelper::log("downloaded logo image, dimension:" + QString::number(logoImage.size().height()) + "x" +QString::number(logoImage.size().width()));
+
+        // qDebug() << "downloaded logo image, dimension:" + QString::number(logoImage.size().height()) + "x" +QString::number(logoImage.size().width());
+
+        TwitchGameBrowser::Stream newStream;
+
+        if (logoImage.size().height() > 0) {
+            newStream.streamer  = gamename;
+            newStream.logo = logoImage;
+        } else {
+           //  qDebug() << "height is 0, stream logo image not set.";
+        }
+
+        reply->deleteLater();
+
+        emit twitchGameBrowserLogoForStreamReady(newStream);
+    } else {
+        genericHelper::log( QString(Q_FUNC_INFO) + QString(": Cannot retrieve reply for game ") + gamename);
+    }
 }
 

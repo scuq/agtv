@@ -22,12 +22,16 @@ class TwitchGameBrowser : public TwitchObject
         TwitchGameBrowser(QObject *parent, const QString oAuthToken, const qint64 defaultTimerInterval = 1000);
 
         struct Game {
-            QString gameid;
+            qint64 gameid;
             QString gamename;
             qint64 viewers;
-            QString logoSmall;
-            QString logoMedium;
-            QString logoLarge;
+            qint64 channels;
+            QString box_large_url;
+            QString box_medium_url;
+            QString box_small_url;
+            QString logo_large_url;
+            QString logo_medium_url;
+            QString logo_small_url;
             QPixmap logo;
         };
 
@@ -36,6 +40,8 @@ class TwitchGameBrowser : public TwitchObject
             QString game;
             QString status;
             QString viewers;
+            QString logo_url;
+            QPixmap logo;
         };
 
         void on_timedUpdate();
@@ -58,17 +64,26 @@ private:
         QMap<QString, QNetworkReply*> logoReplies;
         QSignalMapper *logoSignalMapper;
 
+        QMap<QString, QNetworkReply*> streamLogoReplies;
+        QSignalMapper *streamLogoSignalMapper;
+
         void setupLogoSignalMappers();
         void getGameLogo(QString gamename);
         void getRequestGameLogo(const QString &urlString, const QString game);
+        void parseTopObject(const QJsonObject &topObject, Game *game);
+        void getStreamLogo(const Stream stream);
+        void getRequestStreamLogo(const QString &urlString, const QString game);
 private slots:
         void updateFromJsonResponseTopGames(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseStreamsForGame(const QJsonDocument &jsonResponseBuffer);
 
         void parseNetworkResponseGameLogo(const QString gamename);
+        void parseNetworkResponseStreamLogo(const QString gamename);
 signals:
         void twitchGameBrowserReadyTopGames();
         void twitchGameBrowserStreamsForGameReady(const QList<TwitchGameBrowser::Stream> streams);
+        void twitchGameBrowserLogoForGameReady(const QString gamename);
+        void twitchGameBrowserLogoForStreamReady(const TwitchGameBrowser::Stream stream);
 };
 
 #endif // TWITCHGAMEBROWSER_H
