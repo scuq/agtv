@@ -144,6 +144,8 @@ private slots:
 
     void on_actionShow_Follower_Count_triggered(bool arg1);
 
+    void statusBarUpdate();
+
 private:
     Ui::tpMainWindow *ui;
 
@@ -169,6 +171,8 @@ private:
     DialogGameBrowser *diaTopGameBrowser;
 
     QClipboard *clipboard;
+
+    QLabel *statusBarStreamsOnlineLabel;
 
 #ifdef WINTERNALVLC
     QVector<DialogVideoPlayer *> diaVideoPlayers;

@@ -6,6 +6,23 @@ TwitchChannelModel::TwitchChannelModel(QObject* parent, const qint64 defaultTime
     this->updateInterval = defaultTimerInterval;
 }
 
+qint64 TwitchChannelModel::getChannelsOnline()
+{
+    qint64 channelsonline = 0;
+    for(auto channel : this->twitchChannels) {
+        if(channel->getChannelOnlineStatus() == TwitchChannel::ChannelOnlineStatus::online) {
+            ++channelsonline;
+        }
+    }
+
+    return channelsonline;
+}
+
+qint64 TwitchChannelModel::getChannelsTotal()
+{
+    return this->twitchChannels.size();
+}
+
 QList<QString> TwitchChannelModel::getChannelList()
 {
     QList<QString> channels;

@@ -60,6 +60,22 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 #endif
     
     clipboard = QApplication::clipboard();
+
+    this->statusBarStreamsOnlineLabel = new QLabel("");
+    this->ui->statusBar->addPermanentWidget(statusBarStreamsOnlineLabel);
+}
+
+void tpMainWindow::statusBarUpdate()
+{
+    if(this->ui->tabWidget->currentIndex() == 0) { // followed tab
+        qint64 channelsOnline = this->stmodel->getChannelsOnline();
+        qint64 channelsTotal = this->stmodel->getChannelsTotal();
+        this->statusBarStreamsOnlineLabel->setText(QString("%0 of %1 followed channels online").arg(channelsOnline).arg(channelsTotal));
+    } else if(this->ui->tabWidget->currentIndex() == 1) { // bookmarks tab
+        qint64 channelsOnline = this->stmodelbookmarks->getChannelsOnline();
+        qint64 channelsTotal = this->stmodelbookmarks->getChannelsTotal();
+        this->statusBarStreamsOnlineLabel->setText(QString("%0 of %1 bookmarked channels online").arg(channelsOnline).arg(channelsTotal));
+    }
 }
 
 void tpMainWindow::setupSignalsTwitchApi()
@@ -116,6 +132,7 @@ void tpMainWindow::setupSignalsMain()
     QObject::connect(this->ui->lineEditFilter, SIGNAL(textChanged(QString)), this->stproxymodel, SLOT(setFilterRegExp(QString)));
     QObject::connect(this->ui->lineEditFilterBookmark, SIGNAL(textChanged(QString)), this->stproxymodelbookmarks, SLOT(setFilterRegExp(QString)));
     QObject::connect(this->ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(on_tabChanged(const int)));
+    QObject::connect(this->ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(statusBarUpdate()));
 }
 
 void tpMainWindow::setupTwitchApi()
@@ -142,6 +159,8 @@ void tpMainWindow::setupModelsViews()
     stmodel->setHorizontalHeaderLabels(horzHeaders);
     QObject::connect(stmodel, SIGNAL(notifyByTray(QString, QString)),
                      this, SLOT(on_notifyByTray(QString, QString)));
+    QObject::connect(stmodel, SIGNAL(notifyByTray(QString, QString)),
+                     this, SLOT(statusBarUpdate()));
     stproxymodel = new AdvQSortFilterProxyModel(this);
     stproxymodel->setSourceModel(stmodel);
     stproxymodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -153,6 +172,8 @@ void tpMainWindow::setupModelsViews()
     stmodelbookmarks = new TwitchChannelModel(this, genericHelper::getUpdateIntervalMsec());
     QObject::connect(stmodelbookmarks, SIGNAL(notifyByTray(QString, QString)),
                      this, SLOT(on_notifyByTray(QString, QString)));
+    QObject::connect(stmodelbookmarks, SIGNAL(notifyByTray(QString, QString)),
+                     this, SLOT(statusBarUpdate()));
     stmodelbookmarks->setHorizontalHeaderLabels(horzHeaders);
     stproxymodelbookmarks = new AdvQSortFilterProxyModel(this);
     stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
@@ -528,9 +549,6 @@ void tpMainWindow::openStreamBrowser()
 
 void tpMainWindow::openStreamBrowserBookmark()
 {
-
-
-
     QString link = "http://www.twitch.tv/"+this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toString()+"/";
     QDesktopServices::openUrl(QUrl(link));
 }
@@ -805,6 +823,8 @@ void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
             this->stmodel->removeChannel(channel);
         }
     }
+
+    this->statusBarUpdate();
 }
 
 void tpMainWindow::onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged)
