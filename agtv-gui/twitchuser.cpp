@@ -2,11 +2,12 @@
 
 #include "generichelper.h"
 
-TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval) :
+TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval, QString useragent) :
     TwitchObject(parent, oAuthToken, defaultTimerInterval), userName( username )
 {
 
-        
+     this->setUserAgentStr(useragent);    
+    
      this->currentlyUpdating = false;
 
      this->followedChannelsDataChanged = false;
@@ -136,6 +137,7 @@ void TwitchUser::updateFromJsonResponseUserFollowedChannels(const QJsonDocument 
                 if(channelName.length()>0) {
                     if(!this->followedChannels.contains(channelName)) {
                         TwitchChannel *twitchChannel = new TwitchChannel(this, this->getOAuthToken(), channelName, this->getRefreshTimerInterval());
+                        twitchChannel->setUserAgentStr(this->getUserAgentStr());
                         // STOPPING TIMER FOR NOW
                         twitchChannel->stopUpdateTimer();
                         // STOPPING TIMER FOR NOW

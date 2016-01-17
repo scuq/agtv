@@ -54,6 +54,7 @@ void TwitchObject::getRequestStream(const QString &urlString)
     QUrl url ( urlString );
 
     QNetworkRequest req ( url );
+    req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
@@ -110,6 +111,7 @@ void TwitchObject::getRequestChannel(const QString &urlString)
     QUrl url ( urlString );
 
     QNetworkRequest req ( url );
+    req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
@@ -172,11 +174,17 @@ void TwitchObject::setUserAgentStr(QString useragent)
     this->userAgentStr = useragent;
 }
 
+QString TwitchObject::getUserAgentStr()
+{
+    return this->userAgentStr;
+}
+
 void TwitchObject::getRequestHost(const QString &urlString)
 {
     QUrl url ( urlString );
 
     QNetworkRequest req ( url );
+    req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
@@ -191,6 +199,7 @@ void TwitchObject::getRequestUser(const QString &urlString, QString callingFuncN
     QUrl url ( urlString );
 
     QNetworkRequest req ( url );
+    req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setRawHeader("Authorization", "OAuth "+this->oAuthToken.toLatin1());
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
@@ -208,6 +217,7 @@ void TwitchObject::putRequestUser(const QString &urlString, QString callingFuncN
     QUrl url ( urlString );
 
     QNetworkRequest req ( url );
+    req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setRawHeader("Authorization", "OAuth "+this->oAuthToken.toLatin1());
     
@@ -227,6 +237,7 @@ void TwitchObject::delRequestUser(const QString &urlString, QString callingFuncN
     QUrl url ( urlString );
 
     QNetworkRequest req ( url );
+    req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setRawHeader("Authorization", "OAuth "+this->oAuthToken.toLatin1());
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
@@ -359,6 +370,7 @@ void TwitchObject::getRequestTopGames(const QString &urlString)
     QUrl url ( urlString );
 
     QNetworkRequest req ( url );
+    req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
@@ -394,6 +406,7 @@ void TwitchObject::getRequestStreamsForGame(const QString &urlString)
     QUrl url ( urlString );
 
     QNetworkRequest req ( url );
+    req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 
@@ -432,6 +445,7 @@ void TwitchObject::getRequestChannelAccessToken(const QString &urlString, const 
     QUrl url ( urlString );
 
     QNetworkRequest req ( url );
+    req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
     req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 

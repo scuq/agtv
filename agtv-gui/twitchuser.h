@@ -15,7 +15,7 @@ class TwitchUser : public TwitchObject
     Q_OBJECT
     public:
 
-        TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval = 1000);
+        TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval = 1000, QString useragent = "-");
         
         enum class AuthenticationStatus {
             ok,

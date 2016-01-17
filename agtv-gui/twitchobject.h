@@ -72,6 +72,8 @@ class TwitchObject : public QObject
         void setTwitchClientId();
         
         void setUserAgentStr(QString useragent);
+        
+        QString getUserAgentStr();
        
         void getTopGames(int offset, int limit);
         void getStreamsForGame(const QString game);
