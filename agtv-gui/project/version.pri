@@ -39,4 +39,17 @@ DEFINES += "VERSION_MAJOR=$$VERSION_MAJOR"\
 #Target version
 VERSION = $${VERSION_MAJOR}.$${VERSION_MINOR}.$${VERSION_PATCH}.$${VERSION_BUILD}
 DEFINES += VERSION=\\\"$$VERSION\\\"
-DEFINES += CURRARCH=\\\"$$QMAKE_TARGET.arch\\\"
+
+CURRARCH="$$QMAKE_TARGET.arch"
+
+win32 {   
+    equals(CURRARCH, "x86") { 
+        CURRARCH="win32"
+    }
+}
+
+DEFINES += CURRARCH=\\\"$$CURRARCH\\\"
+
+
+
+

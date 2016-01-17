@@ -902,14 +902,19 @@ void tpMainWindow::on_updateNotify(const QString &latestVersion)
 
     QMessageBox::StandardButton reply;
 
-    reply = QMessageBox::question(this, tr("twitcher"),
+    reply = QMessageBox::question(this, genericHelper::getAppName(),
                                     "New version ("+latestVersionNumber+") available, do you want to update?",
                                     QMessageBox::Yes|QMessageBox::No);
 
 
     if (reply == QMessageBox::Yes) {
 
-       QDesktopServices::openUrl(QUrl("http://agtv.abyle.org/downloads/agtv-"+latestVersionNumber+"-core-"+this->currArch+"-installer.exe"));
+#if defined(Q_OS_WIN)
+       QDesktopServices::openUrl(QUrl("http://agtv.abyle.org/downloads/agtv-"+latestVersionNumber+"-"+this->currArch+".exe"));
+#else
+
+       QDesktopServices::openUrl(QUrl("http://agtv.abyle.org/downloads/));
+#endif
 
       } else {
         genericHelper::log("update dismissed.");

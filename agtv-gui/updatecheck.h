@@ -20,7 +20,8 @@ private:
      QNetworkAccessManager m_namu;
      void getRequest( const QString &url );
      QString version;
-
+     QString currArch;
+     
 signals:
     void updateReady( const QString &latestVersion );
     void networkError( QString errmessage );
