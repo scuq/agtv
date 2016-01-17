@@ -14,6 +14,8 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
      QObject::connect(this, SIGNAL(twitchReadyUserAuthenticationStatus(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument)));
 
      QObject::connect(this, SIGNAL(twitchReadyUserFollowedChannels(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserFollowedChannels(const QJsonDocument)));
+     
+     QObject::connect(this, SIGNAL(twitchReadyUserUnfollowChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserUnfollowedChannels(const QJsonDocument)));
 
      QObject::connect(this, SIGNAL(twitchReadyUserFollowChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserFollowChannel(const QJsonDocument)));
 
@@ -66,6 +68,8 @@ void TwitchUser::unfollowChannel(QString channelName)
     this->unfollowChannelUser(channelName,this->userName);
 
     this->followedChannels.remove(channelName);
+    
+    qDebug() << "unfollow " << channelName;
 
     this->followedChannelsDataChanged = true;
 

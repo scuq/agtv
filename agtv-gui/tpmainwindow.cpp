@@ -874,7 +874,8 @@ void tpMainWindow::updateOnUnfollow(QString msg)
     while(! followerToRemove.isEmpty() ) {
         _name = followerToRemove.takeLast();
 
-        deleteFollowerFromList(_name);
+        //deleteFollowerFromList(_name);
+        stmodel->removeChannel(_name);
     }
 
     //refreshTimer->start(updateInterval);
@@ -1234,12 +1235,6 @@ void tpMainWindow::twitchApiNetworkError(QString error)
     genericHelper::log("twitch-api " + error);
 }
 
-
-void tpMainWindow::deleteFollowerFromList(QString _name)
-{
-    //this->stproxymodel->deleteCol(0, _name );
-    //this->loadData();
-}
 
 void tpMainWindow::on_actionShow_Game_Browser_triggered()
 {
