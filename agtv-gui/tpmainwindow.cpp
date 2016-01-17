@@ -115,6 +115,8 @@ void tpMainWindow::setupDialogs()
     QObject::connect(diaOauthSetup, SIGNAL(authTokenChanged(QString)), twitchUser, SLOT(validateNewAuthToken(QString)));
     QObject::connect(diaOauthSetup, SIGNAL(authTokenSetupSuccessful(bool)), twitchUser, SLOT(onAuthTokenSetupSuccessful(bool)));
     QObject::connect(diaOauthSetup, SIGNAL(authTokenSetupSuccessful(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
+    QObject::connect(diaOauthSetup, SIGNAL(restoreSettings()), this, SLOT(on_actionRestore_Settings_triggered()));
+
 
     diaPositioner = new DialogPositioner(this);
 
@@ -334,6 +336,7 @@ void tpMainWindow::setEnableInput(bool enabled)
                 (widget->objectName() != "pushButtonAuthorizeOnTwitch") &&
                 (widget->objectName() != "lineEditOAuthToken") &&
                 (widget->objectName() != "pushButtonTestOAuth") &&
+                (widget->objectName() != "pushButtonRestore") &&              
                 (widget->objectName() != "pushButtonREvoke") &&
                 (widget->objectName() != "pushButtonSave") &&
                 (widget->objectName() != "dialogOauthSetup")

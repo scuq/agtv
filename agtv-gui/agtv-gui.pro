@@ -13,8 +13,8 @@ include(project/version.pri)
 DEFINES += IRC_SHARED
 
 DEPLOYMENT = no
-#CONFIG += winternalvlc
-CONFIG += internalirc
+CONFIG += winternalvlc
+#CONFIG += internalirc
 
 BUILDBASE = ../
 

@@ -3,31 +3,35 @@
 
 ; -------------------------------
 ; Start
-!define /file VERSION "version.txt"
-!define /file ARCH "arch.txt"
+!define SOURCE_PATH "@CPACK_SOURCE_DIR@"
+!define VER_MAJOR "@CPACK_PACKAGE_VERSION_MAJOR@"
+!define VER_MINOR "@CPACK_PACKAGE_VERSION_MINOR@"
+!define VER_BUILD "@CPACK_PACKAGE_VERSION_PATCH@"
+!define VERSION "@CPACK_PACKAGE_VERSION@"
 !define company "AbyleDotOrg"
-!define icon "agtv.ico"
+!define icon "@CPACK_SOURCE_DIR@/agtv.ico"
 !define MUI_PRODUCT "agtv"
 !define MUI_FILE "agtv"
 !define MUI_VERSION ${VERSION}
-!define MUI_BRANDINGTEXT "agtv"
+!define MUI_BRANDINGTEXT "${PROJECT_NAME} ${VERSION} -- ${BUILD_TIME}"
 
 CRCCheck On
 
 ; The name of the installer
-Name "agtv"
+Name "@CPACK_NSIS_PACKAGE_NAME@"
+
+Caption "${PROJECT_NAME} Installer"
+BrandingText "${PROJECT_NAME} ${VERSION} -- ${BUILD_TIME}"
 
 ; The file to write
-OutFile "agtv-${VERSION}-core-${ARCH}-installer.exe"
+OutFile "@CPACK_TOPLEVEL_DIRECTORY@/@CPACK_OUTPUT_FILE_NAME@"
 
-!define MUI_ICON "agtv.ico"
-!define MUI_UNICON "agtv.ico"
+!define MUI_ICON "@CPACK_SOURCE_DIR@/agtv.ico"
+!define MUI_UNICON "@CPACK_SOURCE_DIR@/agtv.ico"
 
 ; The default installation directory
 InstallDir "$PROGRAMFILES\@CPACK_PACKAGE_INSTALL_DIRECTORY@"
 
-!insertmacro MUI_LANGUAGE "English"
-;--------------------------------
 
 
 ; Pages
@@ -100,7 +104,7 @@ FunctionEnd
 Section "agtv" ;No components page, name is not important
 
   ; Set output path to the installation directory.
-  SetOutPath $INSTDIR
+  SetOutPath "$PROGRAMFILES\@CPACK_PACKAGE_INSTALL_DIRECTORY@"
 
   RMDir /r "$INSTDIR\3rdparty-addons"
 

@@ -177,6 +177,7 @@ bool TwitchUserLocal::restoreSettings(QString filename, QString company, QString
     this->saveUsername(settingsFile->value("username", "").toString());
     this->saveOAuthAccessToken(settingsFile->value("oauthAccessToken", "").toString());
     this->setBookmarks(settingsFile->value("bookmarks", QStringList()).toStringList());
+    this->loadBookmarks();
     
     emit oAuthAccessTokenLoaded(this->getStoredOAuthAccessToken());
     emit backupRestoredSuccessful(true);
