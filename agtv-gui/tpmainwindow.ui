@@ -255,6 +255,9 @@ selection-color: black;</string>
     </property>
     <addaction name="actionSetup_Twitch_Auth"/>
     <addaction name="separator"/>
+    <addaction name="actionBackup_Settings"/>
+    <addaction name="actionRestore_Settings"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuTools">
@@ -419,6 +422,16 @@ selection-color: black;</string>
    </property>
    <property name="text">
     <string>Show Follower Count</string>
+   </property>
+  </action>
+  <action name="actionBackup_Settings">
+   <property name="text">
+    <string>Backup Settings</string>
+   </property>
+  </action>
+  <action name="actionRestore_Settings">
+   <property name="text">
+    <string>Restore Settings</string>
    </property>
   </action>
  </widget>

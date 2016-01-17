@@ -15,6 +15,7 @@ dialogOauthSetup::dialogOauthSetup(QWidget *parent) :
 
 void dialogOauthSetup::onAuthNok()
 {
+    emit authTokenSetupSuccessful(false);
     this->ui->pushButtonSave->setEnabled(false);        
 }
 
@@ -22,6 +23,7 @@ void dialogOauthSetup::onAuthOk()
 {  
     this->ui->pushButtonSave->setEnabled(true);
     this->ui->pushButtonRevoke->setEnabled(true);
+    emit authTokenSetupSuccessful(true);
 }
 
 dialogOauthSetup::~dialogOauthSetup()

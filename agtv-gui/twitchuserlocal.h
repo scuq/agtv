@@ -31,6 +31,8 @@ class TwitchUserLocal : public QObject
         bool saveOAuthAccessToken(QString oAuthAccessToken, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool saveUsername(QString userName, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool isUserSetupOk(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool backupSettings(QString filename, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool restoreSettings(QString filename, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         
     public slots:
         void onSaveOAuthAccessToken(QString oAuthAccessToken);
@@ -58,6 +60,7 @@ class TwitchUserLocal : public QObject
     signals:
         void twitchBookmarkedChannelsDataChanged(const bool bookmarkedChannelsDataChanged);
         void oAuthAccessTokenLoaded(QString oAuthAccessToken);
+        void backupRestoredSuccessful(bool);
         
         
 };

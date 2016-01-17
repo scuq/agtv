@@ -55,6 +55,8 @@ QStringList TwitchUser::getFollowedChannelsList()
 
 void TwitchUser::on_timedUpdate()
 {
+    this->getUserAuthenticationStatus();
+    
     this->getUserFollowedChannels(this->userName);
 }
 
@@ -68,8 +70,6 @@ void TwitchUser::unfollowChannel(QString channelName)
     this->unfollowChannelUser(channelName,this->userName);
 
     this->followedChannels.remove(channelName);
-    
-    qDebug() << "unfollow " << channelName;
 
     this->followedChannelsDataChanged = true;
 
@@ -226,6 +226,21 @@ void TwitchUser::validateNewAuthToken(QString newOAuthToken)
     this->setOAuthToken(newOAuthToken);
     this->getUserAuthenticationStatus();
     
+}
+
+void TwitchUser::onAuthTokenSetupSuccessful(bool)
+{
+    qDebug() << "onAuthTokenSetupSuccessful";
+    this->stopUpdateTimer();
+    
+    // trigger auth status update
+    this->getUserAuthenticationStatus();
+
+    // this->setupTimer();
+
+    this->getUserFollowedChannels(this->userName);
+    
+    this->startUpdateTimer();    
 }
 
 

@@ -6,6 +6,7 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <QTableView>
+#include <QFileDialog>
 
 #include "generichelper.h"
 
@@ -45,10 +46,9 @@ public:
 private slots:
     void onTwitchFollowedChannelsDataChanged(const bool &dataChanged);
     void onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged);
-
-    void updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer);
-    void updateFromJsonResponseUnfollow(const QJsonDocument &jsonResponseBuffer);
-
+    
+    void onBackupRestoredSuccessful(bool);
+  
     void updateOnUnfollow(QString msg);
 
     void on_actionSetup_Twitch_Auth_triggered();
@@ -146,6 +146,10 @@ private slots:
 
     void statusBarUpdate();
 
+    void on_actionBackup_Settings_triggered();
+    
+    void on_actionRestore_Settings_triggered();
+    
 private:
     Ui::tpMainWindow *ui;
 

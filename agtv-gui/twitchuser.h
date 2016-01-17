@@ -53,6 +53,7 @@ class TwitchUser : public TwitchObject
         void updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument &jsonResponseBuffer);
         void onAuthCheckSuccessfull();
         void validateNewAuthToken(QString newOAuthToken);
+        void onAuthTokenSetupSuccessful(bool);
         
         void onTwitchNetworkErrorUserFollowedChannels(const QString errorString);
         void onTwitchNetworkErrorUserFollowChannel(const QString errorString);

@@ -54,6 +54,7 @@ signals:
     void onAuthorizeRequested();
     void authTokenChanged(QString);
     void saveAuthTokenRequested(QString);
+    void authTokenSetupSuccessful(bool);
 
 private:
     Ui::dialogOauthSetup *ui;

@@ -644,6 +644,7 @@ int genericHelper::executeAddonHexchat(QStringList channelsToJoin)
     }
 }
 
+
 bool genericHelper::openLogWithNotepad()
 {
     QProcess *notepad = new QProcess(qApp);
