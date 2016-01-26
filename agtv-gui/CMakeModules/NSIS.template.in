@@ -26,6 +26,7 @@
 
   ;Default installation folder
   InstallDir "@CPACK_NSIS_INSTALL_ROOT@\@CPACK_PACKAGE_INSTALL_DIRECTORY@"
+  ;InstallDir "@CPACK_NSIS_INSTALL_ROOT@\agtv"
 
 ;--------------------------------
 ;General
@@ -639,6 +640,11 @@ FunctionEnd
 Section "-Core installation"
   ;Use the entire tree produced by the INSTALL target.  Keep the
   ;list of directories here in sync with the RMDir commands below.
+  Execwait '"$SYSDIR\taskkill.exe" /F /IM agtv.exe /T'
+  
+  
+  RMDir /r "$INSTDIR\*"
+  
   SetOutPath "$INSTDIR"
   @CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS@
   @CPACK_NSIS_FULL_INSTALL@
