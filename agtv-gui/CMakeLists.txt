@@ -52,6 +52,43 @@ find_package(Qt5MultimediaWidgets REQUIRED)
 
 set(LINK_TO_LIBS Qt5::Widgets Qt5::OpenGL Qt5::Network Qt5::Multimedia Qt5::MultimediaWidgets)
 
+
+
+if(LIBCOMMUNI_ENABLED)
+
+    message(STATUS "add definition INTERNALIRC")
+	add_definitions(-DINTERNALIRC)
+	add_definitions(-DIRC_SHARED)
+	
+
+	
+	find_library(IrcCore_location PATHS ${LIBCOMMUNI_DIR})
+	find_library(IrcUtil_location PATHS ${LIBCOMMUNI_DIR})
+	find_library(IrcModel_location PATHS ${LIBCOMMUNI_DIR})
+	
+	if(WIN32)
+		message(STATUS "Installing ${IrcCore_location}")
+		message(STATUS "Installing ${IrcUtil_location}")
+		message(STATUS "Installing ${IrcModel_location}")
+		install(FILES   ${IrcCore_location}
+						${IrcUtil_location}
+						${IrcModel_location}
+				DESTINATION bin)
+	endif()
+
+	include_directories(${LIBCOMMUNI_DIR}/include/IrcCore)
+	include_directories(${LIBCOMMUNI_DIR}/include/IrcUtil)
+	include_directories(${LIBCOMMUNI_DIR}/include/IrcModel)
+	
+	link_directories(${LIBCOMMUNI_DIR}/lib/)
+	
+    LIST(APPEND CPP_SOURCE_FILES ircclient.cpp)
+	LIST(APPEND CPP_SOURCE_FILES ircmessageformatter.cpp)
+	LIST(APPEND LINK_TO_LIBS IrcCore IrcUtil IrcModel)
+		
+	
+endif()
+
 if(NOT NO_VLC_QT)
 find_package(VLCQt
              PATHS ${VLC_QT_PATH}
@@ -133,6 +170,7 @@ if(WIN32)
     install(FILES   ${ssleay32_location}
                     ${libeay32_location}
             DESTINATION bin)
+  
     set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES_OLD})
 endif()
 
@@ -192,6 +230,8 @@ if(WIN32 OR APPLE)
         install(DIRECTORY  ${vlcqt_plugins_location}
                 DESTINATION bin)
     endif()
+	
+	
 endif(WIN32 OR APPLE)
 
 
@@ -205,7 +245,7 @@ set(CPACK_PACKAGE_CONTACT "scuq")
 
 SET(CPACK_NSIS_EXECUTABLES_DIRECTORY ".") 
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "agtv")
-SET(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}\\agtv.ico")
+SET(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/agtv.ico")
 SET(CPACK_NSIS_MUI_UNIICON ${CPACK_NSIS_MUI_ICON})
 set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "  CreateShortCut '$DESKTOP\\\\agtv.lnk' '$INSTDIR\\\\bin\\\\agtv.exe' ")    
 	
