@@ -1,5 +1,5 @@
 DEVELOPER = $$(USERNAME)
 
-macx {
+!win32 {
     DEVELOPER = $$(USER)
 }
