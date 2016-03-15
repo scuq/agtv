@@ -62,7 +62,7 @@ selection-color: black;
 </string>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>2</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -233,6 +233,357 @@ selection-color: black;</string>
            </layout>
           </item>
          </layout>
+        </widget>
+        <widget class="QWidget" name="tab_3">
+         <attribute name="title">
+          <string>Streaming</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_13">
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Username</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditUsername">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(240, 240, 240);
+selection-background-color: rgb(240, 240, 240);
+alternate-background-color: rgb(240, 240, 240);
+font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(146, 82, 255);
+selection-color: rgb(0, 0, 0);</string>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <item>
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>User stats</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QGridLayout" name="gridLayout_10">
+              <item row="0" column="0">
+               <widget class="QLineEdit" name="lineEditChannelViews_3">
+                <property name="autoFillBackground">
+                 <bool>false</bool>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(240, 240, 240);
+selection-background-color: rgb(240, 240, 240);
+alternate-background-color: rgb(240, 240, 240);
+font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(85, 85, 255);
+selection-color: rgb(0, 0, 0);</string>
+                </property>
+                <property name="text">
+                 <string>0</string>
+                </property>
+                <property name="frame">
+                 <bool>false</bool>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="label_6">
+                <property name="styleSheet">
+                 <string notr="true">font: 75 9pt &quot;MS Shell Dlg 2&quot;;</string>
+                </property>
+                <property name="text">
+                 <string>Channel Views</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <layout class="QGridLayout" name="gridLayout_9">
+                <item row="0" column="1">
+                 <widget class="QLabel" name="label_4">
+                  <property name="styleSheet">
+                   <string notr="true">font: 75 9pt &quot;MS Shell Dlg 2&quot;;</string>
+                  </property>
+                  <property name="text">
+                   <string>Viewers</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLineEdit" name="lineEditViewers_3">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(240, 240, 240);
+font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(85, 85, 255);
+selection-background-color: rgb(240, 240, 240);
+alternate-background-color: rgb(240, 240, 240);
+selection-color: rgb(0, 0, 0);</string>
+                  </property>
+                  <property name="text">
+                   <string>0</string>
+                  </property>
+                  <property name="frame">
+                   <bool>false</bool>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>Broadcast
+title</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="plainTextEditBroadcastTitle_3"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelBroadcastTitleStatus_2">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Game title</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelGameImage_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>32</width>
+                <height>32</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>32</width>
+                <height>32</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="pixmap">
+               <pixmap>:/images/noimg.png</pixmap>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="lineEditGameTitle_3">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>32</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">selection-color: rgb(0, 0, 0);</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelGameTitleStatus_3">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_12">
+            <item row="0" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_15">
+              <item>
+               <widget class="QLabel" name="label_26">
+                <property name="text">
+                 <string>Game stats</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEditViewersTop_3">
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(240, 240, 240);
+font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(85, 85, 255);
+selection-background-color: rgb(240, 240, 240);
+alternate-background-color: rgb(240, 240, 240);
+selection-color: rgb(0, 0, 0);</string>
+                </property>
+                <property name="text">
+                 <string>0</string>
+                </property>
+                <property name="frame">
+                 <bool>false</bool>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_27">
+                <property name="styleSheet">
+                 <string notr="true">font: 75 9pt &quot;MS Shell Dlg 2&quot;;</string>
+                </property>
+                <property name="text">
+                 <string>Top Viewers</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="lineEditViewersGame_3">
+                <property name="toolTip">
+                 <string>Only displayed if your game is under the top 100</string>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(240, 240, 240);
+font: 75 10pt &quot;MS Shell Dlg 2&quot;;
+color: rgb(85, 85, 255);
+selection-background-color: rgb(240, 240, 240);
+alternate-background-color: rgb(240, 240, 240);
+selection-color: rgb(0, 0, 0);</string>
+                </property>
+                <property name="text">
+                 <string>0</string>
+                </property>
+                <property name="frame">
+                 <bool>false</bool>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_25">
+                <property name="styleSheet">
+                 <string notr="true">font: 75 9pt &quot;MS Shell Dlg 2&quot;;</string>
+                </property>
+                <property name="text">
+                 <string>Viewers</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_11"/>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <item>
+             <widget class="QPushButton" name="pushButtonApplyTitles_3">
+              <property name="toolTip">
+               <string>Apply Broadcast and Game title on twitch.tv</string>
+              </property>
+              <property name="text">
+               <string>Apply</string>
+              </property>
+              <property name="icon">
+               <iconset resource="agtv.qrc">
+                <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonCancel_3">
+              <property name="text">
+               <string>Cancel</string>
+              </property>
+              <property name="icon">
+               <iconset resource="agtv.qrc">
+                <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButtonClearTitlesOnTwtich_3">
+              <property name="toolTip">
+               <string>Clear Broadcast and Game title on twitch.tv (Not Playing)</string>
+              </property>
+              <property name="text">
+               <string>Clear</string>
+              </property>
+              <property name="icon">
+               <iconset resource="agtv.qrc">
+                <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+         <zorder>plainTextEditBroadcastTitle</zorder>
+         <zorder>lineEditGameTitle</zorder>
+         <zorder>lineEditChannelViews</zorder>
+         <zorder>label_11</zorder>
+         <zorder>tabWidget_2</zorder>
+         <zorder>layoutWidget_3</zorder>
+         <zorder>layoutWidget_4</zorder>
+         <zorder>layoutWidget_6</zorder>
+         <zorder>layoutWidget_7</zorder>
+         <zorder>layoutWidget_13</zorder>
+         <zorder>horizontalLayoutWidget</zorder>
+         <zorder>horizontalLayoutWidget_2</zorder>
         </widget>
        </widget>
       </item>

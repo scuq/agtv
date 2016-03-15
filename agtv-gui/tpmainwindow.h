@@ -150,6 +150,10 @@ private slots:
     
     void on_actionRestore_Settings_triggered();
     
+
+    
+    void on_pushButtonApplyTitles_3_clicked();
+    
 private:
     Ui::tpMainWindow *ui;
 
@@ -158,6 +162,8 @@ private:
     int xOffset;
     int yOffset;
     bool launchBookmarkEnabled;
+    
+    QHash<QString, QString> StreamerPutParams;
 
     AgtvDefaultItemDelegate *AgtvDefItemDelegate;
 

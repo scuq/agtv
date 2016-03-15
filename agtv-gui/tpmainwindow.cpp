@@ -1262,3 +1262,25 @@ void tpMainWindow::on_actionRestore_Settings_triggered()
         twitchUserLocal->restoreSettings(fileName);
     }  
 }
+
+
+
+void tpMainWindow::on_pushButtonApplyTitles_3_clicked()
+{
+    
+    StreamerPutParams.insert("channel[status]", "");
+    StreamerPutParams.insert("channel[game]", "");
+
+    //this->ui->plainTextEditBroadcastTitle->blockSignals(true);
+    //this->ui->plainTextEditBroadcastTitle->setPlainText("");
+    //this->ui->plainTextEditBroadcastTitle->blockSignals(false);
+    //this->ui->lineEditGameTitle->setText("");
+
+
+    //tw->setStatusAndGameTitle(genericHelper::getUsername(), apiPutParams);
+
+
+    //game = QPixmap(":images/noimg.png");
+
+    //this->ui->labelGameImage->setPixmap( game );
+}
