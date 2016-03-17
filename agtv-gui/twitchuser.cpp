@@ -22,6 +22,8 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
 
      QObject::connect(this, SIGNAL(twitchReadyUserUnfollowChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserUnfollowChannel(const QJsonDocument)));
      
+     QObject::connect(this, SIGNAL(twitchReadyUserSetStatusAndGameTitle (const QJsonDocument)), this, SLOT(updateFromJsonResponseUserSetStatusAndGameTitle(const QJsonDocument)));
+     
      QObject::connect(this, SIGNAL(twitchNetworkErrorUserFollowedChannels(QString)), this, SLOT(onTwitchNetworkErrorUserFollowedChannels(QString)));
      
      QObject::connect(this, SIGNAL(twitchNetworkErrorUserFollowChannel(QString)), this, SLOT(onTwitchNetworkErrorUserFollowChannel(QString)));
@@ -86,6 +88,12 @@ void TwitchUser::checkAuthenticationSetup()
         this->setAuthenticationStatus(AuthenticationStatus::unknown);  
     }  
     
+}
+
+void TwitchUser::setStatusAndGameTitle(QHash<QString, QString> setParams)
+{
+    
+    this->setUserStatusAndGameTitle(this->userName, setParams);
 }
 
 void TwitchUser::setAuthenticationStatus(AuthenticationStatus newStatus)
@@ -189,6 +197,13 @@ void TwitchUser::updateFromJsonResponseUserUnfollowChannel(const QJsonDocument &
         emit twitchUnfollowChannelError("unfollow failed.");
     }
 }
+
+void TwitchUser::updateFromJsonResponseUserSetStatusAndGameTitle(const QJsonDocument &jsonResponseBuffer)
+{
+    qDebug() << jsonResponseBuffer;
+}
+
+
 
 void TwitchUser::updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument &jsonResponseBuffer)
 {

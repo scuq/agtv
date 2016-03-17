@@ -14,7 +14,7 @@ DEFINES += IRC_SHARED
 
 DEPLOYMENT = no
 CONFIG += winternalvlc
-#CONFIG += internalirc
+CONFIG += internalirc
 
 BUILDBASE = ../
 

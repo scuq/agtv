@@ -1270,6 +1270,8 @@ void tpMainWindow::on_pushButtonApplyTitles_3_clicked()
     
     StreamerPutParams.insert("channel[status]", "");
     StreamerPutParams.insert("channel[game]", "");
+    
+    twitchUser->setStatusAndGameTitle(StreamerPutParams);
 
     //this->ui->plainTextEditBroadcastTitle->blockSignals(true);
     //this->ui->plainTextEditBroadcastTitle->setPlainText("");

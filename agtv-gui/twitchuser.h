@@ -31,6 +31,7 @@ class TwitchUser : public TwitchObject
         void followChannel(QString channelName);
         void unfollowChannel(QString channelName);
         void checkAuthenticationSetup();
+        void setStatusAndGameTitle(QHash<QString, QString> setParams );
      
     private:
         bool currentlyUpdating;
@@ -50,6 +51,7 @@ class TwitchUser : public TwitchObject
         void updateFromJsonResponseUserFollowedChannels(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseUserFollowChannel(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseUserUnfollowChannel(const QJsonDocument &jsonResponseBuffer);
+        void updateFromJsonResponseUserSetStatusAndGameTitle(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument &jsonResponseBuffer);
         void onAuthCheckSuccessfull();
         void validateNewAuthToken(QString newOAuthToken);

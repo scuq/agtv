@@ -96,6 +96,8 @@ void TwitchObject::followChannelUser(QString channelName, QString user)
     this->putRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, "TwitchObject::followChannelUser");
 }
 
+
+
 void TwitchObject::unfollowChannelUser(QString channelName, QString user)
 {
     this->delRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, "TwitchObject::unfollowChannelUser");
@@ -228,6 +230,34 @@ void TwitchObject::putRequestUser(const QString &urlString, QString callingFuncN
     netReplies[reply] = callingFuncName;
     
     QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseUser()));
+    
+}
+
+void TwitchObject::putRequestUser(const QString &urlString, QHash<QString, QString> setParams, QString callingFuncName)
+{
+    QUrl url ( urlString );
+    QUrlQuery query(url);
+    
+    for (QHash<QString, QString>::iterator iter = setParams.begin(); iter != setParams.end(); ++iter) {
+
+        query.addQueryItem(iter.key(),iter.value());
+    }
+    
+    url.setQuery(query);
+
+    QNetworkRequest req ( url );
+    req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setRawHeader("Authorization", "OAuth "+this->oAuthToken.toLatin1());
+    
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+
+    QNetworkReply *reply = nwManager->put(req, url.toEncoded());
+    
+    netReplies[reply] = callingFuncName;
+    
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseUser()));  
+    
 
 }
 
@@ -327,7 +357,10 @@ void TwitchObject::parseTwitchNetworkResponseUser()
             emit twitchReadyUserUnfollowChannel( json_buffer );
         } else if (callingFuncName == "TwitchObject::getUserAuthenticationStatus") {
             emit twitchReadyUserAuthenticationStatus( json_buffer );
+        } else if (callingFuncName == "TwitchObject::setUserStatusAndGameTitle") {
+            emit twitchReadyUserSetStatusAndGameTitle ( json_buffer );
         }
+        
 
         genericHelper::log( QString(Q_FUNC_INFO) + QString(": Success"));
         
@@ -438,6 +471,13 @@ void TwitchObject::getChannelAccessToken(QString channel)
     } else {
         genericHelper::log( QString("ERROR: ") + QString(Q_FUNC_INFO) + QString(": getChannelAccessToken already running for channel ") + channel);
     }
+}
+
+void TwitchObject::setUserStatusAndGameTitle(QString user, QHash<QString, QString> setParams)
+{
+  
+      this->putRequestUser("https://api.twitch.tv/kraken/channels/"+user, setParams, "TwitchObject::setUserStatusAndGameTitle");
+  
 }
 
 void TwitchObject::getRequestChannelAccessToken(const QString &urlString, const QString channel)
