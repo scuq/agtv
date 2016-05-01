@@ -30,6 +30,8 @@ set(CPP_SOURCE_FILES
 
 set (CMAKE_PREFIX_PATH ${QT_ROOT_PATH})
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules" )
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -49,6 +51,43 @@ find_package(Qt5Multimedia REQUIRED)
 find_package(Qt5MultimediaWidgets REQUIRED)
 
 set(LINK_TO_LIBS Qt5::Widgets Qt5::OpenGL Qt5::Network Qt5::Multimedia Qt5::MultimediaWidgets)
+
+
+
+if(LIBCOMMUNI_ENABLED)
+
+    message(STATUS "add definition INTERNALIRC")
+	add_definitions(-DINTERNALIRC)
+	add_definitions(-DIRC_SHARED)
+	
+
+	
+	find_library(IrcCore_location PATHS ${LIBCOMMUNI_DIR})
+	find_library(IrcUtil_location PATHS ${LIBCOMMUNI_DIR})
+	find_library(IrcModel_location PATHS ${LIBCOMMUNI_DIR})
+	
+	if(WIN32)
+		message(STATUS "Installing ${IrcCore_location}")
+		message(STATUS "Installing ${IrcUtil_location}")
+		message(STATUS "Installing ${IrcModel_location}")
+		install(FILES   ${IrcCore_location}
+						${IrcUtil_location}
+						${IrcModel_location}
+				DESTINATION bin)
+	endif()
+
+	include_directories(${LIBCOMMUNI_DIR}/include/IrcCore)
+	include_directories(${LIBCOMMUNI_DIR}/include/IrcUtil)
+	include_directories(${LIBCOMMUNI_DIR}/include/IrcModel)
+	
+	link_directories(${LIBCOMMUNI_DIR}/lib/)
+	
+    LIST(APPEND CPP_SOURCE_FILES ircclient.cpp)
+	LIST(APPEND CPP_SOURCE_FILES ircmessageformatter.cpp)
+	LIST(APPEND LINK_TO_LIBS IrcCore IrcUtil IrcModel)
+		
+	
+endif()
 
 if(NOT NO_VLC_QT)
 find_package(VLCQt
@@ -131,6 +170,7 @@ if(WIN32)
     install(FILES   ${ssleay32_location}
                     ${libeay32_location}
             DESTINATION bin)
+  
     set(CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES_OLD})
 endif()
 
@@ -190,22 +230,26 @@ if(WIN32 OR APPLE)
         install(DIRECTORY  ${vlcqt_plugins_location}
                 DESTINATION bin)
     endif()
+	
+	
 endif(WIN32 OR APPLE)
 
-if(VLCQt_FOUND)
-    set(CPACK_PACKAGE_NAME ${PROJECT_NAME}-vlcqt)
-else()
-    set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-endif()
-set(CPACK_PACKAGE_VENDOR ${COMPANY})
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${DESCRIPTION})
+set(CPACK_PACKAGE_NAME "agtv")
 set(CPACK_PACKAGE_VERSION ${AGTV_VERSION})
 set(CPACK_PACKAGE_VERSION_MAJOR ${AGTV_MAJOR_VERSION})
 set(CPACK_PACKAGE_VERSION_MINOR ${AGTV_MINOR_VERSION})
 set(CPACK_PACKAGE_VERSION_PATCH ${AGTV_PATCH_VERSION})
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "agtv-cpack")
+set(AGTV_REVISION_VERSION ${AGTV_PATCH_VERSION})
+
 set(CPACK_PACKAGE_CONTACT "scuq")
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.19)")
+
+SET(CPACK_NSIS_EXECUTABLES_DIRECTORY ".") 
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "agtv")
+SET(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/agtv.ico")
+SET(CPACK_NSIS_MUI_UNIICON ${CPACK_NSIS_MUI_ICON})
+set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS "  CreateShortCut '$DESKTOP\\\\agtv.lnk' '$INSTDIR\\\\bin\\\\agtv.exe' ")    
+	
+
 
 if(CPACK_GENERATOR STREQUAL "DEB")
     string(TOLOWER "${CPACK_PACKAGE_NAME}" CPACK_PACKAGE_NAME_LOWERCASE)
@@ -219,15 +263,17 @@ if(CPACK_GENERATOR STREQUAL "DEB")
       set(CPACK_PACKAGE_FILE_NAME
           "${CPACK_PACKAGE_NAME_LOWERCASE}_${AGTV_VERSION}-${AGTV_REVISION_VERSION}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")   
     else(DPKG_PROGRAM)
-      set(CPACK_PACKAGE_FILE_NAME
+            set(CPACK_PACKAGE_FILE_NAME
           "${CPACK_PACKAGE_NAME_LOWERCASE}_${AGTV_VERSION}-${AGTV_REVISION_VERSION}_${CMAKE_SYSTEM_NAME}")
     endif(DPKG_PROGRAM)
 
-    if(VLCQt_FOUND)
-        SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, libvlc5 (>= 2.2)")
-    endif()
+    # if(VLCQt_FOUND)
+    #     SET(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, libvlc5 (>= 2.2)")
+    # endif()
 endif()
- 
+
+
+
 # This must always be last!
 include(CPack)
 

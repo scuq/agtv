@@ -60,11 +60,29 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 #endif
     
     clipboard = QApplication::clipboard();
+
+    this->statusBarStreamsOnlineLabel = new QLabel("");
+    this->ui->statusBar->addPermanentWidget(statusBarStreamsOnlineLabel);
+}
+
+void tpMainWindow::statusBarUpdate()
+{
+    if(this->ui->tabWidget->currentIndex() == 0) { // followed tab
+        qint64 channelsOnline = this->stmodel->getChannelsOnline();
+        qint64 channelsTotal = this->stmodel->getChannelsTotal();
+        this->statusBarStreamsOnlineLabel->setText(QString("%0 of %1 followed channels online").arg(channelsOnline).arg(channelsTotal));
+    } else if(this->ui->tabWidget->currentIndex() == 1) { // bookmarks tab
+        qint64 channelsOnline = this->stmodelbookmarks->getChannelsOnline();
+        qint64 channelsTotal = this->stmodelbookmarks->getChannelsTotal();
+        this->statusBarStreamsOnlineLabel->setText(QString("%0 of %1 bookmarked channels online").arg(channelsOnline).arg(channelsTotal));
+    }
 }
 
 void tpMainWindow::setupSignalsTwitchApi()
 {
     QObject::connect(twitchUserLocal, SIGNAL(oAuthAccessTokenLoaded(QString)), diaOauthSetup, SLOT(setCurrentStoredAuthToken(QString)));
+    QObject::connect(twitchUserLocal, SIGNAL(backupRestoredSuccessful(bool)), this, SLOT(onBackupRestoredSuccessful(bool)));
+    
     QObject::connect(diaOauthSetup, SIGNAL(saveAuthTokenRequested(QString)), twitchUserLocal, SLOT(onSaveOAuthAccessToken(QString)));
     QObject::connect(twitchUser, SIGNAL(newUsernameDetected(QString)), twitchUserLocal, SLOT(onSaveUsername(QString)));
 
@@ -95,7 +113,10 @@ void tpMainWindow::setupDialogs()
     diaOauthSetup = new dialogOauthSetup(this);
     QObject::connect(diaOauthSetup, SIGNAL(onAuthorizeRequested()), this, SLOT(onBrowserAuthorizeRequested()));
     QObject::connect(diaOauthSetup, SIGNAL(authTokenChanged(QString)), twitchUser, SLOT(validateNewAuthToken(QString)));
-    //QObject::connect(diaOauthSetup, SIGNAL(twitchAuthSetupChanged(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
+    QObject::connect(diaOauthSetup, SIGNAL(authTokenSetupSuccessful(bool)), twitchUser, SLOT(onAuthTokenSetupSuccessful(bool)));
+    QObject::connect(diaOauthSetup, SIGNAL(authTokenSetupSuccessful(bool)), this, SLOT(on_SwitchInputEnabled(bool)));
+    QObject::connect(diaOauthSetup, SIGNAL(restoreSettings()), this, SLOT(on_actionRestore_Settings_triggered()));
+
 
     diaPositioner = new DialogPositioner(this);
 
@@ -116,6 +137,7 @@ void tpMainWindow::setupSignalsMain()
     QObject::connect(this->ui->lineEditFilter, SIGNAL(textChanged(QString)), this->stproxymodel, SLOT(setFilterRegExp(QString)));
     QObject::connect(this->ui->lineEditFilterBookmark, SIGNAL(textChanged(QString)), this->stproxymodelbookmarks, SLOT(setFilterRegExp(QString)));
     QObject::connect(this->ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(on_tabChanged(const int)));
+    QObject::connect(this->ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(statusBarUpdate()));
 }
 
 void tpMainWindow::setupTwitchApi()
@@ -123,7 +145,9 @@ void tpMainWindow::setupTwitchApi()
     twitchUserLocal = new TwitchUserLocal(this, genericHelper::getUpdateIntervalMsec());
     QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
 
-    twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(), 5*genericHelper::getUpdateIntervalMsec());
+    twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(), 5*genericHelper::getUpdateIntervalMsec(),QString(genericHelper::getAppName()+"/"+version).toStdString().c_str());
+    
+    
     QObject::connect(twitchUser, SIGNAL(twitchNeedsOAuthSetup()), this, SLOT(on_actionSetup_Twitch_Auth_triggered()));
     QObject::connect(twitchUser, SIGNAL(twitchFollowedChannelsDataChanged(const bool)), this, SLOT(onTwitchFollowedChannelsDataChanged(const bool)));
     QObject::connect(twitchUser, SIGNAL(twitchFollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
@@ -142,6 +166,8 @@ void tpMainWindow::setupModelsViews()
     stmodel->setHorizontalHeaderLabels(horzHeaders);
     QObject::connect(stmodel, SIGNAL(notifyByTray(QString, QString)),
                      this, SLOT(on_notifyByTray(QString, QString)));
+    QObject::connect(stmodel, SIGNAL(notifyByTray(QString, QString)),
+                     this, SLOT(statusBarUpdate()));
     stproxymodel = new AdvQSortFilterProxyModel(this);
     stproxymodel->setSourceModel(stmodel);
     stproxymodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -153,6 +179,8 @@ void tpMainWindow::setupModelsViews()
     stmodelbookmarks = new TwitchChannelModel(this, genericHelper::getUpdateIntervalMsec());
     QObject::connect(stmodelbookmarks, SIGNAL(notifyByTray(QString, QString)),
                      this, SLOT(on_notifyByTray(QString, QString)));
+    QObject::connect(stmodelbookmarks, SIGNAL(notifyByTray(QString, QString)),
+                     this, SLOT(statusBarUpdate()));
     stmodelbookmarks->setHorizontalHeaderLabels(horzHeaders);
     stproxymodelbookmarks = new AdvQSortFilterProxyModel(this);
     stproxymodelbookmarks->setSourceModel(stmodelbookmarks);
@@ -308,6 +336,7 @@ void tpMainWindow::setEnableInput(bool enabled)
                 (widget->objectName() != "pushButtonAuthorizeOnTwitch") &&
                 (widget->objectName() != "lineEditOAuthToken") &&
                 (widget->objectName() != "pushButtonTestOAuth") &&
+                (widget->objectName() != "pushButtonRestore") &&              
                 (widget->objectName() != "pushButtonREvoke") &&
                 (widget->objectName() != "pushButtonSave") &&
                 (widget->objectName() != "dialogOauthSetup")
@@ -528,9 +557,6 @@ void tpMainWindow::openStreamBrowser()
 
 void tpMainWindow::openStreamBrowserBookmark()
 {
-
-
-
     QString link = "http://www.twitch.tv/"+this->ui->tableViewBookmarks->selectionModel()->selectedRows(0).at(0).data().toString()+"/";
     QDesktopServices::openUrl(QUrl(link));
 }
@@ -805,6 +831,8 @@ void tpMainWindow::onTwitchFollowedChannelsDataChanged(const bool &dataChanged)
             this->stmodel->removeChannel(channel);
         }
     }
+
+    this->statusBarUpdate();
 }
 
 void tpMainWindow::onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged)
@@ -818,34 +846,13 @@ void tpMainWindow::onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged
     }
 }
 
-void tpMainWindow::updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer)
+void tpMainWindow::onBackupRestoredSuccessful(bool)
 {
-   // QJsonObject jsonObject = jsonResponseBuffer.object();
-
-    // TODO: Test the response
-
-    //this->loadData();
+    twitchUser->setOAuthToken(twitchUserLocal->getStoredOAuthAccessToken());
+    twitchUser->checkAuthenticationSetup();
+ 
 }
 
-void tpMainWindow::updateFromJsonResponseUnfollow(const QJsonDocument &jsonResponseBuffer)
-{
-    /*
-    QJsonObject jsonObject = jsonResponseBuffer.object();
-
-    refreshTimer->stop();
-
-    // TODO: Test the response
-    QString _name;
-
-    while(! followerToRemove.isEmpty() ) {
-        _name = followerToRemove.takeLast();
-
-        deleteFollowerFromList(_name);
-    }
-
-    refreshTimer->start(updateInterval);
-    */
-}
 
 void tpMainWindow::updateOnUnfollow(QString msg)
 {
@@ -854,10 +861,8 @@ void tpMainWindow::updateOnUnfollow(QString msg)
     while(! followerToRemove.isEmpty() ) {
         _name = followerToRemove.takeLast();
 
-        deleteFollowerFromList(_name);
+        stmodel->removeChannel(_name);
     }
-
-    //refreshTimer->start(updateInterval);
 
 }
 
@@ -902,14 +907,18 @@ void tpMainWindow::on_updateNotify(const QString &latestVersion)
 
     QMessageBox::StandardButton reply;
 
-    reply = QMessageBox::question(this, tr("twitcher"),
+    reply = QMessageBox::question(this, genericHelper::getAppName(),
                                     "New version ("+latestVersionNumber+") available, do you want to update?",
                                     QMessageBox::Yes|QMessageBox::No);
 
 
     if (reply == QMessageBox::Yes) {
 
-       QDesktopServices::openUrl(QUrl("http://agtv.abyle.org/downloads/agtv-"+latestVersionNumber+"-core-"+this->currArch+"-installer.exe"));
+#if defined(Q_OS_WIN)
+       QDesktopServices::openUrl(QUrl("http://agtv.abyle.org/downloads/agtv-"+latestVersionNumber+"-"+this->currArch+".exe"));
+#else
+       QDesktopServices::openUrl(QUrl("http://agtv.abyle.org/downloads/"));
+#endif
 
       } else {
         genericHelper::log("update dismissed.");
@@ -1074,12 +1083,12 @@ void tpMainWindow::on_Ready()
 
 void tpMainWindow::on_SwitchInputEnabled(bool enable)
 {
-    /*if (enable == true) {
-        this->enableInput();
+    if (enable == true) {
+        this->setEnableInput(true);
     } else {
-        this->disableInput();
+        this->setEnableInput(false);
     }
-    */
+    
 }
 
 
@@ -1215,12 +1224,6 @@ void tpMainWindow::twitchApiNetworkError(QString error)
 }
 
 
-void tpMainWindow::deleteFollowerFromList(QString _name)
-{
-    //this->stproxymodel->deleteCol(0, _name );
-    //this->loadData();
-}
-
 void tpMainWindow::on_actionShow_Game_Browser_triggered()
 {
     diaTopGameBrowser->show();
@@ -1236,4 +1239,50 @@ void tpMainWindow::on_actionShow_Follower_Count_triggered(bool arg1)
         this->ui->tableView->showColumn((qint64)TwitchChannelModel::ColumnIndex::followers);
         this->ui->tableViewBookmarks->showColumn((qint64)TwitchChannelModel::ColumnIndex::followers);
     }
+}
+
+void tpMainWindow::on_actionBackup_Settings_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("New Backup"),"",
+                                                       tr("AGTV Settings Backup (*.agtv)"));
+    
+    if (!fileName.isEmpty()) {
+        
+        twitchUserLocal->backupSettings(fileName);
+    }
+}
+
+void tpMainWindow::on_actionRestore_Settings_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Backup"),"",
+                                                       tr("AGTV Settings Backup (*.agtv)"));
+    
+    if (!fileName.isEmpty()) {
+        
+        twitchUserLocal->restoreSettings(fileName);
+    }  
+}
+
+
+
+void tpMainWindow::on_pushButtonApplyTitles_3_clicked()
+{
+    
+    StreamerPutParams.insert("channel[status]", "");
+    StreamerPutParams.insert("channel[game]", "");
+    
+    twitchUser->setStatusAndGameTitle(StreamerPutParams);
+
+    //this->ui->plainTextEditBroadcastTitle->blockSignals(true);
+    //this->ui->plainTextEditBroadcastTitle->setPlainText("");
+    //this->ui->plainTextEditBroadcastTitle->blockSignals(false);
+    //this->ui->lineEditGameTitle->setText("");
+
+
+    //tw->setStatusAndGameTitle(genericHelper::getUsername(), apiPutParams);
+
+
+    //game = QPixmap(":images/noimg.png");
+
+    //this->ui->labelGameImage->setPixmap( game );
 }

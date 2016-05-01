@@ -24,7 +24,7 @@ OutFile "agtv-${VERSION}-core-${ARCH}-installer.exe"
 !define MUI_UNICON "agtv.ico"
 
 ; The default installation directory
-InstallDir $PROGRAMFILES\agtv
+InstallDir "$PROGRAMFILES\@CPACK_PACKAGE_INSTALL_DIRECTORY@"
 
 !insertmacro MUI_LANGUAGE "English"
 ;--------------------------------

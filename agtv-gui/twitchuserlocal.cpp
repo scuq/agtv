@@ -157,6 +157,34 @@ bool TwitchUserLocal::isUserSetupOk(QString company, QString app)
     }
 }
 
+bool TwitchUserLocal::backupSettings(QString filename, QString company, QString app)
+{
+
+        QSettings* settings = new QSettings(filename, QSettings::IniFormat);
+        settings->setValue("oauthAccessToken", this->getStoredOAuthAccessToken());
+        settings->setValue("username", this->getStoredUsername());
+        settings->setValue("bookmarks", this->getBookmarks(company, app));
+        settings->sync();
+        
+        return true;
+        
+}
+
+bool TwitchUserLocal::restoreSettings(QString filename, QString company, QString app)
+{
+    
+    QSettings* settingsFile = new QSettings(filename, QSettings::IniFormat);
+    this->saveUsername(settingsFile->value("username", "").toString());
+    this->saveOAuthAccessToken(settingsFile->value("oauthAccessToken", "").toString());
+    this->setBookmarks(settingsFile->value("bookmarks", QStringList()).toStringList());
+    this->loadBookmarks();
+    
+    emit oAuthAccessTokenLoaded(this->getStoredOAuthAccessToken());
+    emit backupRestoredSuccessful(true);
+    
+    return true;    
+}
+
 void TwitchUserLocal::onSaveOAuthAccessToken(QString oAuthAccessToken)
 {
     this->saveOAuthAccessToken(oAuthAccessToken);

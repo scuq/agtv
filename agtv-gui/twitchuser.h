@@ -15,7 +15,7 @@ class TwitchUser : public TwitchObject
     Q_OBJECT
     public:
 
-        TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval = 1000);
+        TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval = 1000, QString useragent = "-");
         
         enum class AuthenticationStatus {
             ok,
@@ -31,6 +31,7 @@ class TwitchUser : public TwitchObject
         void followChannel(QString channelName);
         void unfollowChannel(QString channelName);
         void checkAuthenticationSetup();
+        void setStatusAndGameTitle(QHash<QString, QString> setParams );
      
     private:
         bool currentlyUpdating;
@@ -50,9 +51,11 @@ class TwitchUser : public TwitchObject
         void updateFromJsonResponseUserFollowedChannels(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseUserFollowChannel(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseUserUnfollowChannel(const QJsonDocument &jsonResponseBuffer);
+        void updateFromJsonResponseUserSetStatusAndGameTitle(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument &jsonResponseBuffer);
         void onAuthCheckSuccessfull();
         void validateNewAuthToken(QString newOAuthToken);
+        void onAuthTokenSetupSuccessful(bool);
         
         void onTwitchNetworkErrorUserFollowedChannels(const QString errorString);
         void onTwitchNetworkErrorUserFollowChannel(const QString errorString);

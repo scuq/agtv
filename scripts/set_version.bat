@@ -8,15 +8,14 @@ set day=%datetime:~6,2%
 set hour=%datetime:~8,2%
 set minute=%datetime:~10,2%
 
+cd ../agtv-gui
 
-
-echo %shortyear%    > MAJOR.ver
-echo %month% 	    > MINOR.ver
-echo %day%          > PATCH.ver
+echo %shortyear% > MAJOR.ver
+echo %month% > MINOR.ver
+echo %day% > PATCH.ver
 echo %hour%%minute% > BUILD.ver
 
 
 
 @echo on
 echo %shortyear%.%month%.%day%.%hour%%minute%
-

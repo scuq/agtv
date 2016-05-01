@@ -8,6 +8,7 @@
 #include <QString>
 #include <QTimer>
 #include <QSignalMapper>
+#include <QUrlQuery>
 
 //!  Base class for the Twitch API interface
 /*!
@@ -72,11 +73,15 @@ class TwitchObject : public QObject
         void setTwitchClientId();
         
         void setUserAgentStr(QString useragent);
+        
+        QString getUserAgentStr();
        
         void getTopGames(int offset, int limit);
         void getStreamsForGame(const QString game);
 
         void getChannelAccessToken(QString channel);
+        
+        void setUserStatusAndGameTitle(QString user, QHash<QString, QString> setParams);
 
 public slots:
         virtual void on_timedUpdate() = 0;
@@ -105,6 +110,7 @@ public slots:
         void getRequestHost(const QString &urlString);
         void getRequestUser(const QString &urlString, QString callingFuncName);
         void putRequestUser(const QString &urlString, QString callingFuncName);
+        void putRequestUser(const QString &urlString, QHash<QString, QString> setParams, QString callingFuncName);
         void delRequestUser(const QString &urlString, QString callingFuncName);
         void getRequestClientId(const QString &urlString);
         void getRequestTopGames(const QString &urlString);
@@ -136,6 +142,7 @@ signals:
         void twitchReadyUserFollowedChannels( const QJsonDocument &twitchAsJSON );
         void twitchReadyUserFollowChannel( const QJsonDocument &twitchAsJSON );
         void twitchReadyUserUnfollowChannel( const QJsonDocument &twitchAsJSON );
+        void twitchReadyUserSetStatusAndGameTitle ( const QJsonDocument &twitchAsJSON );
         void twitchReadyUserAuthenticationStatus( const QJsonDocument &twitchAsJSON );
         void twitchReadyTopGames( const QJsonDocument &twitchAsJSON );
         void twitchReadyStreamsForGame( const QJsonDocument &twitchAsJSON );

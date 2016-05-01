@@ -223,41 +223,10 @@ void IrcClient::receiveMessage(IrcMessage* message)
 {
      
     
-    
     IrcBuffer* buffer = qobject_cast<IrcBuffer*>(sender());
     if (!buffer)
         buffer = bufferList->currentIndex().data(Irc::BufferRole).value<IrcBuffer*>();
     
-    IrcNumericMessage* numericmessage = qobject_cast<IrcNumericMessage*>(message);
-       
-    if (numericmessage) {
-       if (numericmessage->command().toInt() == 353) {
-           
-           
-          if (numericmessage->parameters().length() == 4) {
-
-              QStringList _users;
-              _users = QString(numericmessage->parameters().at(3)).split(" ");
-              
-            
-              QListIterator<QString> itr (_users);        
-              
-              while (itr.hasNext()) {                    
-                 QString current = itr.next();
-                 qDebug() << current;
-                 //qDebug() << userModels.value(buffer);
-                 
-              
-              }
-              
-          }
-              
-
-
-           
-       }
-    }
-
     QTextDocument* document = documents.value(buffer);
     if (document) {
         QString html = IrcMessageFormatter::formatMessage(message);
@@ -387,8 +356,8 @@ void IrcClient::createConnection()
     connection->setNickName(this->NICKNAME);
     connection->setRealName(this->REALNAME);
     
-    //connection->sendCommand(IrcCommand::createCapability("REQ", QStringList{"twitch.tv/membership"}));
-    connection->sendRaw("CAP REQ :twitch.tv/membership");
+    connection->sendCommand(IrcCommand::createCapability("REQ", QStringList{"twitch.tv/membership"}));
+    
     
     
     

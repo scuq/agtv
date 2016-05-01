@@ -2,11 +2,12 @@
 
 #include "generichelper.h"
 
-TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval) :
+TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval, QString useragent) :
     TwitchObject(parent, oAuthToken, defaultTimerInterval), userName( username )
 {
 
-        
+     this->setUserAgentStr(useragent);    
+    
      this->currentlyUpdating = false;
 
      this->followedChannelsDataChanged = false;
@@ -14,10 +15,14 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
      QObject::connect(this, SIGNAL(twitchReadyUserAuthenticationStatus(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument)));
 
      QObject::connect(this, SIGNAL(twitchReadyUserFollowedChannels(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserFollowedChannels(const QJsonDocument)));
+     
+     QObject::connect(this, SIGNAL(twitchReadyUserUnfollowChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserUnfollowedChannels(const QJsonDocument)));
 
      QObject::connect(this, SIGNAL(twitchReadyUserFollowChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserFollowChannel(const QJsonDocument)));
 
      QObject::connect(this, SIGNAL(twitchReadyUserUnfollowChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserUnfollowChannel(const QJsonDocument)));
+     
+     QObject::connect(this, SIGNAL(twitchReadyUserSetStatusAndGameTitle (const QJsonDocument)), this, SLOT(updateFromJsonResponseUserSetStatusAndGameTitle(const QJsonDocument)));
      
      QObject::connect(this, SIGNAL(twitchNetworkErrorUserFollowedChannels(QString)), this, SLOT(onTwitchNetworkErrorUserFollowedChannels(QString)));
      
@@ -53,6 +58,8 @@ QStringList TwitchUser::getFollowedChannelsList()
 
 void TwitchUser::on_timedUpdate()
 {
+    this->getUserAuthenticationStatus();
+    
     this->getUserFollowedChannels(this->userName);
 }
 
@@ -81,6 +88,12 @@ void TwitchUser::checkAuthenticationSetup()
         this->setAuthenticationStatus(AuthenticationStatus::unknown);  
     }  
     
+}
+
+void TwitchUser::setStatusAndGameTitle(QHash<QString, QString> setParams)
+{
+    
+    this->setUserStatusAndGameTitle(this->userName, setParams);
 }
 
 void TwitchUser::setAuthenticationStatus(AuthenticationStatus newStatus)
@@ -132,6 +145,7 @@ void TwitchUser::updateFromJsonResponseUserFollowedChannels(const QJsonDocument 
                 if(channelName.length()>0) {
                     if(!this->followedChannels.contains(channelName)) {
                         TwitchChannel *twitchChannel = new TwitchChannel(this, this->getOAuthToken(), channelName, this->getRefreshTimerInterval());
+                        twitchChannel->setUserAgentStr(this->getUserAgentStr());
                         // STOPPING TIMER FOR NOW
                         twitchChannel->stopUpdateTimer();
                         // STOPPING TIMER FOR NOW
@@ -184,6 +198,13 @@ void TwitchUser::updateFromJsonResponseUserUnfollowChannel(const QJsonDocument &
     }
 }
 
+void TwitchUser::updateFromJsonResponseUserSetStatusAndGameTitle(const QJsonDocument &jsonResponseBuffer)
+{
+    qDebug() << jsonResponseBuffer;
+}
+
+
+
 void TwitchUser::updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument &jsonResponseBuffer)
 {
     
@@ -222,6 +243,21 @@ void TwitchUser::validateNewAuthToken(QString newOAuthToken)
     this->setOAuthToken(newOAuthToken);
     this->getUserAuthenticationStatus();
     
+}
+
+void TwitchUser::onAuthTokenSetupSuccessful(bool)
+{
+    qDebug() << "onAuthTokenSetupSuccessful";
+    this->stopUpdateTimer();
+    
+    // trigger auth status update
+    this->getUserAuthenticationStatus();
+
+    // this->setupTimer();
+
+    this->getUserFollowedChannels(this->userName);
+    
+    this->startUpdateTimer();    
 }
 
 

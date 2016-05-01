@@ -8,6 +8,7 @@ dialogOauthSetup::dialogOauthSetup(QWidget *parent) :
     ui->setupUi(this);
      
     this->ui->pushButtonSave->setEnabled(false);
+    this->ui->pushButtonRestore->setHidden(true);
     
     
 }
@@ -15,6 +16,7 @@ dialogOauthSetup::dialogOauthSetup(QWidget *parent) :
 
 void dialogOauthSetup::onAuthNok()
 {
+    emit authTokenSetupSuccessful(false);
     this->ui->pushButtonSave->setEnabled(false);        
 }
 
@@ -22,6 +24,7 @@ void dialogOauthSetup::onAuthOk()
 {  
     this->ui->pushButtonSave->setEnabled(true);
     this->ui->pushButtonRevoke->setEnabled(true);
+    emit authTokenSetupSuccessful(true);
 }
 
 dialogOauthSetup::~dialogOauthSetup()
@@ -45,6 +48,8 @@ void dialogOauthSetup::setCurrentStoredAuthToken(QString currentStoredAuthToken)
 {
    if ((currentStoredAuthToken == "<NONE>") || (currentStoredAuthToken == "") ) {
        this->ui->lineEditOAuthToken->setPlaceholderText("<< Paste token HERE >>");
+       this->ui->pushButtonRestore->setHidden(false);
+       this->ui->pushButtonRestore->setEnabled(true);
    } else {   
     this->ui->lineEditOAuthToken->setText(currentStoredAuthToken);
    }
@@ -87,4 +92,9 @@ void dialogOauthSetup::on_lineEditOAuthToken_textChanged(const QString &arg1)
     } else {
         this->ui->pushButtonVerify->setEnabled(false);
     }
+}
+
+void dialogOauthSetup::on_pushButtonRestore_clicked()
+{
+    emit restoreSettings();
 }

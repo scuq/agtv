@@ -32,6 +32,9 @@ public:
 
     QList<QString> getChannelList();
 
+    qint64 getChannelsOnline();
+    qint64 getChannelsTotal();
+
 private slots:
     void twitchChannelDataChanged(const bool onlineStatusChanged);
 

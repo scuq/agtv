@@ -111,15 +111,15 @@ void TwitchGameBrowser::updateFromJsonResponseStreamsForGame(const QJsonDocument
     auto streamsValue = jsonObject["streams"];
     if (streamsValue != QJsonValue::Null && streamsValue.isArray()) {
         auto streamsArray = streamsValue.toArray();
-        for (auto iter = streamsArray.begin(); iter != streamsArray.end(); ++iter)
-        {
+        foreach (const QJsonValue & value, streamsArray) {
+            QJsonObject obj = value.toObject();
             TwitchGameBrowser::Stream newStream;
 
-            newStream.streamer  = iter->toObject()["channel"].toObject()["name"].toString();
-            newStream.game  = iter->toObject()["channel"].toObject()["game"].toString();
-            newStream.status  = iter->toObject()["channel"].toObject()["status"].toString();
-            newStream.viewers = QString::number(iter->toObject()["viewers"].toInt(), 'f', 0);
-            newStream.logo_url  = iter->toObject()["preview"].toObject()["medium"].toString();
+            newStream.streamer  = obj["channel"].toObject()["name"].toString();
+            newStream.game  = obj["channel"].toObject()["game"].toString();
+            newStream.status  = obj["channel"].toObject()["status"].toString();
+            newStream.viewers = QString::number(obj["viewers"].toInt(), 'f', 0);
+            newStream.logo_url  = obj["preview"].toObject()["medium"].toString();
 
             streams.append(newStream);
 

@@ -6,6 +6,7 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <QTableView>
+#include <QFileDialog>
 
 #include "generichelper.h"
 
@@ -45,10 +46,9 @@ public:
 private slots:
     void onTwitchFollowedChannelsDataChanged(const bool &dataChanged);
     void onTwitchBookmarkedChannelsDataChanged(const bool &dataChanged);
-
-    void updateFromJsonResponseFollow(const QJsonDocument &jsonResponseBuffer);
-    void updateFromJsonResponseUnfollow(const QJsonDocument &jsonResponseBuffer);
-
+    
+    void onBackupRestoredSuccessful(bool);
+  
     void updateOnUnfollow(QString msg);
 
     void on_actionSetup_Twitch_Auth_triggered();
@@ -144,6 +144,16 @@ private slots:
 
     void on_actionShow_Follower_Count_triggered(bool arg1);
 
+    void statusBarUpdate();
+
+    void on_actionBackup_Settings_triggered();
+    
+    void on_actionRestore_Settings_triggered();
+    
+
+    
+    void on_pushButtonApplyTitles_3_clicked();
+    
 private:
     Ui::tpMainWindow *ui;
 
@@ -152,6 +162,8 @@ private:
     int xOffset;
     int yOffset;
     bool launchBookmarkEnabled;
+    
+    QHash<QString, QString> StreamerPutParams;
 
     AgtvDefaultItemDelegate *AgtvDefItemDelegate;
 
@@ -169,6 +181,8 @@ private:
     DialogGameBrowser *diaTopGameBrowser;
 
     QClipboard *clipboard;
+
+    QLabel *statusBarStreamsOnlineLabel;
 
 #ifdef WINTERNALVLC
     QVector<DialogVideoPlayer *> diaVideoPlayers;

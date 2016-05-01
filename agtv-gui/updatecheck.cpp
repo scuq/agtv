@@ -4,6 +4,7 @@ updateCheck::updateCheck(QObject *parent) :
     QObject(parent)
 {
 
+    currArch = CURRARCH;
     version=VERSION;
     QObject::connect(&m_namu, SIGNAL(finished(QNetworkReply*)), this, SLOT(parseNetworkResponse(QNetworkReply*)));
 
@@ -27,7 +28,8 @@ void updateCheck::getCheck()
 {
 
     genericHelper::log("update-check getCheck - "+genericHelper::getUpdateCheckUrl());
-    this->getRequest(genericHelper::getUpdateCheckUrl());
+    this->getRequest("http://agtv.abyle.org/version/"+this->currArch+"/latest_"+genericHelper::getAppName());
+    
 }
 
 void updateCheck::parseNetworkResponse( QNetworkReply *finished )

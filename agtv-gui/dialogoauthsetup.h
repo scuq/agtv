@@ -48,12 +48,16 @@ private slots:
     
     void on_lineEditOAuthToken_textChanged(const QString &arg1);
     
+    void on_pushButtonRestore_clicked();
+    
 signals:
 
 
     void onAuthorizeRequested();
     void authTokenChanged(QString);
     void saveAuthTokenRequested(QString);
+    void authTokenSetupSuccessful(bool);
+    void restoreSettings();
 
 private:
     Ui::dialogOauthSetup *ui;

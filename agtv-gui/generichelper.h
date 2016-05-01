@@ -84,6 +84,7 @@ public:
     static void writeTwitcherOBSScenesConfig();
     static int executeAddonHexchat(QStringList channelsToJoin);
     static void executeAddonLivestreamer(QString player, QString url, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
+  
 
     static bool openLogWithNotepad();
     static void setErrorTimestamp();
