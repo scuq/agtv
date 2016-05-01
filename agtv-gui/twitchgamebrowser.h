@@ -6,6 +6,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QList>
+#include <QPixmap>
 
 #include "twitchobject.h"
 
@@ -21,12 +22,17 @@ class TwitchGameBrowser : public TwitchObject
         TwitchGameBrowser(QObject *parent, const QString oAuthToken, const qint64 defaultTimerInterval = 1000);
 
         struct Game {
-            QString gameid;
+            qint64 gameid;
             QString gamename;
-            QString viewers;
-            QString logoSmall;
-            QString logoMedium;
-            QString logoLarge;
+            qint64 viewers;
+            qint64 channels;
+            QString box_large_url;
+            QString box_medium_url;
+            QString box_small_url;
+            QString logo_large_url;
+            QString logo_medium_url;
+            QString logo_small_url;
+            QPixmap logo;
         };
 
         struct Stream {
@@ -34,6 +40,8 @@ class TwitchGameBrowser : public TwitchObject
             QString game;
             QString status;
             QString viewers;
+            QString logo_url;
+            QPixmap logo;
         };
 
         void on_timedUpdate();
@@ -45,21 +53,37 @@ class TwitchGameBrowser : public TwitchObject
 
         qint64 getLimit() const;
 
-        QList<Game> getGameList() const;
+        QMap<QString, Game*> getGameList() const;
 
         void getGame(QString game);
 private:
         qint64 curroffset;
         qint64 limit;
-        QList<Game> gameList;
+        QMap<QString, Game*> games;
 
-    private slots:
+        QMap<QString, QNetworkReply*> logoReplies;
+        QSignalMapper *logoSignalMapper;
+
+        QMap<QString, QNetworkReply*> streamLogoReplies;
+        QSignalMapper *streamLogoSignalMapper;
+
+        void setupLogoSignalMappers();
+        void getGameLogo(QString gamename);
+        void getRequestGameLogo(const QString &urlString, const QString game);
+        void parseTopObject(const QJsonObject &topObject, Game *game);
+        void getStreamLogo(const Stream stream);
+        void getRequestStreamLogo(const QString &urlString, const QString game);
+private slots:
         void updateFromJsonResponseTopGames(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseStreamsForGame(const QJsonDocument &jsonResponseBuffer);
 
-    signals:
+        void parseNetworkResponseGameLogo(const QString gamename);
+        void parseNetworkResponseStreamLogo(const QString gamename);
+signals:
         void twitchGameBrowserReadyTopGames();
         void twitchGameBrowserStreamsForGameReady(const QList<TwitchGameBrowser::Stream> streams);
+        void twitchGameBrowserLogoForGameReady(const QString gamename);
+        void twitchGameBrowserLogoForStreamReady(const TwitchGameBrowser::Stream stream);
 };
 
 #endif // TWITCHGAMEBROWSER_H

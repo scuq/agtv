@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QStandardItemModel>
 
-#include "advqsortfilterproxylistmodel.h"
+#include "advqsortfilterproxymodel.h"
 #include "twitchgamebrowser.h"
 
 namespace Ui {
@@ -27,10 +27,11 @@ class DialogGameBrowser : public QDialog
         void on_tableViewTopGames_activated(const QModelIndex &index);
         void onTableViewGamesScrolled(int);
         void on_tableViewGame_activated(const QModelIndex &index);
-        void on_lineEditFilterGames_textChanged(const QString &arg1);
         void updateTopGames();
 
-    signals:
+        void updateLogoForGame(const QString gamename);
+        void updateLogoForStream(const TwitchGameBrowser::Stream stream);
+signals:
         void startStream( const QString streamer );
 
     private:
@@ -39,9 +40,8 @@ class DialogGameBrowser : public QDialog
         TwitchGameBrowser *gameBrowser;
 
         QStandardItemModel *stmodelTopGames;
-        AdvQSortFilterProxyListModel *stproxymodelTopGames;
+        AdvQSortFilterProxyModel *stmodelTopGamesproxymodel;
         QStandardItemModel *stmodelGame;
-        AdvQSortFilterProxyListModel *stproxymodelGame;
 
         void setupModels();
 };

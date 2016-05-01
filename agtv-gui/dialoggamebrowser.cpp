@@ -12,6 +12,8 @@ DialogGameBrowser::DialogGameBrowser(QWidget *parent) :
 
     this->gameBrowser = new TwitchGameBrowser(this, QString(""));
     QObject::connect(this->gameBrowser, SIGNAL(twitchGameBrowserReadyTopGames()), this, SLOT(updateTopGames()));
+    QObject::connect(this->gameBrowser, SIGNAL(twitchGameBrowserLogoForGameReady(const QString)), this, SLOT(updateLogoForGame(const QString)));
+    QObject::connect(this->gameBrowser, SIGNAL(twitchGameBrowserLogoForStreamReady(const TwitchGameBrowser::Stream)), this, SLOT(updateLogoForStream(const TwitchGameBrowser::Stream)));
     QObject::connect(this->gameBrowser, SIGNAL(twitchGameBrowserStreamsForGameReady(const QList<TwitchGameBrowser::Stream>)),
                      this, SLOT(updateStreamsForGame(const QList<TwitchGameBrowser::Stream>)));
 
@@ -20,34 +22,26 @@ DialogGameBrowser::DialogGameBrowser(QWidget *parent) :
 
 void DialogGameBrowser::setupModels()
 {
-    QStringList horzHeaders = { "id", "Game", "Viewers", "Logo Small", "Logo Medium", "Logo Large" };
+    QStringList horzHeaders = {"id", "Game", "Channels", "Viewers"};
 
-    stmodelTopGames = new QStandardItemModel(0,5,this);
+    stmodelTopGames = new QStandardItemModel(0, 4, this);
     stmodelTopGames->setHorizontalHeaderLabels(horzHeaders);
-    stproxymodelTopGames = new AdvQSortFilterProxyListModel(this);
-    stproxymodelTopGames->setSourceModel(stmodelTopGames);
-    stproxymodelTopGames->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    stmodelTopGamesproxymodel = new AdvQSortFilterProxyModel(this);
+    stmodelTopGamesproxymodel->setSourceModel(stmodelTopGames);
+    stmodelTopGamesproxymodel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    this->ui->tableViewTopGames->setModel(stproxymodelTopGames);
+    this->ui->tableViewTopGames->setModel(stmodelTopGamesproxymodel);
+
+    this->ui->tableViewTopGames->setSortingEnabled(true);
+    this->ui->tableViewTopGames->sortByColumn(2);
     this->ui->tableViewTopGames->hideColumn(0);
-    this->ui->tableViewTopGames->hideColumn(3);
-    this->ui->tableViewTopGames->hideColumn(4);
-    this->ui->tableViewTopGames->hideColumn(5);
-    // this->ui->listViewTopGames->setModelColumn(1);
 
     horzHeaders = QStringList{ "Name", "Viewers", "Game", "Status Message"};
 
     stmodelGame = new QStandardItemModel(0,3,this);
     stmodelGame->setHorizontalHeaderLabels(horzHeaders);
-    stproxymodelGame = new AdvQSortFilterProxyListModel(this);
-    stproxymodelGame->setSourceModel(stmodelGame);
-    stproxymodelGame->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    this->ui->tableViewGame->setModel(stproxymodelGame);
-//    this->ui->tableViewGame->hideColumn(0);
-//    this->ui->tableViewGame->hideColumn(3);
-//    this->ui->tableViewGame->hideColumn(4);
-//    this->ui->tableViewGame->hideColumn(5);
+    this->ui->tableViewGame->setModel(stmodelGame);
 
     QObject::connect(this->ui->tableViewTopGames->verticalScrollBar(), SIGNAL(valueChanged(int)),
                      this, SLOT(onTableViewGamesScrolled(int)));
@@ -73,36 +67,52 @@ DialogGameBrowser::~DialogGameBrowser()
     delete ui;
 }
 
+void DialogGameBrowser::updateLogoForGame(const QString gamename)
+{
+    for(int row=0; row<stmodelTopGames->rowCount(); row++) {
+        QString modelgamename = stmodelTopGames->data(stmodelTopGames->index(row,1)).toString();
+        if(QString::compare(gamename, modelgamename) == 0) {
+            QStandardItem *qsitem1 = new QStandardItem(gamename);
+            qsitem1->setIcon(QIcon(this->gameBrowser->getGameList()[gamename]->logo));
+            this->stmodelTopGames->setItem(row,1,qsitem1);
+        }
+    }
+    this->ui->tableViewTopGames->resizeColumnsToContents();
+    this->ui->tableViewTopGames->resizeRowsToContents();
+    this->ui->tableViewTopGames->sortByColumn(2);
+}
+
 void DialogGameBrowser::updateTopGames()
 {
     auto gameList = this->gameBrowser->getGameList();
+    qDebug() << gameList.size();
 
+    stmodelTopGames->setRowCount(gameList.size());
+
+    qint64 row=0;
     for(auto iter = gameList.begin(); iter != gameList.end(); ++iter)  {
-        QString gameid = iter->gameid;
-        QString gamename = iter->gamename;
-        QString viewers = iter->viewers;
-        QString logosmall = iter->logoSmall;
-        QString logomedium = iter->logoMedium;
-        QString logolarge = iter->logoLarge;
+        qint64 gameid = iter.value()->gameid;
+        QString gamename = iter.value()->gamename;
+        qint64 viewers = iter.value()->viewers;
+        qint64 channels = iter.value()->channels;
 
-        if( this->stproxymodelTopGames->getColData(0,gameid,0).toString().isEmpty() ) {
-            QStandardItem *qsitem0 = new QStandardItem(QString("%0").arg(gameid));
-            QStandardItem *qsitem1 = new QStandardItem(QString("%0").arg(gamename));
-            QStandardItem *qsitem2 = new QStandardItem(QString("%0").arg(viewers));
-            QStandardItem *qsitem3 = new QStandardItem(QString("%0").arg(logosmall));
-            QStandardItem *qsitem4 = new QStandardItem(QString("%0").arg(logomedium));
-            QStandardItem *qsitem5 = new QStandardItem(QString("%0").arg(logolarge));
-            QList<QStandardItem*> items = { qsitem0, qsitem1, qsitem2, qsitem3, qsitem4, qsitem5};
-            stmodelTopGames->appendRow(items);
-        } else {
-            // Update entry
-            stproxymodelTopGames->updateCol(0, gameid, 1, gamename);
-            stproxymodelTopGames->updateCol(0, gameid, 2, viewers);
-            stproxymodelTopGames->updateCol(0, gameid, 3, logosmall);
-            stproxymodelTopGames->updateCol(0, gameid, 4, logomedium);
-            stproxymodelTopGames->updateCol(0, gameid, 5, logolarge);
-        }
+        QStandardItem *qsitem0 = new QStandardItem(gameid);
+        stmodelTopGames->setItem(row, 0, qsitem0);
+        QStandardItem *qsitem1 = new QStandardItem(gamename);
+        qsitem1->setIcon(QIcon(iter.value()->logo));
+        stmodelTopGames->setItem(row, 1, qsitem1);
+        QStandardItem *qsitem2 = new QStandardItem(channels);
+        qsitem2->setData(channels, Qt::DisplayRole);
+        stmodelTopGames->setItem(row, 2, qsitem2);
+        QStandardItem *qsitem3 = new QStandardItem(viewers);
+        qsitem3->setData(viewers, Qt::DisplayRole);
+        stmodelTopGames->setItem(row, 3, qsitem3);
+        ++row;
     }
+
+    this->ui->tableViewTopGames->resizeColumnsToContents();
+    this->ui->tableViewTopGames->resizeRowsToContents();
+    // this->ui->tableViewTopGames->sortByColumn(3);
 }
 
 void DialogGameBrowser::on_pushButtonClose_clicked()
@@ -114,7 +124,8 @@ void DialogGameBrowser::on_tableViewTopGames_activated(const QModelIndex &index)
 {
     QString _game;
 
-    _game = this->stproxymodelTopGames->data(index.sibling(index.row(),1),0).toString();
+    _game = this->stmodelTopGamesproxymodel->data(index.sibling(index.row(),1),0).toString();
+    qDebug() << _game;
 
     stmodelGame->removeRows(0, stmodelGame->rowCount());
 
@@ -138,16 +149,25 @@ void DialogGameBrowser::updateStreamsForGame(const QList<TwitchGameBrowser::Stre
     }
 }
 
+void DialogGameBrowser::updateLogoForStream(const TwitchGameBrowser::Stream stream)
+{
+    for(int row=0; row<stmodelGame->rowCount(); row++) {
+        QString modelstreamname = stmodelGame->data(stmodelGame->index(row,0)).toString();
+        if(QString::compare(stream.streamer, modelstreamname) == 0) {
+            QStandardItem *qsitem1 = new QStandardItem(stream.streamer);
+            qsitem1->setIcon(QIcon(stream.logo));
+            this->stmodelGame->setItem(row,0,qsitem1);
+        }
+    }
+    this->ui->tableViewGame->resizeColumnsToContents();
+    this->ui->tableViewGame->resizeRowsToContents();
+}
+
 void DialogGameBrowser::on_tableViewGame_activated(const QModelIndex &index)
 {
     QString _stream;
 
-    _stream = this->stproxymodelGame->data(index.sibling(index.row(),0),0).toString();
+    _stream = this->stmodelGame->data(index.sibling(index.row(),0),0).toString();
 
     emit startStream( _stream );
-}
-
-void DialogGameBrowser::on_lineEditFilterGames_textChanged(const QString &arg1)
-{
-    stproxymodelTopGames->setFilterFixedString(arg1);
 }
