@@ -62,7 +62,7 @@ selection-color: black;
 </string>
         </property>
         <property name="currentIndex">
-         <number>2</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab">
          <attribute name="title">
@@ -572,18 +572,6 @@ selection-color: rgb(0, 0, 0);</string>
            </layout>
           </item>
          </layout>
-         <zorder>plainTextEditBroadcastTitle</zorder>
-         <zorder>lineEditGameTitle</zorder>
-         <zorder>lineEditChannelViews</zorder>
-         <zorder>label_11</zorder>
-         <zorder>tabWidget_2</zorder>
-         <zorder>layoutWidget_3</zorder>
-         <zorder>layoutWidget_4</zorder>
-         <zorder>layoutWidget_6</zorder>
-         <zorder>layoutWidget_7</zorder>
-         <zorder>layoutWidget_13</zorder>
-         <zorder>horizontalLayoutWidget</zorder>
-         <zorder>horizontalLayoutWidget_2</zorder>
         </widget>
        </widget>
       </item>
