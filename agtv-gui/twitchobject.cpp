@@ -90,7 +90,8 @@ void TwitchObject::getChannel(QString user)
 
 void TwitchObject::getUserFollowedChannels(QString user)
 {
-    this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels"+"&client_id="+this->getTwitchClientId(), "TwitchObject::getUserFollowedChannels");
+    //this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels"+"&client_id="+this->getTwitchClientId(), "TwitchObject::getUserFollowedChannels");
+    this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels", "TwitchObject::getUserFollowedChannels");
 }
 
 void TwitchObject::followChannelUser(QString channelName, QString user)
@@ -103,6 +104,7 @@ void TwitchObject::followChannelUser(QString channelName, QString user)
 void TwitchObject::unfollowChannelUser(QString channelName, QString user)
 {
     this->delRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName+"&client_id="+this->getTwitchClientId(), "TwitchObject::unfollowChannelUser");
+
 }
 
 void TwitchObject::getUserAuthenticationStatus()
@@ -165,12 +167,13 @@ void TwitchObject::setOAuthToken(QString oauthtoken)
 
 QString TwitchObject::getTwitchClientId()
 {
+    return "pb2gmicczhmqn5sb9vtfltph95zs4ji";
     return this->twitchClientId;
 }
 
 void TwitchObject::setTwitchClientId()
 {
-    this->getRequestClientId("http://agtv.abyle.org/clid/twitchClientId");
+    //this->getRequestClientId("http://agtv.abyle.org/clid/twitchClientId");
 }
 
 void TwitchObject::setUserAgentStr(QString useragent)
@@ -204,7 +207,9 @@ void TwitchObject::getRequestUser(const QString &urlString, QString callingFuncN
 
     QNetworkRequest req ( url );
     req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
-    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
+    req.setRawHeader("Accept", "application/vnd.twitchtv.v5+json");
+    req.setRawHeader("Client-ID", this->getTwitchClientId().toStdString().c_str());
+
     req.setRawHeader("Authorization", "OAuth "+this->oAuthToken.toLatin1());
     req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
 

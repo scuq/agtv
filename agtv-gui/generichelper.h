@@ -58,6 +58,7 @@ public:
     static void setStreamHeight(int streamHeight);
     static void setUsername(QString username);
     static QString getUsername();
+    static QString getUserid();
     static void setFollows(QStringList follows);
     static void addFollow(QString follow);
     static QStringList getFollows();

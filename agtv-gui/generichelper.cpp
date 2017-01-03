@@ -326,6 +326,12 @@ QString genericHelper::getUsername()
     return settings.value("username", "").toString();
 }
 
+QString genericHelper::getUserid()
+{
+    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
+    return settings.value("userid", "").toString();
+}
+
 QString genericHelper::getOBSBin()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());

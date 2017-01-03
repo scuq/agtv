@@ -15,7 +15,7 @@ class TwitchUser : public TwitchObject
     Q_OBJECT
     public:
 
-        TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval = 1000, QString useragent = "-");
+        TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const QString userid, const qint64 defaultTimerInterval = 1000, QString useragent = "-");
         
         enum class AuthenticationStatus {
             ok,
@@ -41,6 +41,11 @@ class TwitchUser : public TwitchObject
         QElapsedTimer timerLastStatusChange;
        
         QString userName;
+        QString userId;
+        QString userBio;
+        QString userEmail;
+        QString userCreatedAt;
+
         QMap<QString, TwitchChannel*> followedChannels;
         QStringList followedChannelsList;
         
@@ -72,6 +77,10 @@ class TwitchUser : public TwitchObject
         void authCheckSuccessfull();
         void authCheckFailed();
         void newUsernameDetected(QString username);
+        void newUseridDetected(QString userid);
+        void newUserbioDetected(QString userbio);
+        void newUseremailDetected(QString useremail);
+        void newUsercreatedatDetected(QString usercreatedat);
 
 };
 

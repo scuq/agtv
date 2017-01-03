@@ -2,8 +2,8 @@
 
 #include "generichelper.h"
 
-TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const qint64 defaultTimerInterval, QString useragent) :
-    TwitchObject(parent, oAuthToken, defaultTimerInterval), userName( username )
+TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const QString userid, const qint64 defaultTimerInterval, QString useragent) :
+    TwitchObject(parent, oAuthToken, defaultTimerInterval), userName( username ), userId ( userid )
 {
 
      this->setUserAgentStr(useragent);    
@@ -42,7 +42,7 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
 
      this->setupTimer();
 
-     this->getUserFollowedChannels(this->userName);
+     this->getUserFollowedChannels(this->userId);
 
 }
 
@@ -60,17 +60,17 @@ void TwitchUser::on_timedUpdate()
 {
     this->getUserAuthenticationStatus();
     
-    this->getUserFollowedChannels(this->userName);
+    this->getUserFollowedChannels(this->userId);
 }
 
 void TwitchUser::followChannel(QString channelName)
 {
-    this->followChannelUser(channelName,this->userName);
+    this->followChannelUser(channelName,this->userId);
 }
 
 void TwitchUser::unfollowChannel(QString channelName)
 {
-    this->unfollowChannelUser(channelName,this->userName);
+    this->unfollowChannelUser(channelName,this->userId);
 
     this->followedChannels.remove(channelName);
 
@@ -93,7 +93,7 @@ void TwitchUser::checkAuthenticationSetup()
 void TwitchUser::setStatusAndGameTitle(QHash<QString, QString> setParams)
 {
     
-    this->setUserStatusAndGameTitle(this->userName, setParams);
+    this->setUserStatusAndGameTitle(this->userId, setParams);
 }
 
 void TwitchUser::setAuthenticationStatus(AuthenticationStatus newStatus)
@@ -209,7 +209,8 @@ void TwitchUser::updateFromJsonResponseUserAuthenticationStatus(const QJsonDocum
 {
     
     QJsonObject jsonObject = jsonResponseBuffer.object();
-        
+
+
     if (!jsonObject["email"].isNull()) {
         
          
@@ -222,6 +223,31 @@ void TwitchUser::updateFromJsonResponseUserAuthenticationStatus(const QJsonDocum
                  emit newUsernameDetected(this->userName);
              }
          }
+         if ((this->userId == "<NONE>") || (this->userId == "")) {
+             if (!jsonObject["_id"].isNull()) {
+                 this->userId = QString::number(jsonObject["_id"].toDouble(),'g',10);
+                 emit newUseridDetected(this->userId);
+             }
+         }
+         if ((this->userBio == "<NONE>") || (this->userBio == "")) {
+             if (!jsonObject["bio"].isNull()) {
+                 this->userBio = jsonObject["bio"].toString();
+                 emit newUserbioDetected(this->userBio);
+             }
+         }
+         if ((this->userEmail == "<NONE>") || (this->userEmail == "")) {
+             if (!jsonObject["email"].isNull()) {
+                 this->userEmail = jsonObject["email"].toString();
+                 emit newUseremailDetected(this->userEmail);
+             }
+         }
+         if ((this->userCreatedAt == "<NONE>") || (this->userCreatedAt == "")) {
+             if (!jsonObject["created_at"].isNull()) {
+                 this->userCreatedAt = jsonObject["created_at"].toString();
+                 emit newUsercreatedatDetected(this->userCreatedAt);
+             }
+         }
+
          
         
          
@@ -255,7 +281,7 @@ void TwitchUser::onAuthTokenSetupSuccessful(bool)
 
     // this->setupTimer();
 
-    this->getUserFollowedChannels(this->userName);
+    this->getUserFollowedChannels(this->userId);
     
     this->startUpdateTimer();    
 }

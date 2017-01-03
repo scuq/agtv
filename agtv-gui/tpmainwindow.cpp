@@ -85,6 +85,12 @@ void tpMainWindow::setupSignalsTwitchApi()
     
     QObject::connect(diaOauthSetup, SIGNAL(saveAuthTokenRequested(QString)), twitchUserLocal, SLOT(onSaveOAuthAccessToken(QString)));
     QObject::connect(twitchUser, SIGNAL(newUsernameDetected(QString)), twitchUserLocal, SLOT(onSaveUsername(QString)));
+    QObject::connect(twitchUser, SIGNAL(newUseridDetected(QString)), twitchUserLocal, SLOT(onSaveUserId(QString)));
+    QObject::connect(twitchUser, SIGNAL(newUserbioDetected(QString)), twitchUserLocal, SLOT(onSaveUserBio(QString)));
+    QObject::connect(twitchUser, SIGNAL(newUseremailDetected(QString)), twitchUserLocal, SLOT(onSaveUserEmail(QString)));
+    QObject::connect(twitchUser, SIGNAL(newUsercreatedatDetected(QString)), twitchUserLocal, SLOT(onSaveUserCreatedAt(QString)));
+
+
 
     // QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
     QObject::connect(twitchUser, SIGNAL(authCheckSuccessfull()), diaOauthSetup, SLOT(onAuthOk()));
@@ -145,7 +151,7 @@ void tpMainWindow::setupTwitchApi()
     twitchUserLocal = new TwitchUserLocal(this, genericHelper::getUpdateIntervalMsec());
     QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
 
-    twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(), 5*genericHelper::getUpdateIntervalMsec(),QString(genericHelper::getAppName()+"/"+version).toStdString().c_str());
+    twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(), genericHelper::getUserid(), 5*genericHelper::getUpdateIntervalMsec(),QString(genericHelper::getAppName()+"/"+version).toStdString().c_str());
     
     
     QObject::connect(twitchUser, SIGNAL(twitchNeedsOAuthSetup()), this, SLOT(on_actionSetup_Twitch_Auth_triggered()));
@@ -887,7 +893,7 @@ void tpMainWindow::on_actionSetup_Twitch_Auth_triggered()
 void tpMainWindow::onBrowserAuthorizeRequested()
 {
     
-    QString link = "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id="+this->twitchUser->getTwitchClientId()+"&redirect_uri=http://oauth.abyle.org/&scope=channel_editor+user_read+user_subscriptions+user_follows_edit+chat_login+channel_read";
+    QString link = "https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id="+this->twitchUser->getTwitchClientId()+"&redirect_uri=https://agtv.abyle.org/oauth/&scope=channel_editor+user_read+user_subscriptions+user_follows_edit+chat_login+channel_read";
     QDesktopServices::openUrl(QUrl(link));
 }
 

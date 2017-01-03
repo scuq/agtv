@@ -30,6 +30,10 @@ class TwitchUserLocal : public QObject
         bool deleteBookmark(QString bookmark, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool saveOAuthAccessToken(QString oAuthAccessToken, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool saveUsername(QString userName, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool saveUserid(QString userId, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool saveUserBio(QString userBio, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool saveUserEmail(QString userEmail, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool saveUserCreatedAt(QString userCreatedAt, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool isUserSetupOk(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool backupSettings(QString filename, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool restoreSettings(QString filename, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
@@ -37,6 +41,11 @@ class TwitchUserLocal : public QObject
     public slots:
         void onSaveOAuthAccessToken(QString oAuthAccessToken);
         void onSaveUsername(QString userName);
+        void onSaveUserId(QString userId);
+        void onSaveUserBio(QString userBio);
+        void onSaveUserEmail(QString userEmail);
+        void onSaveUserCreatedAt(QString userCreatedAt);
+
         
 
     private:
@@ -45,6 +54,10 @@ class TwitchUserLocal : public QObject
         bool bookmarkedChannelsDataChanged;
         
         const QString userName;
+        const QString userId;
+        const QString userBio;
+        const QString userEmail;
+        const QString usercreatedAt;
 
         QMap<QString, TwitchChannel*> bookmarkedChannels;
         

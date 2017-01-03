@@ -145,7 +145,63 @@ bool TwitchUserLocal::saveUsername(QString userName, QString company, QString ap
         ok = true;
     }
     
-    return ok;    
+    return ok;
+}
+
+bool TwitchUserLocal::saveUserid(QString userId, QString company, QString app)
+{
+    bool ok = false;
+
+    if (userId.length() > 0) {
+        QSettings settings(company, app);
+        settings.setValue("userid", userId);
+        settings.sync();
+        ok = true;
+    }
+
+    return ok;
+}
+
+bool TwitchUserLocal::saveUserBio(QString userBio, QString company, QString app)
+{
+    bool ok = false;
+
+    if (userBio.length() > 0) {
+        QSettings settings(company, app);
+        settings.setValue("userbio", userBio);
+        settings.sync();
+        ok = true;
+    }
+
+    return ok;
+}
+
+bool TwitchUserLocal::saveUserEmail(QString userEmail, QString company, QString app)
+{
+    bool ok = false;
+
+    if (userEmail.length() > 0) {
+        QSettings settings(company, app);
+        settings.setValue("useremail", userEmail);
+        settings.sync();
+        ok = true;
+    }
+
+    return ok;
+}
+
+bool TwitchUserLocal::saveUserCreatedAt(QString userCreatedAt, QString company, QString app)
+{
+    bool ok = false;
+
+    if (userCreatedAt.length() > 0) {
+        QSettings settings(company, app);
+        settings.setValue("usercreatedat", userCreatedAt);
+        settings.sync();
+        ok = true;
+    }
+
+    return ok;
 }
 
 bool TwitchUserLocal::isUserSetupOk(QString company, QString app)
@@ -193,6 +249,26 @@ void TwitchUserLocal::onSaveOAuthAccessToken(QString oAuthAccessToken)
 void TwitchUserLocal::onSaveUsername(QString userName)
 {
     this->saveUsername(userName);
+}
+
+void TwitchUserLocal::onSaveUserId(QString userId)
+{
+    this->saveUserid(userId);
+}
+
+void TwitchUserLocal::onSaveUserBio(QString userBio)
+{
+    this->saveUserBio(userBio);
+}
+
+void TwitchUserLocal::onSaveUserEmail(QString userEmail)
+{
+    this->saveUserEmail(userEmail);
+}
+
+void TwitchUserLocal::onSaveUserCreatedAt(QString userCreatedAt)
+{
+    this->saveUserCreatedAt(userCreatedAt);
 }
 
 qint64 TwitchUserLocal::getRefreshTimerInterval()
