@@ -9,6 +9,8 @@ TwitchObject::TwitchObject(QObject *parent, QString token, const qint64 defaultT
 
     this->setupSignalMappers();
 
+    this->setTwitchClientId();
+
     this->refreshTimerInterval = defaultTimerInterval;
     this->refreshTimer = new QTimer(this);
 }
@@ -83,24 +85,24 @@ void TwitchObject::parseTwitchNetworkResponseStream()
 
 void TwitchObject::getChannel(QString user)
 {
-    this->getRequestChannel("https://api.twitch.tv/kraken/channels/"+user);
+    this->getRequestChannel("https://api.twitch.tv/kraken/channels/"+user+"&client_id="+this->getTwitchClientId());
 }
 
 void TwitchObject::getUserFollowedChannels(QString user)
 {
-    this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels", "TwitchObject::getUserFollowedChannels");
+    this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels"+"&client_id="+this->getTwitchClientId(), "TwitchObject::getUserFollowedChannels");
 }
 
 void TwitchObject::followChannelUser(QString channelName, QString user)
 {
-    this->putRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, "TwitchObject::followChannelUser");
+    this->putRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName+"&client_id="+this->getTwitchClientId(), "TwitchObject::followChannelUser");
 }
 
 
 
 void TwitchObject::unfollowChannelUser(QString channelName, QString user)
 {
-    this->delRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName, "TwitchObject::unfollowChannelUser");
+    this->delRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName+"&client_id="+this->getTwitchClientId(), "TwitchObject::unfollowChannelUser");
 }
 
 void TwitchObject::getUserAuthenticationStatus()
