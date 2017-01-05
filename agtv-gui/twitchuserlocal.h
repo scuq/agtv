@@ -23,30 +23,23 @@ class TwitchUserLocal : public QObject
         void loadBookmarks();
         
         QString getStoredOAuthAccessToken(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        QHash<QString,QString> getStoredUser(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         QString getStoredUsername(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        QString getStoredUserid(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         QStringList getBookmarks(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool setBookmarks(QStringList bookmarks, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool addBookmark(QString bookmark, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool deleteBookmark(QString bookmark, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool saveOAuthAccessToken(QString oAuthAccessToken, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
-        bool saveUsername(QString userName, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
-        bool saveUserid(QString userId, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
-        bool saveUserBio(QString userBio, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
-        bool saveUserEmail(QString userEmail, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
-        bool saveUserCreatedAt(QString userCreatedAt, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
+        bool saveUser(QHash<QString,QString> user, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool isUserSetupOk(QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool backupSettings(QString filename, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         bool restoreSettings(QString filename, QString company=SETTINGS_COMPANY, QString app=SETTINGS_PRODUCT);
         
     public slots:
         void onSaveOAuthAccessToken(QString oAuthAccessToken);
-        void onSaveUsername(QString userName);
-        void onSaveUserId(QString userId);
-        void onSaveUserBio(QString userBio);
-        void onSaveUserEmail(QString userEmail);
-        void onSaveUserCreatedAt(QString userCreatedAt);
+        void onSaveUser(QHash<QString,QString> user);
 
-        
 
     private:
   
@@ -72,7 +65,7 @@ class TwitchUserLocal : public QObject
         
     signals:
         void twitchBookmarkedChannelsDataChanged(const bool bookmarkedChannelsDataChanged);
-        void oAuthAccessTokenLoaded(QString oAuthAccessToken);
+        void oAuthAccessTokenLoaded(QString oAuthAccessToken, QHash<QString,QString> user);
         void backupRestoredSuccessful(bool);
         
         

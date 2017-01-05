@@ -3,8 +3,13 @@
 #include "generichelper.h"
 
 TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString username, const QString userid, const qint64 defaultTimerInterval, QString useragent) :
-    TwitchObject(parent, oAuthToken, defaultTimerInterval), userName( username ), userId ( userid )
+    TwitchObject(parent, oAuthToken, defaultTimerInterval)
 {
+
+     this->user["name"] = username;
+     this->user["id"] = userid;
+
+     apiUrls_Users = this->api->getApiUrls_Users(user);
 
      this->setUserAgentStr(useragent);    
     
@@ -21,6 +26,8 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
      QObject::connect(this, SIGNAL(twitchReadyUserFollowChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserFollowChannel(const QJsonDocument)));
 
      QObject::connect(this, SIGNAL(twitchReadyUserUnfollowChannel(const QJsonDocument)), this, SLOT(updateFromJsonResponseUserUnfollowChannel(const QJsonDocument)));
+
+     QObject::connect(this, SIGNAL(twitchReadyGetStreamer(const QJsonDocument, QString)), this, SLOT(updateFromJsonResponseGetStreamer(const QJsonDocument, QString)));
      
      QObject::connect(this, SIGNAL(twitchReadyUserSetStatusAndGameTitle (const QJsonDocument)), this, SLOT(updateFromJsonResponseUserSetStatusAndGameTitle(const QJsonDocument)));
      
@@ -42,7 +49,7 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
 
      this->setupTimer();
 
-     this->getUserFollowedChannels(this->userId);
+     this->getUserFollowedChannels(this->user);
 
 }
 
@@ -60,17 +67,17 @@ void TwitchUser::on_timedUpdate()
 {
     this->getUserAuthenticationStatus();
     
-    this->getUserFollowedChannels(this->userId);
+    this->getUserFollowedChannels(user);
 }
 
 void TwitchUser::followChannel(QString channelName)
 {
-    this->followChannelUser(channelName,this->userId);
+    this->followChannelUser(channelName,user);
 }
 
 void TwitchUser::unfollowChannel(QString channelName)
 {
-    this->unfollowChannelUser(channelName,this->userId);
+    this->unfollowChannelUser(channelName,user);
 
     this->followedChannels.remove(channelName);
 
@@ -90,10 +97,38 @@ void TwitchUser::checkAuthenticationSetup()
     
 }
 
+void TwitchUser::getUserFollowedChannels(QHash<QString, QString> user)
+{
+    this->getRequest(apiUrls_Users["GetUserFollows"], "TwitchObject::getUserFollowedChannels");
+}
+
+void TwitchUser::getStreamerId(QString streamer)
+{
+    QHash<QString,QString> _streamer;
+    _streamer["streamer"] = streamer;
+    this->getRequest(apiUrls_Users["SearchChannels"].replace("%STREAMER%",streamer), "TwitchObject::getStreamer", _streamer);
+}
+
+void TwitchUser::getUserAuthenticationStatus()
+{
+    this->getRequest(apiUrls_Users["GetUser"], "TwitchObject::getUserAuthenticationStatus");
+}
+
+void TwitchUser::followChannelUser(QString channelName, QHash<QString, QString> user)
+{
+    this->getRequest(apiUrls_Users["FollowChannel"].replace("%CHANNEL%",channelName), "TwitchObject::followChannelUser");
+}
+
+void TwitchUser::unfollowChannelUser(QString channelName, QHash<QString, QString> user)
+{
+    this->delRequestUser("https://api.twitch.tv/kraken/users/"+user["id"]+"/follows/channels/"+channelName+"&client_id="+this->getTwitchClientId(), "TwitchObject::unfollowChannelUser");
+}
+
+
 void TwitchUser::setStatusAndGameTitle(QHash<QString, QString> setParams)
 {
     
-    this->setUserStatusAndGameTitle(this->userId, setParams);
+    this->setUserStatusAndGameTitle(this->user["id"], setParams);
 }
 
 void TwitchUser::setAuthenticationStatus(AuthenticationStatus newStatus)
@@ -201,6 +236,7 @@ void TwitchUser::updateFromJsonResponseUserUnfollowChannel(const QJsonDocument &
 void TwitchUser::updateFromJsonResponseUserSetStatusAndGameTitle(const QJsonDocument &jsonResponseBuffer)
 {
     qDebug() << jsonResponseBuffer;
+
 }
 
 
@@ -217,36 +253,37 @@ void TwitchUser::updateFromJsonResponseUserAuthenticationStatus(const QJsonDocum
          this->setAuthenticationStatus(AuthenticationStatus::ok);
        
          // set username if <NONE> or empty - needed on first setup
-         if ((this->userName == "<NONE>") || (this->userName == "")) {
+         if ((this->user["name"] == "<NONE>") || (this->user["name"] == "")) {
              if (!jsonObject["name"].isNull()) {
-                 this->userName = jsonObject["name"].toString();
-                 emit newUsernameDetected(this->userName);
+                 this->user["name"] = jsonObject["name"].toString();
+
              }
          }
-         if ((this->userId == "<NONE>") || (this->userId == "")) {
+         if ((this->user["id"] == "<NONE>") || (this->user["id"] == "")) {
              if (!jsonObject["_id"].isNull()) {
-                 this->userId = QString::number(jsonObject["_id"].toDouble(),'g',10);
-                 emit newUseridDetected(this->userId);
+                 this->user["id"] = QString::number(jsonObject["_id"].toDouble(),'g',10);
+
              }
          }
-         if ((this->userBio == "<NONE>") || (this->userBio == "")) {
+         if ((this->user["bio"] == "<NONE>") || (this->user["bio"] == "")) {
              if (!jsonObject["bio"].isNull()) {
-                 this->userBio = jsonObject["bio"].toString();
-                 emit newUserbioDetected(this->userBio);
+                 this->user["bio"] = jsonObject["bio"].toString();
+
              }
          }
-         if ((this->userEmail == "<NONE>") || (this->userEmail == "")) {
+         if ((this->user["email"] == "<NONE>") || (this->user["email"] == "")) {
              if (!jsonObject["email"].isNull()) {
-                 this->userEmail = jsonObject["email"].toString();
-                 emit newUseremailDetected(this->userEmail);
+                 this->user["email"] = jsonObject["email"].toString();
+
              }
          }
-         if ((this->userCreatedAt == "<NONE>") || (this->userCreatedAt == "")) {
+         if ((this->user["created_at"] == "<NONE>") || (this->user["created_at"] == "")) {
              if (!jsonObject["created_at"].isNull()) {
-                 this->userCreatedAt = jsonObject["created_at"].toString();
-                 emit newUsercreatedatDetected(this->userCreatedAt);
+                 this->user["created_at"] = jsonObject["created_at"].toString();
+
              }
          }
+         emit newUserDetected(this->user);
 
          
         
@@ -256,7 +293,51 @@ void TwitchUser::updateFromJsonResponseUserAuthenticationStatus(const QJsonDocum
         this->setAuthenticationStatus(AuthenticationStatus::nok);
     }
     
-   
+
+}
+
+void TwitchUser::updateFromJsonResponseGetStreamer(const QJsonDocument &jsonResponseBuffer, QString lookedupstreamer)
+{
+
+    QHash<QString,QString> streamer;
+    bool found = false;
+
+    if (jsonResponseBuffer.isEmpty()) {
+
+        emit twitchStreamerIdLookupError("streamer "+lookedupstreamer+" not found.",streamer);
+    } else {
+        QJsonObject jsonObject = jsonResponseBuffer.object();
+
+
+        if (!jsonObject["channels"].isNull()) {
+
+
+
+            for(int i=0;i<jsonObject["channels"].toArray().count();i++)
+            {
+
+                if (jsonObject["channels"].toArray().at(i).toObject()["name"].toString() == lookedupstreamer) {
+                    if (!jsonObject["channels"].toArray().at(i).toObject()["_id"].isNull()) {
+                        streamer["id"] = QString::number(jsonObject["channels"].toArray().at(i).toObject()["_id"].toDouble(),'g',10);
+                    }
+                    if (!jsonObject["channels"].toArray().at(i).toObject()["name"].isNull()) {
+                        streamer["name"] = jsonObject["channels"].toArray().at(i).toObject()["name"].toString();
+                    }
+                    found = true;
+                    emit twitchStreamerIdLookupSuccess("streamer "+lookedupstreamer+" found.",streamer);
+                }
+
+            }
+
+        }
+        if (found == false) {
+            emit twitchStreamerIdLookupError("streamer "+lookedupstreamer+" not found.",streamer);
+        }
+
+
+
+    }
+
 }
 
 void TwitchUser::onAuthCheckSuccessfull()
@@ -281,7 +362,7 @@ void TwitchUser::onAuthTokenSetupSuccessful(bool)
 
     // this->setupTimer();
 
-    this->getUserFollowedChannels(this->userId);
+    this->getUserFollowedChannels(this->user);
     
     this->startUpdateTimer();    
 }
@@ -310,4 +391,71 @@ void TwitchUser::onTwitchNetworkErrorUserAuthenticationStatus(const QString erro
         this->setAuthenticationStatus(AuthenticationStatus::nok);
     }
     
+}
+
+void TwitchUser::twitchNetworkErrorGetStreamer(const QString errorString)
+{
+     qDebug() << errorString;
+}
+
+void TwitchUser::parseNetworkResponse()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+    QString callingFuncName = "";
+
+    callingFuncName = netReplies[reply];
+    QHash<QString,QString> params = netParams[reply];
+
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            //emit networkError( reply->errorString() );
+
+            if (callingFuncName == "TwitchObject::getUserFollowedChannels") {
+                emit twitchNetworkErrorUserFollowedChannels( reply->errorString() );
+            } else if (callingFuncName == "TwitchObject::followChannelUser") {
+                emit twitchNetworkErrorUserFollowChannel( reply->errorString() );
+            } else if (callingFuncName == "TwitchObject::unfollowChannelUser") {
+                emit twitchNetworkErrorUserUnfollowChannel( reply->errorString() );
+            } else if (callingFuncName == "TwitchObject::getUserAuthenticationStatus") {
+                emit twitchNetworkErrorUserAuthenticationStatus( reply->errorString() );
+            } else if (callingFuncName == "TwitchObject::getStreamer") {
+                emit twitchNetworkErrorGetStreamer( reply->errorString() );
+            }
+
+            genericHelper::log( QString(Q_FUNC_INFO) + "(" + callingFuncName + ")" + QString(": ") + reply->errorString());
+
+            reply->abort();
+            reply->deleteLater();
+            netReplies.remove(reply);
+
+            return;
+        }
+
+        QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
+
+        if (callingFuncName == "TwitchObject::getUserFollowedChannels") {
+            emit twitchReadyUserFollowedChannels( json_buffer );
+        } else if (callingFuncName == "TwitchObject::followChannelUser") {
+            emit twitchReadyUserFollowChannel( json_buffer );
+        } else if (callingFuncName == "TwitchObject::unfollowChannelUser") {
+            emit twitchReadyUserUnfollowChannel( json_buffer );
+        } else if (callingFuncName == "TwitchObject::getUserAuthenticationStatus") {
+            emit twitchReadyUserAuthenticationStatus( json_buffer );
+        } else if (callingFuncName == "TwitchObject::setUserStatusAndGameTitle") {
+            emit twitchReadyUserSetStatusAndGameTitle ( json_buffer );
+        } else if (callingFuncName == "TwitchObject::getStreamer") {
+            emit twitchReadyGetStreamer ( json_buffer, params["streamer"] );
+        }
+
+
+        genericHelper::log( QString(Q_FUNC_INFO) + QString(": Success"));
+
+        reply->deleteLater();
+        netReplies.remove(reply);
+
+    } else {
+        genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + "reply is NULL");
+    }
+    qDebug() << "Pending Replys: "  << this->getPendingReplyCount();
 }

@@ -52,15 +52,33 @@ QString TwitchUserLocal::getStoredOAuthAccessToken(QString company, QString app)
     
     }
     
-    emit oAuthAccessTokenLoaded(_oauthtoken);
+    emit oAuthAccessTokenLoaded(_oauthtoken, this->getStoredUser());
     
     return _oauthtoken;
+}
+
+QHash<QString, QString> TwitchUserLocal::getStoredUser(QString company, QString app)
+{
+    QHash<QString,QString> storeduser;
+    QSettings settings(company, app);
+    storeduser["id"] = settings.value("user_id", "").toString();
+    storeduser["name"] = settings.value("user_name", "").toString();
+    storeduser["email"] = settings.value("user_email", "").toString();
+    storeduser["bio"] = settings.value("user_bio", "").toString();
+    storeduser["created_at"] = settings.value("user_created_at", "").toString();
+    return storeduser;
 }
 
 QString TwitchUserLocal::getStoredUsername(QString company, QString app)
 {
     QSettings settings(company, app);
-    return settings.value("username", "").toString();
+    return settings.value("user_name", "").toString();
+}
+
+QString TwitchUserLocal::getStoredUserid(QString company, QString app)
+{
+    QSettings settings(company, app);
+    return settings.value("user_id", "").toString();
 }
 
 QStringList TwitchUserLocal::getBookmarks(QString company, QString app)
@@ -134,75 +152,20 @@ bool TwitchUserLocal::saveOAuthAccessToken(QString oAuthAccessToken, QString com
     return ok;
 }
 
-bool TwitchUserLocal::saveUsername(QString userName, QString company, QString app)
+bool TwitchUserLocal::saveUser(QHash<QString, QString> user, QString company, QString app)
 {
     bool ok = false;
-    
-    if (userName.length() > 0) {
-        QSettings settings(company, app);
-        settings.setValue("username", userName);
-        settings.sync();    
-        ok = true;
-    }
-    
-    return ok;
-}
+    QSettings settings(company, app);
 
-bool TwitchUserLocal::saveUserid(QString userId, QString company, QString app)
-{
-    bool ok = false;
-
-    if (userId.length() > 0) {
-        QSettings settings(company, app);
-        settings.setValue("userid", userId);
+    QHashIterator<QString, QString> i(user);
+    while (i.hasNext()) {
+        i.next();
+        settings.setValue("user_"+i.key(), i.value());
         settings.sync();
-        ok = true;
     }
-
     return ok;
 }
 
-bool TwitchUserLocal::saveUserBio(QString userBio, QString company, QString app)
-{
-    bool ok = false;
-
-    if (userBio.length() > 0) {
-        QSettings settings(company, app);
-        settings.setValue("userbio", userBio);
-        settings.sync();
-        ok = true;
-    }
-
-    return ok;
-}
-
-bool TwitchUserLocal::saveUserEmail(QString userEmail, QString company, QString app)
-{
-    bool ok = false;
-
-    if (userEmail.length() > 0) {
-        QSettings settings(company, app);
-        settings.setValue("useremail", userEmail);
-        settings.sync();
-        ok = true;
-    }
-
-    return ok;
-}
-
-bool TwitchUserLocal::saveUserCreatedAt(QString userCreatedAt, QString company, QString app)
-{
-    bool ok = false;
-
-    if (userCreatedAt.length() > 0) {
-        QSettings settings(company, app);
-        settings.setValue("usercreatedat", userCreatedAt);
-        settings.sync();
-        ok = true;
-    }
-
-    return ok;
-}
 
 bool TwitchUserLocal::isUserSetupOk(QString company, QString app)
 {
@@ -218,7 +181,8 @@ bool TwitchUserLocal::backupSettings(QString filename, QString company, QString 
 
         QSettings* settings = new QSettings(filename, QSettings::IniFormat);
         settings->setValue("oauthAccessToken", this->getStoredOAuthAccessToken());
-        settings->setValue("username", this->getStoredUsername());
+        settings->setValue("user_name", this->getStoredUsername());
+        settings->setValue("user_id", this->getStoredUserid());
         settings->setValue("bookmarks", this->getBookmarks(company, app));
         settings->sync();
         
@@ -228,14 +192,18 @@ bool TwitchUserLocal::backupSettings(QString filename, QString company, QString 
 
 bool TwitchUserLocal::restoreSettings(QString filename, QString company, QString app)
 {
-    
+    QHash<QString,QString> restoreuser;
+
     QSettings* settingsFile = new QSettings(filename, QSettings::IniFormat);
-    this->saveUsername(settingsFile->value("username", "").toString());
+
+    restoreuser["user_name"] = settingsFile->value("user_name", "").toString();
+    restoreuser["user_id"] = settingsFile->value("user_name", "").toString();
+    this->saveUser(restoreuser);
     this->saveOAuthAccessToken(settingsFile->value("oauthAccessToken", "").toString());
     this->setBookmarks(settingsFile->value("bookmarks", QStringList()).toStringList());
     this->loadBookmarks();
     
-    emit oAuthAccessTokenLoaded(this->getStoredOAuthAccessToken());
+    emit oAuthAccessTokenLoaded(this->getStoredOAuthAccessToken(),this->getStoredUser());
     emit backupRestoredSuccessful(true);
     
     return true;    
@@ -246,30 +214,12 @@ void TwitchUserLocal::onSaveOAuthAccessToken(QString oAuthAccessToken)
     this->saveOAuthAccessToken(oAuthAccessToken);
 }
 
-void TwitchUserLocal::onSaveUsername(QString userName)
+void TwitchUserLocal::onSaveUser(QHash<QString, QString> user)
 {
-    this->saveUsername(userName);
+    this->saveUser(user);
 }
 
-void TwitchUserLocal::onSaveUserId(QString userId)
-{
-    this->saveUserid(userId);
-}
 
-void TwitchUserLocal::onSaveUserBio(QString userBio)
-{
-    this->saveUserBio(userBio);
-}
-
-void TwitchUserLocal::onSaveUserEmail(QString userEmail)
-{
-    this->saveUserEmail(userEmail);
-}
-
-void TwitchUserLocal::onSaveUserCreatedAt(QString userCreatedAt)
-{
-    this->saveUserCreatedAt(userCreatedAt);
-}
 
 qint64 TwitchUserLocal::getRefreshTimerInterval()
 {

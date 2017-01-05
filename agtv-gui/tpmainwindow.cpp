@@ -53,7 +53,7 @@ tpMainWindow::tpMainWindow(QWidget *parent) :
 
 #ifdef INTERNALIRC
     if(genericHelper::getInternalChat()) {
-        ircc = new IrcClient(0,"irc.twitch.tv",genericHelper::getUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
+        ircc = new IrcClient(0,"irc.twitch.tv",twitchUserLocal->getStoredUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
     } else {
         ircc = 0;
     }
@@ -80,16 +80,11 @@ void tpMainWindow::statusBarUpdate()
 
 void tpMainWindow::setupSignalsTwitchApi()
 {
-    QObject::connect(twitchUserLocal, SIGNAL(oAuthAccessTokenLoaded(QString)), diaOauthSetup, SLOT(setCurrentStoredAuthToken(QString)));
+    QObject::connect(twitchUserLocal, SIGNAL(oAuthAccessTokenLoaded(QString,QHash <QString, QString>)), diaOauthSetup, SLOT(setCurrentStoredAuthToken(QString,QHash <QString, QString>)));
     QObject::connect(twitchUserLocal, SIGNAL(backupRestoredSuccessful(bool)), this, SLOT(onBackupRestoredSuccessful(bool)));
     
     QObject::connect(diaOauthSetup, SIGNAL(saveAuthTokenRequested(QString)), twitchUserLocal, SLOT(onSaveOAuthAccessToken(QString)));
-    QObject::connect(twitchUser, SIGNAL(newUsernameDetected(QString)), twitchUserLocal, SLOT(onSaveUsername(QString)));
-    QObject::connect(twitchUser, SIGNAL(newUseridDetected(QString)), twitchUserLocal, SLOT(onSaveUserId(QString)));
-    QObject::connect(twitchUser, SIGNAL(newUserbioDetected(QString)), twitchUserLocal, SLOT(onSaveUserBio(QString)));
-    QObject::connect(twitchUser, SIGNAL(newUseremailDetected(QString)), twitchUserLocal, SLOT(onSaveUserEmail(QString)));
-    QObject::connect(twitchUser, SIGNAL(newUsercreatedatDetected(QString)), twitchUserLocal, SLOT(onSaveUserCreatedAt(QString)));
-
+    QObject::connect(twitchUser, SIGNAL(newUserDetected(QHash<QString,QString>)), twitchUserLocal, SLOT(onSaveUser(QHash<QString,QString>)));
 
 
     // QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
@@ -151,7 +146,7 @@ void tpMainWindow::setupTwitchApi()
     twitchUserLocal = new TwitchUserLocal(this, genericHelper::getUpdateIntervalMsec());
     QObject::connect(twitchUserLocal, SIGNAL(twitchBookmarkedChannelsDataChanged(const bool)), this, SLOT(onTwitchBookmarkedChannelsDataChanged(const bool)));
 
-    twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),genericHelper::getUsername(), genericHelper::getUserid(), 5*genericHelper::getUpdateIntervalMsec(),QString(genericHelper::getAppName()+"/"+version).toStdString().c_str());
+    twitchUser = new TwitchUser(this,twitchUserLocal->getStoredOAuthAccessToken(),twitchUserLocal->getStoredUsername(), twitchUserLocal->getStoredUserid(), 5*genericHelper::getUpdateIntervalMsec(),QString(genericHelper::getAppName()+"/"+version).toStdString().c_str());
     
     
     QObject::connect(twitchUser, SIGNAL(twitchNeedsOAuthSetup()), this, SLOT(on_actionSetup_Twitch_Auth_triggered()));
@@ -159,6 +154,9 @@ void tpMainWindow::setupTwitchApi()
     QObject::connect(twitchUser, SIGNAL(twitchFollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
     QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelSuccess(const QString)), this, SLOT(updateOnUnfollow(const QString)));
     QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
+    QObject::connect(twitchUser, SIGNAL(twitchStreamerIdLookupError(const QString, QHash<QString,QString>)), this, SLOT(showOnStatusBar(const QString, QHash<QString,QString>)));
+    QObject::connect(twitchUser, SIGNAL(twitchStreamerIdLookupSuccess(const QString, QHash<QString,QString>)), this, SLOT(onFollowResultReturend(const QString, QHash<QString,QString>)));
+
 }
 
 void tpMainWindow::setupModelsViews()
@@ -301,7 +299,7 @@ void tpMainWindow::on_settingsSaved()
 #ifdef INTERNALIRC
     if(genericHelper::getInternalChat()) {
         if(ircc == 0) {
-            ircc = new IrcClient(0,"irc.twitch.tv",genericHelper::getUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
+            ircc = new IrcClient(0,"irc.twitch.tv",twitchUserLocal->getStoredUsername(),"oauth:"+genericHelper::getOAuthAccessToken());
         }
     } else {
         if(ircc != 0) {
@@ -583,7 +581,7 @@ void tpMainWindow::openChatHexChat()
             ircc->resize(800, 480);
             ircc->show();
          } else {
-             ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
+             ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor}, twitchUserLocal->getStoredUser() );
          }
 #else
             ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
@@ -595,7 +593,7 @@ void tpMainWindow::openChatHexChat()
              ircc->resize(800, 480);
              ircc->show();
          } else {
-             ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
+             ret = genericHelper::executeAddonHexchat( QStringList{_streamer}, twitchUserLocal->getStoredUser());
          }
 #else
          ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
@@ -623,10 +621,10 @@ void tpMainWindow::openChatHexChatBookmark()
             ircc->resize(800, 480);
             ircc->show();
         } else {
-            ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
+            ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor}, twitchUserLocal->getStoredUser() );
         }
 #else
-        ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor} );
+        ret = genericHelper::executeAddonHexchat( QStringList{_streamer, _hostedfor}, twitchUserLocal->getStoredUser() );
 #endif
     } else {
 #ifdef INTERNALIRC
@@ -635,7 +633,7 @@ void tpMainWindow::openChatHexChatBookmark()
             ircc->resize(800, 480);
             ircc->show();
         } else {
-            ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
+            ret = genericHelper::executeAddonHexchat( QStringList{_streamer},twitchUserLocal->getStoredUser() );
         }
 #else
         ret = genericHelper::executeAddonHexchat( QStringList{_streamer} );
@@ -683,6 +681,9 @@ void tpMainWindow::addFollow()
 {
     QString _text = QInputDialog::getText(this, tr("Follow Channel"), tr("Enter Channel URL or name"), QLineEdit::Normal,"");
     QString _streamer = genericHelper::streamURLParser(_text);
+
+    twitchUser->getStreamerId(_streamer);
+
     if (!_streamer.isEmpty()) {
         twitchUser->followChannel(_streamer);
 
@@ -902,10 +903,11 @@ void tpMainWindow::onBrowserAuthorizeRequested()
 //    twitchUser->setOAuthToken(newOAuthToken);  
 //}
 
-void tpMainWindow::showOnStatusBar(const QString errorMsg)
+void tpMainWindow::showOnStatusBar(const QString errorMsg, QHash<QString, QString> params)
 {
       this->ui->statusBar->showMessage(errorMsg, DEFSTATUSTIMEOUT);
 }
+
 
 void tpMainWindow::on_updateNotify(const QString &latestVersion)
 {
@@ -950,12 +952,12 @@ void tpMainWindow::on_actionPositioner_triggered()
 
 void tpMainWindow::on_actionTwitch_Browser_triggered()
 {
-    QString link = "http://www.twitch.tv/"+genericHelper::getUsername()+"/profile";
+    QString link = "http://www.twitch.tv/"+twitchUserLocal->getStoredUsername()+"/profile";
     QDesktopServices::openUrl(QUrl(link));
 }
 
 void tpMainWindow::openHexchat() {
-    int ret = genericHelper::executeAddonHexchat(genericHelper::getFollows());
+    int ret = genericHelper::executeAddonHexchat(genericHelper::getFollows(), twitchUserLocal->getStoredUser());
     if (ret != 0) {
         QMessageBox::critical(this, genericHelper::getAppName(),
                                        tr("Can't find HexChat, please check options."),
@@ -1018,6 +1020,11 @@ void tpMainWindow::on_actionReport_Bug_triggered()
 void tpMainWindow::on_actionRefresh_triggered()
 {
     //this->loadData();
+}
+
+void tpMainWindow::onFollowResultReturend(const QString msg, QHash<QString, QString> streamer)
+{
+    qDebug() << "onFollowResultReturendonFollowResultReturendonFollowResultReturendonFollowResultReturend";
 }
 
 void tpMainWindow::on_actionOptions_triggered()

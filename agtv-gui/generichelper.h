@@ -56,9 +56,6 @@ public:
     static void setSelectedTab(int tab);
     static int getStreamHeight();
     static void setStreamHeight(int streamHeight);
-    static void setUsername(QString username);
-    static QString getUsername();
-    static QString getUserid();
     static void setFollows(QStringList follows);
     static void addFollow(QString follow);
     static QStringList getFollows();
@@ -83,7 +80,7 @@ public:
     static void executeOBS();
     static void writeTwitcherOBSConfig(QString streamkey);
     static void writeTwitcherOBSScenesConfig();
-    static int executeAddonHexchat(QStringList channelsToJoin);
+    static int executeAddonHexchat(QStringList channelsToJoin, QHash<QString, QString> user);
     static void executeAddonLivestreamer(QString player, QString url, int streamWidth, int streamHeight, int xOffset, int yOffset, bool mute=false, QString quality="best");
   
 

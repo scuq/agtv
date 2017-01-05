@@ -11,13 +11,6 @@ void genericHelper::setOAuthAccessToken(QString oauthtoken)
     settings.sync();
 }
 
-void genericHelper::setUsername(QString username)
-{
-    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-    settings.setValue("username", username);
-    settings.sync();
-}
-
 void genericHelper::setOBSBin(QString obsbinpath)
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
@@ -320,18 +313,6 @@ bool genericHelper::getClearLogOnStartup()
     return settings.value("clear_log_on_start", false).toBool();
 }
 
-QString genericHelper::getUsername()
-{
-    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-    return settings.value("username", "").toString();
-}
-
-QString genericHelper::getUserid()
-{
-    QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
-    return settings.value("userid", "").toString();
-}
-
 QString genericHelper::getOBSBin()
 {
     QSettings settings(SETTINGS_COMPANY, genericHelper::getAppName());
@@ -569,7 +550,7 @@ void genericHelper::writeTwitcherOBSScenesConfig()
     scenefile.close();
 }
 
-int genericHelper::executeAddonHexchat(QStringList channelsToJoin)
+int genericHelper::executeAddonHexchat(QStringList channelsToJoin, QHash<QString, QString> user)
 {
     QString addonHexchatBin = "";
 
@@ -598,11 +579,11 @@ int genericHelper::executeAddonHexchat(QStringList channelsToJoin)
         QTextStream out(&file);
         out << "v=2.9.6\n\n"
             << "N=twitch.tv\n"
-            << "I="+genericHelper::getUsername()+"\n"
-            << "U="+genericHelper::getUsername()+"\n"
-            << "P=oauth:"+genericHelper::getOAuthAccessToken()+"\n"
+            << "I="+user["name"]+"\n"
+            << "U="+user["name"]+"\n"
+            << "P=oauth:"+user["accesstoken"]+"\n"
             << "L=7\n"
-            << "J=#"+genericHelper::getUsername()+"\n"
+            << "J=#"+user["name"]+"\n"
             << joins
             << "F=24\n"
             << "D=0\n"

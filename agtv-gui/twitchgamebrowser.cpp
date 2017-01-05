@@ -226,6 +226,11 @@ void TwitchGameBrowser::getRequestStreamLogo(const QString &urlString, const QSt
             streamLogoSignalMapper, SLOT(map()));
 }
 
+void TwitchGameBrowser::parseNetworkResponse()
+{
+
+}
+
 void TwitchGameBrowser::parseNetworkResponseStreamLogo(const QString gamename)
 {
     QNetworkReply *reply = streamLogoReplies.take(gamename);

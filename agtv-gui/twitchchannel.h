@@ -70,6 +70,8 @@ private:
 
         QString hostedChannel;
 
+        void parseNetworkResponse();
+
         bool updateChannelData(const QJsonObject channelObject);
 
         void doStreamUpdate();

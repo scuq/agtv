@@ -7,6 +7,8 @@ TwitchObject::TwitchObject(QObject *parent, QString token, const qint64 defaultT
 {
     nwManager = new QNetworkAccessManager(this);
 
+    api = new twitchApi(this,"v5");
+
     this->setupSignalMappers();
 
     this->setTwitchClientId();
@@ -88,29 +90,6 @@ void TwitchObject::getChannel(QString user)
     this->getRequestChannel("https://api.twitch.tv/kraken/channels/"+user+"&client_id="+this->getTwitchClientId());
 }
 
-void TwitchObject::getUserFollowedChannels(QString user)
-{
-    //this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels"+"&client_id="+this->getTwitchClientId(), "TwitchObject::getUserFollowedChannels");
-    this->getRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels", "TwitchObject::getUserFollowedChannels");
-}
-
-void TwitchObject::followChannelUser(QString channelName, QString user)
-{
-    this->putRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName+"&client_id="+this->getTwitchClientId(), "TwitchObject::followChannelUser");
-}
-
-
-
-void TwitchObject::unfollowChannelUser(QString channelName, QString user)
-{
-    this->delRequestUser("https://api.twitch.tv/kraken/users/"+user+"/follows/channels/"+channelName+"&client_id="+this->getTwitchClientId(), "TwitchObject::unfollowChannelUser");
-
-}
-
-void TwitchObject::getUserAuthenticationStatus()
-{  
-    this->getRequestUser("https://api.twitch.tv/kraken/user", "TwitchObject::getUserAuthenticationStatus");
-}
 
 void TwitchObject::getRequestChannel(const QString &urlString)
 {
@@ -192,13 +171,33 @@ void TwitchObject::getRequestHost(const QString &urlString)
 
     QNetworkRequest req ( url );
     req.setRawHeader( "User-Agent" , this->userAgentStr.toStdString().c_str());
-    req.setRawHeader("Accept", "application/vnd.twitchtv.v3+json");
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded" );
+    req.setRawHeader("Accept", this->api->getRequestHeader_Accept().toStdString().c_str());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, this->api->getRequestHeader_ContentTypeHeader().toStdString().c_str());
 
     QNetworkReply *reply = nwManager->get(req);
     QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseTwitchNetworkResponseHost()));
 
     // TODO: implement timeout handling
+}
+
+void TwitchObject::getRequest(const QString &urlString, QString callingFuncName, QHash<QString, QString> getParams)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("User-Agent" , this->userAgentStr.toStdString().c_str());
+    req.setRawHeader("Accept", this->api->getRequestHeader_Accept().toStdString().c_str());
+    req.setRawHeader("Client-ID", this->getTwitchClientId().toStdString().c_str());
+    req.setRawHeader("Authorization", "OAuth "+this->oAuthToken.toLatin1());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, this->api->getRequestHeader_ContentTypeHeader().toStdString().c_str());
+
+    QNetworkReply *reply = nwManager->get(req);
+
+    netReplies[reply] = callingFuncName;
+    netParams[reply] = getParams;
+
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseNetworkResponse()));
+
 }
 
 void TwitchObject::getRequestUser(const QString &urlString, QString callingFuncName)
@@ -268,6 +267,34 @@ void TwitchObject::putRequestUser(const QString &urlString, QHash<QString, QStri
 
 }
 
+void TwitchObject::putRequest(const QString &urlString, QString callingFuncName, QHash<QString, QString> setParams)
+{
+    QUrl url ( urlString );
+    QUrlQuery query(url);
+
+    for (QHash<QString, QString>::iterator iter = setParams.begin(); iter != setParams.end(); ++iter) {
+
+        query.addQueryItem(iter.key(),iter.value());
+    }
+
+    url.setQuery(query);
+
+    QNetworkRequest req ( url );
+
+    req.setRawHeader("User-Agent" , this->userAgentStr.toStdString().c_str());
+    req.setRawHeader("Accept", this->api->getRequestHeader_Accept().toStdString().c_str());
+    req.setRawHeader("Client-ID", this->getTwitchClientId().toStdString().c_str());
+    req.setRawHeader("Authorization", "OAuth "+this->oAuthToken.toLatin1());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, this->api->getRequestHeader_ContentTypeHeader().toStdString().c_str());
+
+    QNetworkReply *reply = nwManager->put(req, url.toEncoded());
+
+    netReplies[reply] = callingFuncName;
+
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseNetworkResponse()));
+
+}
+
 void TwitchObject::delRequestUser(const QString &urlString, QString callingFuncName)
 {
 
@@ -323,64 +350,7 @@ void TwitchObject::parseTwitchNetworkResponseHost()
     }
 }
 
-void TwitchObject::parseTwitchNetworkResponseUser()
-{
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    
-    QString callingFuncName = "";
-    
-    callingFuncName = netReplies[reply];
-    
-    if(reply) {
-        if ( reply->error() != QNetworkReply::NoError ) {
-            //emit networkError( reply->errorString() );
-            
-            if (callingFuncName == "TwitchObject::getUserFollowedChannels") {
-                emit twitchNetworkErrorUserFollowedChannels( reply->errorString() );
-            } else if (callingFuncName == "TwitchObject::followChannelUser") {
-                emit twitchNetworkErrorUserFollowChannel( reply->errorString() );
-            } else if (callingFuncName == "TwitchObject::unfollowChannelUser") {
-                emit twitchNetworkErrorUserUnfollowChannel( reply->errorString() );
-            } else if (callingFuncName == "TwitchObject::getUserAuthenticationStatus") {
-                emit twitchNetworkErrorUserAuthenticationStatus( reply->errorString() );
-            }
-                       
-            genericHelper::log( QString(Q_FUNC_INFO) + "(" + callingFuncName + ")" + QString(": ") + reply->errorString());
-            
-            reply->abort();
-            reply->deleteLater();
-            netReplies.remove(reply);
 
-            return;
-        }
-
-        QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
-
-        if (callingFuncName == "TwitchObject::getUserFollowedChannels") {
-            emit twitchReadyUserFollowedChannels( json_buffer );
-        } else if (callingFuncName == "TwitchObject::followChannelUser") {
-            emit twitchReadyUserFollowChannel( json_buffer );
-        } else if (callingFuncName == "TwitchObject::unfollowChannelUser") {
-            emit twitchReadyUserUnfollowChannel( json_buffer );
-        } else if (callingFuncName == "TwitchObject::getUserAuthenticationStatus") {
-            emit twitchReadyUserAuthenticationStatus( json_buffer );
-        } else if (callingFuncName == "TwitchObject::setUserStatusAndGameTitle") {
-            emit twitchReadyUserSetStatusAndGameTitle ( json_buffer );
-        }
-        
-
-        genericHelper::log( QString(Q_FUNC_INFO) + QString(": Success"));
-        
-        reply->deleteLater();
-        netReplies.remove(reply);
-        
-    } else {
-        genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + "reply is NULL");
-    }
-    qDebug() << "Pending Replys: "  << this->getPendingReplyCount();
-    
-    
-}
 
 void TwitchObject::parseTwitchNetworkResponseClientId()
 {

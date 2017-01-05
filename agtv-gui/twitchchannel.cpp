@@ -393,6 +393,11 @@ void TwitchChannel::requestHostedPlaylist()
     this->getChannelAccessToken(this->getHostedChannel());
 }
 
+void TwitchChannel::parseNetworkResponse()
+{
+
+}
+
 void TwitchChannel::downloadUrl(QUrl url)
 {
     QNetworkRequest req (url);

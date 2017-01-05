@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>463</width>
-    <height>197</height>
+    <width>489</width>
+    <height>339</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,21 +17,129 @@
    <iconset resource="agtv.qrc">
     <normaloff>:/images/agtv_32.png</normaloff>:/images/agtv_32.png</iconset>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QPushButton" name="pushButtonRestore">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="7" column="1">
+    <widget class="QLabel" name="labelUsername">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(91, 32, 68);</string>
+     </property>
      <property name="text">
-      <string>Restore ...</string>
+      <string>&lt;NONE&gt;</string>
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QPushButton" name="pushButtonAuthorizeOnTwitch">
-     <property name="toolTip">
-      <string>Authorize this on twitch.tv</string>
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
      </property>
      <property name="text">
-      <string>Authorize via Browser...</string>
+      <string>Email</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Username</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QLabel" name="labelEmail">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(91, 32, 68);</string>
+     </property>
+     <property name="text">
+      <string>&lt;NONE&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Bio</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QLabel" name="labelUserid">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(91, 32, 68);</string>
+     </property>
+     <property name="text">
+      <string>&lt;NONE&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Userid</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QLabel" name="label_8">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Created at</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QPushButton" name="pushButtonRevoke">
+     <property name="toolTip">
+      <string>Revoke twitcher permissions from twitch.tv</string>
+     </property>
+     <property name="text">
+      <string>Revoke</string>
      </property>
      <property name="icon">
       <iconset resource="agtv.qrc">
@@ -39,7 +147,18 @@
      </property>
     </widget>
    </item>
-   <item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QPushButton" name="pushButtonVerify">
+     <property name="text">
+      <string>Verify</string>
+     </property>
+     <property name="icon">
+      <iconset resource="agtv.qrc">
+       <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
     <widget class="QLineEdit" name="lineEditOAuthToken">
      <property name="toolTip">
       <string>&lt;&lt; Paste Token &gt;&gt;</string>
@@ -58,24 +177,13 @@
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QPushButton" name="pushButtonVerify">
-     <property name="text">
-      <string>Verify</string>
-     </property>
-     <property name="icon">
-      <iconset resource="agtv.qrc">
-       <normaloff>:/images/twitch.png</normaloff>:/images/twitch.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="pushButtonRevoke">
+   <item row="1" column="0" colspan="2">
+    <widget class="QPushButton" name="pushButtonAuthorizeOnTwitch">
      <property name="toolTip">
-      <string>Revoke twitcher permissions from twitch.tv</string>
+      <string>Authorize this on twitch.tv</string>
      </property>
      <property name="text">
-      <string>Revoke</string>
+      <string>Authorize via Browser...</string>
      </property>
      <property name="icon">
       <iconset resource="agtv.qrc">
@@ -83,14 +191,14 @@
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="0" column="0" colspan="2">
+    <widget class="QPushButton" name="pushButtonRestore">
+     <property name="text">
+      <string>Restore ...</string>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="13" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="pushButtonSave">
@@ -113,6 +221,50 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QLabel" name="labelBio">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(91, 32, 68);</string>
+     </property>
+     <property name="text">
+      <string>&lt;NONE&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1">
+    <widget class="QLabel" name="labelCreatedat">
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(91, 32, 68);</string>
+     </property>
+     <property name="text">
+      <string>&lt;NONE&gt;</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

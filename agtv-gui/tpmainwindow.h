@@ -57,7 +57,8 @@ private slots:
     
     //void onIsAuthOkCheck(QString newOAuthToken);
 
-    void showOnStatusBar(const QString errorMsg);
+
+    void showOnStatusBar(const QString errorMsg, QHash<QString,QString> params = QHash<QString,QString>() );
 
     void twitchApiNetworkError(QString error);
 
@@ -83,6 +84,8 @@ private slots:
     void on_actionReport_Bug_triggered();
 
     void on_actionRefresh_triggered();
+
+    void onFollowResultReturend(const QString msg, QHash<QString,QString> streamer);
 
     void myQuit();
 

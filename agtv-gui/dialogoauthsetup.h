@@ -28,7 +28,7 @@ public:
     bool getDialogShown();
   
 public slots:
-    void setCurrentStoredAuthToken(QString currentStoredAuthToken);
+    void setCurrentStoredAuthToken(QString currentStoredAuthToken, QHash <QString, QString> user);
     
 
 private slots:

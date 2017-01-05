@@ -73,6 +73,7 @@ private:
         void parseTopObject(const QJsonObject &topObject, Game *game);
         void getStreamLogo(const Stream stream);
         void getRequestStreamLogo(const QString &urlString, const QString game);
+        void parseNetworkResponse();
 private slots:
         void updateFromJsonResponseTopGames(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseStreamsForGame(const QJsonDocument &jsonResponseBuffer);

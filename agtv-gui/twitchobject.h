@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QSignalMapper>
 #include <QUrlQuery>
+#include "twitchapi.h"
 
 //!  Base class for the Twitch API interface
 /*!
@@ -49,16 +50,10 @@ class TwitchObject : public QObject
         /*!
           \param channelId the channel id to which the request should be sent
         */
-        void getUserFollowedChannels(QString user);
-        //! Fires a user request to the Twitch API
-        /*!
 
-        */
-        void followChannelUser(QString channelName, QString user);
 
-        void unfollowChannelUser(QString channelName, QString user);
         
-        void getUserAuthenticationStatus();
+
 
         void getHost(QString channelId);
 
@@ -87,7 +82,30 @@ public slots:
         virtual void on_timedUpdate() = 0;
 
     protected:
+        twitchApi *api;
+
+        QMap<QNetworkReply*, QString> netReplies;
+        QMap<QNetworkReply*, QHash<QString, QString> > netParams;
+
         void setupTimer();
+
+
+
+        qint64 getPendingReplyCount();
+
+        void getRequestStream(const QString &urlString);
+        void getRequestChannel(const QString &urlString);
+        void getRequestHost(const QString &urlString);
+        void getRequestUser(const QString &urlString, QString callingFuncName);
+        void getRequest(const QString &urlString, QString callingFuncName, QHash<QString, QString> getParams = QHash<QString, QString>());
+        void putRequestUser(const QString &urlString, QString callingFuncName);
+        void putRequestUser(const QString &urlString, QHash<QString, QString> setParams, QString callingFuncName);
+        void putRequest(const QString &urlString, QString callingFuncName, QHash<QString, QString> setParams = QHash<QString, QString>() );
+        void delRequestUser(const QString &urlString, QString callingFuncName);
+        void getRequestClientId(const QString &urlString);
+        void getRequestTopGames(const QString &urlString);
+        void getRequestStreamsForGame(const QString &urlString);
+        void getRequestChannelAccessToken(const QString &urlString, const QString channel);
 
     private:
         QTimer *refreshTimer;
@@ -95,9 +113,10 @@ public slots:
         QString twitchClientId;
         QString userAgentStr;
 
+
         qint64 refreshTimerInterval;
         
-        QMap<QNetworkReply*, QString> netReplies;
+
 
         QMap<QString, QNetworkReply*> tokenReplies;
 
@@ -105,25 +124,15 @@ public slots:
 
         void setupSignalMappers();
 
-        void getRequestStream(const QString &urlString);
-        void getRequestChannel(const QString &urlString);
-        void getRequestHost(const QString &urlString);
-        void getRequestUser(const QString &urlString, QString callingFuncName);
-        void putRequestUser(const QString &urlString, QString callingFuncName);
-        void putRequestUser(const QString &urlString, QHash<QString, QString> setParams, QString callingFuncName);
-        void delRequestUser(const QString &urlString, QString callingFuncName);
-        void getRequestClientId(const QString &urlString);
-        void getRequestTopGames(const QString &urlString);
-        void getRequestStreamsForGame(const QString &urlString);
-        void getRequestChannelAccessToken(const QString &urlString, const QString channel);
 
-        qint64 getPendingReplyCount();
+
+protected slots:
+        virtual void parseNetworkResponse() = 0;
 
 private slots:
         void parseTwitchNetworkResponseStream();
         void parseTwitchNetworkResponseChannel();
         void parseTwitchNetworkResponseHost();
-        void parseTwitchNetworkResponseUser();
         void parseTwitchNetworkResponseClientId();
         void parseNetworkResponseTopGames();
         void parseNetworkResponseStreamsForGame();
@@ -142,6 +151,7 @@ signals:
         void twitchReadyUserFollowedChannels( const QJsonDocument &twitchAsJSON );
         void twitchReadyUserFollowChannel( const QJsonDocument &twitchAsJSON );
         void twitchReadyUserUnfollowChannel( const QJsonDocument &twitchAsJSON );
+        void twitchReadyGetStreamer( const QJsonDocument &twitchAsJSON, QString lookedupstreamer);
         void twitchReadyUserSetStatusAndGameTitle ( const QJsonDocument &twitchAsJSON );
         void twitchReadyUserAuthenticationStatus( const QJsonDocument &twitchAsJSON );
         void twitchReadyTopGames( const QJsonDocument &twitchAsJSON );

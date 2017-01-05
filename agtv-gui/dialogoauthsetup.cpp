@@ -44,8 +44,9 @@ bool dialogOauthSetup::getDialogShown()
     
 }
 
-void dialogOauthSetup::setCurrentStoredAuthToken(QString currentStoredAuthToken)
+void dialogOauthSetup::setCurrentStoredAuthToken(QString currentStoredAuthToken, QHash<QString,QString> user)
 {
+
    if ((currentStoredAuthToken == "<NONE>") || (currentStoredAuthToken == "") ) {
        this->ui->lineEditOAuthToken->setPlaceholderText("<< Paste token HERE >>");
        this->ui->pushButtonRestore->setHidden(false);
@@ -53,6 +54,12 @@ void dialogOauthSetup::setCurrentStoredAuthToken(QString currentStoredAuthToken)
    } else {   
     this->ui->lineEditOAuthToken->setText(currentStoredAuthToken);
    }
+
+   this->ui->labelUsername->setText(user["name"]);
+   this->ui->labelUserid->setText(user["id"]);
+   this->ui->labelEmail->setText(user["email"]);
+   this->ui->labelBio->setText(user["bio"]);
+   this->ui->labelCreatedat->setText(user["created_at"]);
 }
 
 void dialogOauthSetup::on_pushButtonAuthorizeOnTwitch_clicked()
