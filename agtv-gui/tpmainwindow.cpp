@@ -155,7 +155,7 @@ void tpMainWindow::setupTwitchApi()
     QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelSuccess(const QString)), this, SLOT(updateOnUnfollow(const QString)));
     QObject::connect(twitchUser, SIGNAL(twitchUnfollowChannelError(const QString)), this, SLOT(showOnStatusBar(const QString)));
     QObject::connect(twitchUser, SIGNAL(twitchStreamerIdLookupError(const QString, QHash<QString,QString>)), this, SLOT(showOnStatusBar(const QString, QHash<QString,QString>)));
-    QObject::connect(twitchUser, SIGNAL(twitchStreamerIdLookupSuccess(const QString, QHash<QString,QString>)), this, SLOT(onFollowResultReturend(const QString, QHash<QString,QString>)));
+
 
 }
 
@@ -682,7 +682,7 @@ void tpMainWindow::addFollow()
     QString _text = QInputDialog::getText(this, tr("Follow Channel"), tr("Enter Channel URL or name"), QLineEdit::Normal,"");
     QString _streamer = genericHelper::streamURLParser(_text);
 
-    twitchUser->getStreamerId(_streamer);
+
 
     if (!_streamer.isEmpty()) {
         twitchUser->followChannel(_streamer);
@@ -1022,10 +1022,6 @@ void tpMainWindow::on_actionRefresh_triggered()
     //this->loadData();
 }
 
-void tpMainWindow::onFollowResultReturend(const QString msg, QHash<QString, QString> streamer)
-{
-    qDebug() << "onFollowResultReturendonFollowResultReturendonFollowResultReturendonFollowResultReturend";
-}
 
 void tpMainWindow::on_actionOptions_triggered()
 {

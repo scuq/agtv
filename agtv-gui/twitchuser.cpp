@@ -38,6 +38,10 @@ TwitchUser::TwitchUser(QObject *parent, const QString oAuthToken, const QString 
      QObject::connect(this, SIGNAL(twitchNetworkErrorUserUnfollowChannel(QString)), this, SLOT(onTwitchNetworkErrorUserUnfollowChannel(QString)));
      
      QObject::connect(this, SIGNAL(twitchNetworkErrorUserAuthenticationStatus(QString)), this, SLOT(onTwitchNetworkErrorUserAuthenticationStatus(QString)));
+
+     QObject::connect(this, SIGNAL(twitchFollowChannelByIdError(QString)), this, SLOT(onTwitchFollowChannelByIdError(QString)));
+
+     QObject::connect(this, SIGNAL(twitchFollowChannelByIdReady(QString,QHash<QString,QString>)), this, SLOT(onTwitchFollowChannelByIdReady(QString,QHash<QString,QString>)));
      
      QObject::connect(this, SIGNAL(authCheckSuccessfull()), this, SLOT(onAuthCheckSuccessfull()));
          
@@ -72,7 +76,8 @@ void TwitchUser::on_timedUpdate()
 
 void TwitchUser::followChannel(QString channelName)
 {
-    this->followChannelUser(channelName,user);
+    this->getId(channelName, TwitchObject::SearchEndpoint::Channels, "TwitchUser::followChannel");
+
 }
 
 void TwitchUser::unfollowChannel(QString channelName)
@@ -102,21 +107,15 @@ void TwitchUser::getUserFollowedChannels(QHash<QString, QString> user)
     this->getRequest(apiUrls_Users["GetUserFollows"], "TwitchObject::getUserFollowedChannels");
 }
 
-void TwitchUser::getStreamerId(QString streamer)
-{
-    QHash<QString,QString> _streamer;
-    _streamer["streamer"] = streamer;
-    this->getRequest(apiUrls_Users["SearchChannels"].replace("%STREAMER%",streamer), "TwitchObject::getStreamer", _streamer);
-}
 
 void TwitchUser::getUserAuthenticationStatus()
 {
     this->getRequest(apiUrls_Users["GetUser"], "TwitchObject::getUserAuthenticationStatus");
 }
 
-void TwitchUser::followChannelUser(QString channelName, QHash<QString, QString> user)
+void TwitchUser::followChannelUser(QString channelId, QHash<QString, QString> user)
 {
-    this->getRequest(apiUrls_Users["FollowChannel"].replace("%CHANNEL%",channelName), "TwitchObject::followChannelUser");
+    this->putRequest(apiUrls_Users["FollowChannel"].replace("%CHANNELID%",channelId), "TwitchObject::followChannelUser");
 }
 
 void TwitchUser::unfollowChannelUser(QString channelName, QHash<QString, QString> user)
@@ -296,49 +295,7 @@ void TwitchUser::updateFromJsonResponseUserAuthenticationStatus(const QJsonDocum
 
 }
 
-void TwitchUser::updateFromJsonResponseGetStreamer(const QJsonDocument &jsonResponseBuffer, QString lookedupstreamer)
-{
 
-    QHash<QString,QString> streamer;
-    bool found = false;
-
-    if (jsonResponseBuffer.isEmpty()) {
-
-        emit twitchStreamerIdLookupError("streamer "+lookedupstreamer+" not found.",streamer);
-    } else {
-        QJsonObject jsonObject = jsonResponseBuffer.object();
-
-
-        if (!jsonObject["channels"].isNull()) {
-
-
-
-            for(int i=0;i<jsonObject["channels"].toArray().count();i++)
-            {
-
-                if (jsonObject["channels"].toArray().at(i).toObject()["name"].toString() == lookedupstreamer) {
-                    if (!jsonObject["channels"].toArray().at(i).toObject()["_id"].isNull()) {
-                        streamer["id"] = QString::number(jsonObject["channels"].toArray().at(i).toObject()["_id"].toDouble(),'g',10);
-                    }
-                    if (!jsonObject["channels"].toArray().at(i).toObject()["name"].isNull()) {
-                        streamer["name"] = jsonObject["channels"].toArray().at(i).toObject()["name"].toString();
-                    }
-                    found = true;
-                    emit twitchStreamerIdLookupSuccess("streamer "+lookedupstreamer+" found.",streamer);
-                }
-
-            }
-
-        }
-        if (found == false) {
-            emit twitchStreamerIdLookupError("streamer "+lookedupstreamer+" not found.",streamer);
-        }
-
-
-
-    }
-
-}
 
 void TwitchUser::onAuthCheckSuccessfull()
 {
@@ -393,10 +350,18 @@ void TwitchUser::onTwitchNetworkErrorUserAuthenticationStatus(const QString erro
     
 }
 
-void TwitchUser::twitchNetworkErrorGetStreamer(const QString errorString)
+void TwitchUser::onTwitchFollowChannelByIdError(const QString errorString)
 {
-     qDebug() << errorString;
+    qDebug() << errorString;
 }
+
+void TwitchUser::onTwitchFollowChannelByIdReady(const QString errorString, QHash<QString, QString> result)
+{
+
+    this->followChannelUser(result["id"],user);
+
+}
+
 
 void TwitchUser::parseNetworkResponse()
 {
@@ -405,7 +370,7 @@ void TwitchUser::parseNetworkResponse()
     QString callingFuncName = "";
 
     callingFuncName = netReplies[reply];
-    QHash<QString,QString> params = netParams[reply];
+    QHash<QString,QString> params = parseParams[reply];
 
     if(reply) {
         if ( reply->error() != QNetworkReply::NoError ) {
@@ -419,8 +384,6 @@ void TwitchUser::parseNetworkResponse()
                 emit twitchNetworkErrorUserUnfollowChannel( reply->errorString() );
             } else if (callingFuncName == "TwitchObject::getUserAuthenticationStatus") {
                 emit twitchNetworkErrorUserAuthenticationStatus( reply->errorString() );
-            } else if (callingFuncName == "TwitchObject::getStreamer") {
-                emit twitchNetworkErrorGetStreamer( reply->errorString() );
             }
 
             genericHelper::log( QString(Q_FUNC_INFO) + "(" + callingFuncName + ")" + QString(": ") + reply->errorString());

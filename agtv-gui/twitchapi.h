@@ -11,6 +11,7 @@ public:
     explicit twitchApi(QObject *parent = 0, const QString apiVersion = "v5");
 
     QHash<QString, QString> getApiUrls_Users(QHash<QString, QString> user);
+    QHash<QString, QString> getApiUrls_Search(QString querystr);
 
     QString getRequestHeader_Accept();
 

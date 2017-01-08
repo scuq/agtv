@@ -85,7 +85,7 @@ private slots:
 
     void on_actionRefresh_triggered();
 
-    void onFollowResultReturend(const QString msg, QHash<QString,QString> streamer);
+
 
     void myQuit();
 

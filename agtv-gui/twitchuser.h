@@ -35,11 +35,11 @@ class TwitchUser : public TwitchObject
 
         void getUserFollowedChannels(QHash<QString,QString> user);
 
-        void getStreamerId(QString streamer);
+
 
         void getUserAuthenticationStatus();
 
-        void followChannelUser(QString channelName, QHash<QString,QString> user);
+        void followChannelUser(QString channelId, QHash<QString,QString> user);
 
         void unfollowChannelUser(QString channelName, QHash<QString,QString> user);
 
@@ -67,7 +67,7 @@ class TwitchUser : public TwitchObject
         void updateFromJsonResponseUserUnfollowChannel(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseUserSetStatusAndGameTitle(const QJsonDocument &jsonResponseBuffer);
         void updateFromJsonResponseUserAuthenticationStatus(const QJsonDocument &jsonResponseBuffer);
-        void updateFromJsonResponseGetStreamer(const QJsonDocument &jsonResponseBuffer, QString lookedupstreamer);
+
         void onAuthCheckSuccessfull();
         void validateNewAuthToken(QString newOAuthToken);
         void onAuthTokenSetupSuccessful(bool);
@@ -76,7 +76,8 @@ class TwitchUser : public TwitchObject
         void onTwitchNetworkErrorUserFollowChannel(const QString errorString);
         void onTwitchNetworkErrorUserUnfollowChannel(const QString errorString);
         void onTwitchNetworkErrorUserAuthenticationStatus(const QString errorString);
-        void twitchNetworkErrorGetStreamer(const QString errorString);
+        void onTwitchFollowChannelByIdError(const QString errorString);
+        void onTwitchFollowChannelByIdReady(const QString errorString, QHash<QString,QString> result);
 
 
 

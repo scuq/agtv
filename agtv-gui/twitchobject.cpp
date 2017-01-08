@@ -15,6 +15,8 @@ TwitchObject::TwitchObject(QObject *parent, QString token, const qint64 defaultT
 
     this->refreshTimerInterval = defaultTimerInterval;
     this->refreshTimer = new QTimer(this);
+
+    QObject::connect(this, SIGNAL(twitchReadySearch(QJsonDocument,TwitchObject::SearchEndpoint,QHash<QString,QString>)), this, SLOT(updateFromJsonResponseGetSearch(QJsonDocument,TwitchObject::SearchEndpoint,QHash<QString,QString>)));
 }
 
 void TwitchObject::setupSignalMappers()
@@ -24,10 +26,70 @@ void TwitchObject::setupSignalMappers()
             this, SLOT(parseNetworkResponseChannelAccessToken(QString)));
 }
 
+void TwitchObject::parseNetworkResponseSearch()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+
+    QString callingFuncName = "";
+
+    callingFuncName = netReplies[reply];
+    QHash<QString,QString> params = parseParams[reply];
+
+    if(reply) {
+        if ( reply->error() != QNetworkReply::NoError ) {
+            //emit networkError( reply->errorString() );
+
+            if (callingFuncName == "TwitchObject::TwitchObject::getIdChannel") {
+                emit twitchNetworkErrorSearch( reply->errorString() );
+            }
+
+            genericHelper::log( QString(Q_FUNC_INFO) + "(" + callingFuncName + ")" + QString(": ") + reply->errorString());
+
+            reply->abort();
+            reply->deleteLater();
+            netReplies.remove(reply);
+
+            return;
+        }
+
+        QJsonDocument json_buffer = QJsonDocument::fromJson(reply->readAll());
+
+        if (callingFuncName == "TwitchObject::getIdChannel") {
+            emit twitchReadySearch( json_buffer,  TwitchObject::SearchEndpoint::Channels, params);
+        }
+
+        genericHelper::log( QString(Q_FUNC_INFO) + QString(": Success"));
+
+        reply->deleteLater();
+        netReplies.remove(reply);
+
+    } else {
+        genericHelper::log( QString(Q_FUNC_INFO) + QString(": ") + "reply is NULL");
+    }
+    qDebug() << "Pending Replys: "  << this->getPendingReplyCount();
+}
+
 void TwitchObject::setupTimer()
 {
     QObject::connect(refreshTimer, SIGNAL(timeout()), this, SLOT(on_timedUpdate()));
     this->refreshTimer->start(this->refreshTimerInterval);
+}
+
+void TwitchObject::getId(QString querystr, TwitchObject::SearchEndpoint searchEndpoint, QString callingFuncName)
+{
+    apiUrls_Search = this->api->getApiUrls_Search(querystr);
+
+    QHash<QString,QString> _parseParams;
+
+    _parseParams["callingFuncName"] = callingFuncName;
+    _parseParams["operation"] = "compare";
+    _parseParams["operator"]  = "eq";
+    _parseParams["key"]       = "name";
+    _parseParams["value"]     = querystr;
+
+    if (searchEndpoint == TwitchObject::SearchEndpoint::Channels) {
+        this->getRequestSearch(apiUrls_Search["Channels"], "TwitchObject::getIdChannel", _parseParams);
+    }
 }
 
 void TwitchObject::setInterval(qint64 msec)
@@ -180,7 +242,7 @@ void TwitchObject::getRequestHost(const QString &urlString)
     // TODO: implement timeout handling
 }
 
-void TwitchObject::getRequest(const QString &urlString, QString callingFuncName, QHash<QString, QString> getParams)
+void TwitchObject::getRequest(const QString &urlString, QString callingFuncName, QHash<QString, QString> parseParams)
 {
     QUrl url ( urlString );
 
@@ -193,10 +255,32 @@ void TwitchObject::getRequest(const QString &urlString, QString callingFuncName,
 
     QNetworkReply *reply = nwManager->get(req);
 
-    netReplies[reply] = callingFuncName;
-    netParams[reply] = getParams;
+    this->netReplies[reply] = callingFuncName;
+    this->parseParams[reply] = parseParams;
 
     QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseNetworkResponse()));
+
+}
+
+
+
+void TwitchObject::getRequestSearch(const QString &urlString, QString callingFuncName, QHash<QString, QString> parseParams)
+{
+    QUrl url ( urlString );
+
+    QNetworkRequest req ( url );
+    req.setRawHeader("User-Agent" , this->userAgentStr.toStdString().c_str());
+    req.setRawHeader("Accept", this->api->getRequestHeader_Accept().toStdString().c_str());
+    req.setRawHeader("Client-ID", this->getTwitchClientId().toStdString().c_str());
+    req.setRawHeader("Authorization", "OAuth "+this->oAuthToken.toLatin1());
+    req.setHeader(QNetworkRequest::ContentTypeHeader, this->api->getRequestHeader_ContentTypeHeader().toStdString().c_str());
+
+    QNetworkReply *reply = nwManager->get(req);
+
+    this->netReplies[reply] = callingFuncName;
+    this->parseParams[reply] = parseParams;
+
+    QObject::connect(reply, SIGNAL(finished()), this, SLOT(parseNetworkResponseSearch()));
 
 }
 
@@ -491,4 +575,51 @@ void TwitchObject::parseNetworkResponseChannelAccessToken(const QString channel)
     } else {
         genericHelper::log( QString(Q_FUNC_INFO) + QString(": Cannot retrieve reply for channel ") + channel);
     }
+}
+
+void TwitchObject::updateFromJsonResponseGetSearch(const QJsonDocument &jsonResponseBuffer, TwitchObject::SearchEndpoint SearchEndpoint, QHash<QString, QString> params)
+{
+    QHash<QString,QString> result;
+    bool found = false;
+
+    if (params["callingFuncName"] == "TwitchUser::followChannel") {
+
+        if (jsonResponseBuffer.isEmpty()) {
+
+            emit twitchFollowChannelByIdError("channel "+params["value"] +" not found.");
+
+        } else {
+
+            QJsonObject jsonObject = jsonResponseBuffer.object();
+
+            if (!jsonObject["channels"].isNull()) {
+
+                for(int i=0;i<jsonObject["channels"].toArray().count();i++)
+                {
+                    QJsonObject keyObject = jsonObject["channels"].toArray().at(i).toObject();
+
+                    if (keyObject[params["key"]].toString() == params["value"]) {
+                        if (!keyObject["_id"].isNull()) {
+                            result["id"] = QString::number(keyObject["_id"].toDouble(),'g',10);
+                        }
+                        if (!keyObject["name"].isNull()) {
+                            result["name"] = keyObject["name"].toString();
+                        }
+                        found = true;
+                        emit twitchFollowChannelByIdReady("channel "+params["value"]+" found.",result);
+                    }
+
+                }
+
+            }
+
+
+        }
+
+    }
+
+
+
+
+
 }
